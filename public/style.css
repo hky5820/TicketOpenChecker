@@ -1334,6 +1334,10 @@ p {
     grid-column: auto;
   }
 
+  .status-strip {
+    display: none;
+  }
+
   .status-strip,
   .side-panel {
     grid-column: auto;

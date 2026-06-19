@@ -1,0 +1,16 @@
+{
+  "name": "ticket-open-checker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calendar view for ticket opening schedules",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "export": "node scripts/export.js",
+    "install-browser": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "playwright": "^1.58.2"
+  }
+}

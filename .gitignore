@@ -1,0 +1,8 @@
+node_modules/
+chrome-profile/
+debug-profile/
+.playwright-mcp/
+output/
+*.log
+*.err.log
+storage-state.json

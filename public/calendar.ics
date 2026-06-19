@@ -1,0 +1,818 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//TicketOpenChecker//Ticket Open Calendar//KO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Ticket Open Checker
+X-WR-TIMEZONE:Asia/Seoul
+BEGIN:VEVENT
+UID:melon|2026 ONE HOUR 7월|2026-06-19|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T090000Z
+DTEND:20260619T093000Z
+SUMMARY:[멜론 티켓] 2026 ONE HOUR 7월
+DESCRIPTION:2026-06-19 18:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|경이로운 금요일 : Rebel Week | 스내피돌 X 언더플로우 X 채소현|2026-06-19|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T090000Z
+DTEND:20260619T093000Z
+SUMMARY:[멜론 티켓] 경이로운 금요일 : Rebel Week | 스내피돌 X 언더플로우 X 채소현
+DESCRIPTION:2026-06-19 18:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|전종혁 첫 번 째 미니 콘서트 [연정] - 부산|2026-06-19|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T090000Z
+DTEND:20260619T093000Z
+SUMMARY:[NOL 티켓] 전종혁 첫 번 째 미니 콘서트 [연정] - 부산
+DESCRIPTION:2026-06-19 18:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|JAURIM CONCERT IN JAPAN 2026 ~LIFE! X TOKYO~|2026-06-19|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T090000Z
+DTEND:20260619T093000Z
+SUMMARY:[NOL 티켓] JAURIM CONCERT IN JAPAN 2026 ~LIFE! X TOKYO~
+DESCRIPTION:2026-06-19 18:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 광주>​|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 광주>​
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65165
+URL:https://m.ticketlink.co.kr/help/notice/65165
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 구미>​|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 구미>​
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65167
+URL:https://m.ticketlink.co.kr/help/notice/65167
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 당진>​|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 당진>​
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65168
+URL:https://m.ticketlink.co.kr/help/notice/65168
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] 2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 인천>|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] 2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 인천>
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65169
+URL:https://m.ticketlink.co.kr/help/notice/65169
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 춘천>​|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 춘천>​
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65164
+URL:https://m.ticketlink.co.kr/help/notice/65164
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 충주>​|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[티켓링크] [단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 충주>​
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65166
+URL:https://m.ticketlink.co.kr/help/notice/65166
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 PLAVE World Tour [KEEP IT MANIC] in Incheon|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[NOL 티켓] 2026 PLAVE World Tour [KEEP IT MANIC] in Incheon
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14162
+URL:https://tickets.interpark.com/contents/notice/detail/14162
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|컬러풀 스테이지 #18 플릿(FLEET)\, 리프(LIF)|2026-06-19|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T100000Z
+DTEND:20260619T103000Z
+SUMMARY:[멜론 티켓] 컬러풀 스테이지 #18 플릿(FLEET)\, 리프(LIF)
+DESCRIPTION:2026-06-19 19:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 XLOV ASIA TOUR 〈Serving-X〉 IN SEOUL|2026-06-19|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T110000Z
+DTEND:20260619T113000Z
+SUMMARY:[NOL 티켓] 2026 XLOV ASIA TOUR 〈Serving-X〉 IN SEOUL
+DESCRIPTION:2026-06-19 20:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14188
+URL:https://tickets.interpark.com/contents/notice/detail/14188
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|831 'NOBODY CAN FLY' 2026 world tour in SEOUL|2026-06-19|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T110000Z
+DTEND:20260619T113000Z
+SUMMARY:[티켓링크] 831 'NOBODY CAN FLY' 2026 world tour in SEOUL
+DESCRIPTION:2026-06-19 20:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65125
+URL:https://m.ticketlink.co.kr/help/notice/65125
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|벤치위레오 단독 콘서트 〈KICK OFF〉|2026-06-19|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T110000Z
+DTEND:20260619T113000Z
+SUMMARY:[멜론 티켓] 벤치위레오 단독 콘서트 〈KICK OFF〉
+DESCRIPTION:2026-06-19 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|엔분의일 투어 콘서트 〈2026 HIGHTENSION〉 광주|2026-06-19|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T110000Z
+DTEND:20260619T113000Z
+SUMMARY:[멜론 티켓] 엔분의일 투어 콘서트 〈2026 HIGHTENSION〉 광주
+DESCRIPTION:2026-06-19 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|TONE Studio Stay-easy Ep.6 〈은도희〉|2026-06-19|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260619T110000Z
+DTEND:20260619T113000Z
+SUMMARY:[멜론 티켓] TONE Studio Stay-easy Ep.6 〈은도희〉
+DESCRIPTION:2026-06-19 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] 2026 KIMSUNGKYU LIVE [LV4: LEAP TO VECTOR] FINAL IN BUSAN​|2026-06-22|04:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260621T190000Z
+DTEND:20260621T193000Z
+SUMMARY:[티켓링크] [단독판매] 2026 KIMSUNGKYU LIVE [LV4: LEAP TO VECTOR] FINAL IN BUSAN​
+DESCRIPTION:2026-06-22 04:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65067
+URL:https://m.ticketlink.co.kr/help/notice/65067
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|베베핀 뮤지컬 <두근두근 새친구> - 이천​|2026-06-22|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T010000Z
+DTEND:20260622T013000Z
+SUMMARY:[티켓링크] 베베핀 뮤지컬 <두근두근 새친구> - 이천​
+DESCRIPTION:2026-06-22 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65171
+URL:https://m.ticketlink.co.kr/help/notice/65171
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|우기유니의 어드벤처 쇼! - 서울|2026-06-22|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T010000Z
+DTEND:20260622T013000Z
+SUMMARY:[NOL 티켓] 우기유니의 어드벤처 쇼! - 서울
+DESCRIPTION:2026-06-22 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|우기유니의 어드벤처 쇼! - 서울|2026-06-22|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T010000Z
+DTEND:20260622T013000Z
+SUMMARY:[티켓링크] 우기유니의 어드벤처 쇼! - 서울
+DESCRIPTION:2026-06-22 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65159
+URL:https://m.ticketlink.co.kr/help/notice/65159
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|참여형 뮤지컬 <슈퍼윙스 : 초능력 곤충 대소동> - 진주|2026-06-22|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T010000Z
+DTEND:20260622T013000Z
+SUMMARY:[티켓링크] 참여형 뮤지컬 <슈퍼윙스 : 초능력 곤충 대소동> - 진주
+DESCRIPTION:2026-06-22 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65179
+URL:https://m.ticketlink.co.kr/help/notice/65179
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|황수지 피아노 독주회|2026-06-22|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T010000Z
+DTEND:20260622T013000Z
+SUMMARY:[NOL 티켓] 황수지 피아노 독주회
+DESCRIPTION:2026-06-22 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 어린이 베스트셀러 뮤지컬 〈사과가쿵!〉 - 고양|2026-06-22|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T020000Z
+DTEND:20260622T023000Z
+SUMMARY:[NOL 티켓] 2026 어린이 베스트셀러 뮤지컬 〈사과가쿵!〉 - 고양
+DESCRIPTION:2026-06-22 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|어린이뮤지컬 〈콧구멍을 후비면〉 - 광주|2026-06-22|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T020000Z
+DTEND:20260622T023000Z
+SUMMARY:[NOL 티켓] 어린이뮤지컬 〈콧구멍을 후비면〉 - 광주
+DESCRIPTION:2026-06-22 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|어린이뮤지컬 〈콧구멍을 후비면〉 - 김해|2026-06-22|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T020000Z
+DTEND:20260622T023000Z
+SUMMARY:[NOL 티켓] 어린이뮤지컬 〈콧구멍을 후비면〉 - 김해
+DESCRIPTION:2026-06-22 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|뮤지컬 <사칠> 1차​|2026-06-22|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T050000Z
+DTEND:20260622T053000Z
+SUMMARY:[티켓링크] 뮤지컬 <사칠> 1차​
+DESCRIPTION:2026-06-22 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65174
+URL:https://m.ticketlink.co.kr/help/notice/65174
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|이은결 30주년 〈ONE OF ONE〉 - 부산|2026-06-22|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T050000Z
+DTEND:20260622T053000Z
+SUMMARY:[NOL 티켓] 이은결 30주년 〈ONE OF ONE〉 - 부산
+DESCRIPTION:2026-06-22 14:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|이은결 30주년 < ONE OF ONE > - 부산|2026-06-22|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T050000Z
+DTEND:20260622T053000Z
+SUMMARY:[티켓링크] 이은결 30주년 < ONE OF ONE > - 부산
+DESCRIPTION:2026-06-22 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65140
+URL:https://m.ticketlink.co.kr/help/notice/65140
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|에디킴 X 케이시 콘서트 VOICE TO VOICE|2026-06-22|16:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T070000Z
+DTEND:20260622T073000Z
+SUMMARY:[NOL 티켓] 에디킴 X 케이시 콘서트 VOICE TO VOICE
+DESCRIPTION:2026-06-22 16:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|일리야 라쉬코프스키\, 라흐마니노프 3개의 피아노 협주곡 - 부산|2026-06-22|16:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T070000Z
+DTEND:20260622T073000Z
+SUMMARY:[NOL 티켓] 일리야 라쉬코프스키\, 라흐마니노프 3개의 피아노 협주곡 - 부산
+DESCRIPTION:2026-06-22 16:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan sign Event|2026-06-22|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T100000Z
+DTEND:20260622T103000Z
+SUMMARY:[멜론 티켓] 2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan sign Event
+DESCRIPTION:2026-06-22 19:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|장경민 콘서트 '숲의 소음'|2026-06-22|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T100000Z
+DTEND:20260622T103000Z
+SUMMARY:[NOL 티켓] 장경민 콘서트 '숲의 소음'
+DESCRIPTION:2026-06-22 19:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14241
+URL:https://tickets.interpark.com/contents/notice/detail/14241
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] Ensemble Stars!! DREAM LIVE Tour 10th xALL STARS!! - Seoul|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[티켓링크] [단독판매] Ensemble Stars!! DREAM LIVE Tour 10th xALL STARS!! - Seoul
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65180
+URL:https://m.ticketlink.co.kr/help/notice/65180
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​YEOSU with MyK FESTA​|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[티켓링크] [단독판매] ​YEOSU with MyK FESTA​
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65137
+URL:https://m.ticketlink.co.kr/help/notice/65137
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|[Play＆Stay] BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL + Hotels|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[NOL 티켓] [Play＆Stay] BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL + Hotels
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14006
+URL:https://tickets.interpark.com/contents/notice/detail/14006
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan Meeting|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[멜론 티켓] 2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan Meeting
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[NOL 티켓] BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|SUMMER FRAGILE SEOUL V.001|2026-06-22|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260622T110000Z
+DTEND:20260622T113000Z
+SUMMARY:[멜론 티켓] SUMMER FRAGILE SEOUL V.001
+DESCRIPTION:2026-06-22 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|[과천] 가족뮤지컬 〈로보카폴리 - 브룸스타운의 에너지를 지켜라!〉|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[NOL 티켓] [과천] 가족뮤지컬 〈로보카폴리 - 브룸스타운의 에너지를 지켜라!〉
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[과천] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[티켓링크] [과천] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65178
+URL:https://m.ticketlink.co.kr/help/notice/65178
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] [경주] 한국수력원자력 프리미어 <조성진 피아노 리사이틀>|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[티켓링크] [단독판매] [경주] 한국수력원자력 프리미어 <조성진 피아노 리사이틀>
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65017
+URL:https://m.ticketlink.co.kr/help/notice/65017
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[여수] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>​|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[티켓링크] [여수] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>​
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65177
+URL:https://m.ticketlink.co.kr/help/notice/65177
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|싱어롱뮤지컬 브레드이발소 〈브레드와 윌크의 세계여행〉 - 창원|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[NOL 티켓] 싱어롱뮤지컬 브레드이발소 〈브레드와 윌크의 세계여행〉 - 창원
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|싱어롱뮤지컬 브레드이발소 <브레드와 윌크의 세계여행> - 창원​|2026-06-23|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T010000Z
+DTEND:20260623T013000Z
+SUMMARY:[티켓링크] 싱어롱뮤지컬 브레드이발소 <브레드와 윌크의 세계여행> - 창원​
+DESCRIPTION:2026-06-23 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65172
+URL:https://m.ticketlink.co.kr/help/notice/65172
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] 동락관 개관 10주년 기념콘서트 시즌I 소란 - 안동​|2026-06-23|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T020000Z
+DTEND:20260623T023000Z
+SUMMARY:[티켓링크] [단독판매] 동락관 개관 10주년 기념콘서트 시즌I 소란 - 안동​
+DESCRIPTION:2026-06-23 11:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65162
+URL:https://m.ticketlink.co.kr/help/notice/65162
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|우석훈 코미디 단편선 - 서울|2026-06-23|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T020000Z
+DTEND:20260623T023000Z
+SUMMARY:[NOL 티켓] 우석훈 코미디 단편선 - 서울
+DESCRIPTION:2026-06-23 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 대전|2026-06-23|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T020000Z
+DTEND:20260623T023000Z
+SUMMARY:[NOL 티켓] 이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 대전
+DESCRIPTION:2026-06-23 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 부산|2026-06-23|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T020000Z
+DTEND:20260623T023000Z
+SUMMARY:[NOL 티켓] 이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 부산
+DESCRIPTION:2026-06-23 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] ​세쿠 내한 공연 (Sekou Live in Seoul)​|2026-06-23|12:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T030000Z
+DTEND:20260623T033000Z
+SUMMARY:[티켓링크] [단독판매] ​세쿠 내한 공연 (Sekou Live in Seoul)​
+DESCRIPTION:2026-06-23 12:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65149
+URL:https://m.ticketlink.co.kr/help/notice/65149
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 〈더:매직서커스〉 - 남양주|2026-06-23|12:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T030000Z
+DTEND:20260623T033000Z
+SUMMARY:[NOL 티켓] 2026 〈더:매직서커스〉 - 남양주
+DESCRIPTION:2026-06-23 12:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|입터진 라이브|2026-06-23|12:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T030000Z
+DTEND:20260623T033000Z
+SUMMARY:[티켓링크] 입터진 라이브
+DESCRIPTION:2026-06-23 12:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65185
+URL:https://m.ticketlink.co.kr/help/notice/65185
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 〈박열〉|2026-06-23|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T050000Z
+DTEND:20260623T053000Z
+SUMMARY:[NOL 티켓] 뮤지컬 〈박열〉
+DESCRIPTION:2026-06-23 14:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 〈브라더스 까라마조프〉|2026-06-23|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T050000Z
+DTEND:20260623T053000Z
+SUMMARY:[NOL 티켓] 뮤지컬 〈브라더스 까라마조프〉
+DESCRIPTION:2026-06-23 14:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|뮤지컬 <박열> 3차|2026-06-23|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T050000Z
+DTEND:20260623T053000Z
+SUMMARY:[티켓링크] 뮤지컬 <박열> 3차
+DESCRIPTION:2026-06-23 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65182
+URL:https://m.ticketlink.co.kr/help/notice/65182
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 바람으로의 여행|2026-06-23|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T050000Z
+DTEND:20260623T053000Z
+SUMMARY:[NOL 티켓] 뮤지컬 바람으로의 여행
+DESCRIPTION:2026-06-23 14:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|일리야 라쉬코프스키\, 라흐마니노프 3개의 피아노 협주곡 - 대전|2026-06-23|16:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T070000Z
+DTEND:20260623T073000Z
+SUMMARY:[NOL 티켓] 일리야 라쉬코프스키\, 라흐마니노프 3개의 피아노 협주곡 - 대전
+DESCRIPTION:2026-06-23 16:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|THE SOLUTIONS(솔루션스) 콘서트 ‘Maximizer Ⅱ’|2026-06-23|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T100000Z
+DTEND:20260623T103000Z
+SUMMARY:[NOL 티켓] THE SOLUTIONS(솔루션스) 콘서트 ‘Maximizer Ⅱ’
+DESCRIPTION:2026-06-23 19:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14270
+URL:https://tickets.interpark.com/contents/notice/detail/14270
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|인디빌리지 Vol.1 에로틱웜즈익스히비션의 어지러운 마을|2026-06-23|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T110000Z
+DTEND:20260623T113000Z
+SUMMARY:[멜론 티켓] 인디빌리지 Vol.1 에로틱웜즈익스히비션의 어지러운 마을
+DESCRIPTION:2026-06-23 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|nowhere 2|2026-06-23|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T110000Z
+DTEND:20260623T113000Z
+SUMMARY:[멜론 티켓] nowhere 2
+DESCRIPTION:2026-06-23 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|​[단독판매] 앙상블 이덴티테트 제3회 정기연주회 < 4 Colors > - 대구​|2026-06-24|00:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260623T150000Z
+DTEND:20260623T153000Z
+SUMMARY:[티켓링크] ​[단독판매] 앙상블 이덴티테트 제3회 정기연주회 < 4 Colors > - 대구​
+DESCRIPTION:2026-06-24 00:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65120
+URL:https://m.ticketlink.co.kr/help/notice/65120
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 타키포오 [몬스터 전쟁의 서막 \; 더 좀비] - 용인|2026-06-24|09:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T000000Z
+DTEND:20260624T003000Z
+SUMMARY:[NOL 티켓] 뮤지컬 타키포오 [몬스터 전쟁의 서막 \; 더 좀비] - 용인
+DESCRIPTION:2026-06-24 09:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 라이브 가족뮤지컬 〈알라딘〉 - 서울(영등포)|2026-06-24|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T010000Z
+DTEND:20260624T013000Z
+SUMMARY:[NOL 티켓] 2026 라이브 가족뮤지컬 〈알라딘〉 - 서울(영등포)
+DESCRIPTION:2026-06-24 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 뮤지컬 〈미드나잇 : 액터뮤지션〉|2026-06-24|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T020000Z
+DTEND:20260624T023000Z
+SUMMARY:[NOL 티켓] 2026 뮤지컬 〈미드나잇 : 액터뮤지션〉
+DESCRIPTION:2026-06-24 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|2026 뮤지컬 <미드나잇:액터뮤지션> 5차|2026-06-24|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T020000Z
+DTEND:20260624T023000Z
+SUMMARY:[티켓링크] 2026 뮤지컬 <미드나잇:액터뮤지션> 5차
+DESCRIPTION:2026-06-24 11:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65189
+URL:https://m.ticketlink.co.kr/help/notice/65189
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|뮤지컬 <청새치> 1차|2026-06-24|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T020000Z
+DTEND:20260624T023000Z
+SUMMARY:[티켓링크] 뮤지컬 <청새치> 1차
+DESCRIPTION:2026-06-24 11:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65181
+URL:https://m.ticketlink.co.kr/help/notice/65181
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] 국립청년극단 <헤파이스토스 로미오와 줄리엣> - 춘천|2026-06-24|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T050000Z
+DTEND:20260624T053000Z
+SUMMARY:[티켓링크] [단독판매] 국립청년극단 <헤파이스토스 로미오와 줄리엣> - 춘천
+DESCRIPTION:2026-06-24 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65193
+URL:https://m.ticketlink.co.kr/help/notice/65193
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|제물포구문화체육센터 〈2026 SUMMER FESTA with 변진섭〉|2026-06-24|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T050000Z
+DTEND:20260624T053000Z
+SUMMARY:[NOL 티켓] 제물포구문화체육센터 〈2026 SUMMER FESTA with 변진섭〉
+DESCRIPTION:2026-06-24 14:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|베르디 콘서트 오페라 〈리골레토＆아이다＆라 트라비아타〉|2026-06-24|15:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T060000Z
+DTEND:20260624T063000Z
+SUMMARY:[NOL 티켓] 베르디 콘서트 오페라 〈리골레토＆아이다＆라 트라비아타〉
+DESCRIPTION:2026-06-24 15:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|유승우 단독 공연 〈청춘의 단상〉|2026-06-24|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T090000Z
+DTEND:20260624T093000Z
+SUMMARY:[멜론 티켓] 유승우 단독 공연 〈청춘의 단상〉
+DESCRIPTION:2026-06-24 18:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|이혁정모(EHJM) 단독콘서트 ‘THE MEN’|2026-06-24|18:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T090000Z
+DTEND:20260624T093000Z
+SUMMARY:[멜론 티켓] 이혁정모(EHJM) 단독콘서트 ‘THE MEN’
+DESCRIPTION:2026-06-24 18:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|[단독판매] 2026 KIM MYUNG SOO FAN-CON < UNCHANGED >|2026-06-24|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T110000Z
+DTEND:20260624T113000Z
+SUMMARY:[티켓링크] [단독판매] 2026 KIM MYUNG SOO FAN-CON < UNCHANGED >
+DESCRIPTION:2026-06-24 20:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65161
+URL:https://m.ticketlink.co.kr/help/notice/65161
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 1차)|2026-06-24|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T110000Z
+DTEND:20260624T113000Z
+SUMMARY:[멜론 티켓] 2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 1차)
+DESCRIPTION:2026-06-24 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+URL:https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|일만 하고 놀지 않으면 바보가 된다구요!|2026-06-24|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T110000Z
+DTEND:20260624T113000Z
+SUMMARY:[멜론 티켓] 일만 하고 놀지 않으면 바보가 된다구요!
+DESCRIPTION:2026-06-24 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|RIO 단독 공연 〈Rose Water〉|2026-06-24|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260624T110000Z
+DTEND:20260624T113000Z
+SUMMARY:[멜론 티켓] RIO 단독 공연 〈Rose Water〉
+DESCRIPTION:2026-06-24 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|2026 라이브 가족뮤지컬 〈신데렐라〉 - 수원|2026-06-25|09:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T000000Z
+DTEND:20260625T003000Z
+SUMMARY:[NOL 티켓] 2026 라이브 가족뮤지컬 〈신데렐라〉 - 수원
+DESCRIPTION:2026-06-25 09:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|내 마음의 시그널 TALK CONCERT IN 인천|2026-06-25|10:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T010000Z
+DTEND:20260625T013000Z
+SUMMARY:[NOL 티켓] 내 마음의 시그널 TALK CONCERT IN 인천
+DESCRIPTION:2026-06-25 10:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 〈알사탕〉 - 서울숲|2026-06-25|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T020000Z
+DTEND:20260625T023000Z
+SUMMARY:[NOL 티켓] 뮤지컬 〈알사탕〉 - 서울숲
+DESCRIPTION:2026-06-25 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|뮤지컬 <드라큘라> 3차|2026-06-25|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T020000Z
+DTEND:20260625T023000Z
+SUMMARY:[티켓링크] 뮤지컬 <드라큘라> 3차
+DESCRIPTION:2026-06-25 11:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65184
+URL:https://m.ticketlink.co.kr/help/notice/65184
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|뮤지컬 드라큘라 (Dracula：The Musical)|2026-06-25|11:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T020000Z
+DTEND:20260625T023000Z
+SUMMARY:[NOL 티켓] 뮤지컬 드라큘라 (Dracula：The Musical)
+DESCRIPTION:2026-06-25 11:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|더 스카웃:다시 태어나는 별 STARS REBORN-서울|2026-06-25|12:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T030000Z
+DTEND:20260625T033000Z
+SUMMARY:[NOL 티켓] 더 스카웃:다시 태어나는 별 STARS REBORN-서울
+DESCRIPTION:2026-06-25 12:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|더 스카웃:다시 태어나는 별 STARS REBORN-광주|2026-06-25|13:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T040000Z
+DTEND:20260625T043000Z
+SUMMARY:[NOL 티켓] 더 스카웃:다시 태어나는 별 STARS REBORN-광주
+DESCRIPTION:2026-06-25 13:00 ticket open\\nhttps://tickets.interpark.com/contents/notice
+URL:https://tickets.interpark.com/contents/notice
+END:VEVENT
+BEGIN:VEVENT
+UID:ticketlink|​유카페카 사라스테 & 헬싱키 필하모닉 오케스트라​|2026-06-25|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T050000Z
+DTEND:20260625T053000Z
+SUMMARY:[티켓링크] ​유카페카 사라스테 & 헬싱키 필하모닉 오케스트라​
+DESCRIPTION:2026-06-25 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65144
+URL:https://m.ticketlink.co.kr/help/notice/65144
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|먼데이프로젝트 시즌9 OUR SUMMER [심재현 X 히미츠]|2026-06-25|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T110000Z
+DTEND:20260625T113000Z
+SUMMARY:[멜론 티켓] 먼데이프로젝트 시즌9 OUR SUMMER [심재현 X 히미츠]
+DESCRIPTION:2026-06-25 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|먼데이프로젝트 IN 라이브클럽 [물결 단독콘서트]|2026-06-25|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T110000Z
+DTEND:20260625T113000Z
+SUMMARY:[멜론 티켓] 먼데이프로젝트 IN 라이브클럽 [물결 단독콘서트]
+DESCRIPTION:2026-06-25 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|별은 싱글 발매기념 단독콘서트 : 여름의 향기|2026-06-25|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260625T110000Z
+DTEND:20260625T113000Z
+SUMMARY:[멜론 티켓] 별은 싱글 발매기념 단독콘서트 : 여름의 향기
+DESCRIPTION:2026-06-25 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|제22회 제천국제음악영화제 〈원 썸머 나잇 위드 케이팝 시즌 2〉 블라인드|2026-06-26|14:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260626T050000Z
+DTEND:20260626T053000Z
+SUMMARY:[멜론 티켓] 제22회 제천국제음악영화제 〈원 썸머 나잇 위드 케이팝 시즌 2〉 블라인드
+DESCRIPTION:2026-06-26 14:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#action
+URL:https://m.ticket.melon.com/public/index.html#action
+END:VEVENT
+BEGIN:VEVENT
+UID:interpark|TAKUYA KIMURA Live Tour 2026 Checkpoint in Seoul|2026-06-29|19:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260629T100000Z
+DTEND:20260629T103000Z
+SUMMARY:[NOL 티켓] TAKUYA KIMURA Live Tour 2026 Checkpoint in Seoul
+DESCRIPTION:2026-06-29 19:00 ticket open\\nhttps://tickets.interpark.com/contents/notice/detail/14058
+URL:https://tickets.interpark.com/contents/notice/detail/14058
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 2차)|2026-06-29|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260629T110000Z
+DTEND:20260629T113000Z
+SUMMARY:[멜론 티켓] 2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 2차)
+DESCRIPTION:2026-06-29 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+URL:https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY-|2026-06-30|20:00@ticket-open-checker
+DTSTAMP:20260619T070918Z
+DTSTART:20260630T110000Z
+DTEND:20260630T113000Z
+SUMMARY:[멜론 티켓] 2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY-
+DESCRIPTION:2026-06-30 20:00 ticket open\\nhttps://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+URL:https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387
+END:VEVENT
+END:VCALENDAR

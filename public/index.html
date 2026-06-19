@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>티켓 오픈 캘린더</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="compact-title">
+        <strong>티켓 오픈</strong>
+        <span>Calendar</span>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="search" autocomplete="off" placeholder="공연명으로 날짜 찾기">
+        <div id="searchSuggestions" class="search-suggestions" hidden></div>
+      </div>
+      <div class="actions">
+        <div class="view-switch" role="group" aria-label="보기 모드">
+          <button id="calendarView" class="view-button is-selected" type="button" title="캘린더 보기" aria-label="캘린더 보기" aria-pressed="true">
+            <span aria-hidden="true">▦</span>
+          </button>
+          <button id="siteView" class="view-button" type="button" title="예매처별 보기" aria-label="예매처별 보기" aria-pressed="false">
+            <span aria-hidden="true">☷</span>
+          </button>
+        </div>
+        <button id="prevMonth" class="icon-button" type="button" title="이전 달" aria-label="이전 달">‹</button>
+        <button id="today" class="text-button" type="button">오늘</button>
+        <button id="nextMonth" class="icon-button" type="button" title="다음 달" aria-label="다음 달">›</button>
+        <button id="load" class="primary-button" type="button">
+          <span class="button-icon">↻</span>
+          불러오기
+        </button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="status-strip" aria-live="polite">
+        <div class="status-head">
+          <strong>수집 현황</strong>
+          <span>실시간</span>
+        </div>
+        <div class="status-item" data-site="interpark"><strong>NOL 티켓</strong><span>대기 중</span></div>
+        <div class="status-item" data-site="melon"><strong>멜론 티켓</strong><span>대기 중</span></div>
+        <div class="status-item" data-site="ticketlink"><strong>티켓링크</strong><span>대기 중</span></div>
+      </aside>
+
+      <section class="calendar-panel">
+        <div class="month-head">
+          <h2 id="monthLabel"></h2>
+          <p id="summary">불러오기를 누르면 최신 일정이 표시됩니다.</p>
+        </div>
+        <div id="weekdayGrid" class="weekday-grid" aria-hidden="true">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+        <div id="calendar" class="calendar-grid"></div>
+        <div id="siteBoard" class="site-board" hidden></div>
+      </section>
+
+      <aside class="side-panel">
+        <div class="panel-head">
+          <h2>시간 미정</h2>
+          <span id="unknownCount">0건</span>
+        </div>
+        <div id="unknownList" class="unknown-list">
+          <p class="empty">시간이 정해지지 않은 공연이 여기에 표시됩니다.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle"></h2>
+        <button class="icon-button" type="button" data-close title="닫기" aria-label="닫기">×</button>
+      </div>
+      <div id="modalList" class="modal-list"></div>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

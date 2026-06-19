@@ -1,6 +1,9 @@
 name: Collect ticket openings
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: "0 0,3,6,9,12 * * *"

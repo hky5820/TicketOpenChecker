@@ -182,7 +182,7 @@ function saveItems() {
 
 async function loadStaticItems() {
   try {
-    const response = await fetch('/data.json', { cache: 'no-store' });
+    const response = await fetch('data.json', { cache: 'no-store' });
     if (!response.ok) return;
     const payload = await response.json();
     const items = Array.isArray(payload) ? payload : payload.items;

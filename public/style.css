@@ -1269,11 +1269,19 @@ p {
 
 @media (max-width: 860px) {
   .app {
-    width: min(100% - 24px, 760px);
+    width: min(100% - 16px, 760px);
     padding-top: 8px;
   }
 
-  .topbar,
+  .topbar {
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px 0 10px;
+    backdrop-filter: none;
+  }
+
   .month-head {
     align-items: stretch;
     flex-direction: column;
@@ -1281,11 +1289,32 @@ p {
 
   .compact-title {
     width: fit-content;
+    min-height: 36px;
+    padding: 5px 9px;
+  }
+
+  .compact-title::before {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .compact-title strong {
+    font-size: 12px;
+  }
+
+  .compact-title span {
+    font-size: 10px;
   }
 
   .search-box {
     width: 100%;
     max-width: none;
+  }
+
+  .search-box input {
+    height: 38px;
+    font-size: 12px;
   }
 
   .actions {
@@ -1321,6 +1350,11 @@ p {
 }
 
 @media (max-width: 560px) {
+  .topbar {
+    gap: 7px;
+    padding-bottom: 8px;
+  }
+
   .actions {
     gap: 6px;
   }

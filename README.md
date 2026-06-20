@@ -40,11 +40,11 @@ If `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set, new schedules are sent t
 
 The workflow also runs on a schedule:
 
-- KST 09:00
-- KST 12:00
-- KST 15:00
-- KST 18:00
-- KST 21:00
+- KST 09:17
+- KST 12:17
+- KST 15:17
+- KST 18:17
+- KST 21:17
 
 After the first successful run, open:
 

@@ -7,6 +7,9 @@ const HEADLESS = process.env.HEADLESS === '1' || process.env.CI === 'true';
 const CHROME_PROFILE_DIR = process.env.CHROME_PROFILE_DIR || path.join(__dirname, 'chrome-profile');
 const MOBILE_USER_AGENT =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+const DESKTOP_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const DESKTOP_PROFILE_DIR = process.env.DESKTOP_PROFILE_DIR || path.join(__dirname, 'chrome-profile-desktop');
 
 const SITES = [
   {
@@ -20,6 +23,7 @@ const SITES = [
     name: '멜론 티켓',
     url: 'https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=&schDt=',
     scrape: scrapeMelon,
+    desktop: true,
   },
   {
     id: 'ticketlink',
@@ -44,9 +48,12 @@ app.get('/api/load', async (req, res) => {
   };
 
   let context;
+  let desktopContext;
   try {
-    send('status', { site: 'system', message: '모바일 브라우저를 여는 중' });
+    send('status', { site: 'system', message: '브라우저를 여는 중' });
     context = await launchMobileContext();
+    // 멜론은 PC(데스크톱) 모드로 접속해야 목록·조회수를 쉽게 읽을 수 있어 별도 컨텍스트를 쓴다.
+    desktopContext = await launchDesktopContext();
 
     const allItems = [];
     const globalSeen = new Set();
@@ -69,7 +76,7 @@ app.get('/api/load', async (req, res) => {
     };
 
     await Promise.all(SITES.map(async (site) => {
-      const page = await context.newPage();
+      const page = await (site.desktop ? desktopContext : context).newPage();
       try {
         send('status', { site: site.id, message: `${site.name} 접속 중` });
         await site.scrape(
@@ -97,6 +104,7 @@ app.get('/api/load', async (req, res) => {
     send('fatal', { message: error.message });
   } finally {
     await context?.close().catch(() => {});
+    await desktopContext?.close().catch(() => {});
     res.end();
   }
 });
@@ -160,6 +168,33 @@ async function launchMobileContext() {
   return context;
 }
 
+async function launchDesktopContext() {
+  // 멜론 전용 PC(데스크톱) 컨텍스트 — 데스크톱 목록은 조회수/상세링크가 그대로 노출돼 파싱이 쉽다.
+  const context = await chromium.launchPersistentContext(DESKTOP_PROFILE_DIR, {
+    ...(HEADLESS ? {} : { channel: 'chrome' }),
+    headless: HEADLESS,
+    ignoreDefaultArgs: ['--enable-automation'],
+    args: [
+      '--disable-blink-features=AutomationControlled',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-popup-blocking',
+      '--disable-dev-shm-usage',
+      ...(HEADLESS ? ['--no-sandbox'] : []),
+    ],
+    userAgent: DESKTOP_USER_AGENT,
+    viewport: { width: 1360, height: 900 },
+    locale: 'ko-KR',
+    timezoneId: 'Asia/Seoul',
+  });
+
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+  });
+
+  return context;
+}
+
 async function applyTouchEmulation(context, page) {
   const cdp = await context.newCDPSession(page);
   await Promise.all([
@@ -195,130 +230,86 @@ async function scrapeInterpark(page, progress, emit) {
 }
 
 async function scrapeMelon(page, progress, emit) {
+  // 멜론은 PC(데스크톱) 모드로 접속한다. 데스크톱 목록은 li 한 줄에
+  // '티켓오픈일 · 날짜/시간 · 제목 · 조회수'가 모두 있고 상세 링크(csoonId)도 노출된다.
   await page.goto('https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=&schDt=', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(2500);
-  await selectMelonOpenDateSort(page, progress);
+  progress('오픈예정 목록 로딩 중 (PC 모드)');
+  emit(await extractMelonDesktopItems(page));
 
-  let previousHeight = 0;
-  const visitedScheduleRows = new Set();
-  for (let step = 1; step <= 12; step += 1) {
-    progress(`목록 스크롤 ${step}/12`);
-    emit(await extractItemsFromPage(page, 'melon'));
-    const detailItems = await collectMelonScheduleViewItems(page, progress, visitedScheduleRows);
-    if (detailItems.length) emit(detailItems);
-    await page.mouse.wheel(0, 2400);
-    await page.waitForTimeout(900);
-    const height = await page.evaluate(() => document.body.scrollHeight).catch(() => 0);
-    if (height === previousHeight) break;
-    previousHeight = height;
+  let prevFirst = await melonFirstKey(page);
+  for (let pageIndex = 2; pageIndex <= 10; pageIndex += 1) {
+    const moved = await gotoMelonPage(page, pageIndex, prevFirst);
+    if (!moved) break;
+    emit(await extractMelonDesktopItems(page));
+    progress(`목록 ${pageIndex}페이지 수집`);
+    prevFirst = await melonFirstKey(page);
   }
 }
 
-async function collectMelonScheduleViewItems(page, progress, visited) {
-  const rows = await page.evaluate(() => Array.from(document.querySelectorAll('a'))
-    .map((node, index) => {
-      const text = node.innerText || node.textContent || '';
-      const lines = text.split(/\n+/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
-      const title = lines.find((line) =>
-        line &&
-        !/^(단독판매|티켓오픈일|오픈일정\s*보기|전체|콘서트|뮤지컬\/연극|팬클럽\/팬미팅|클래식|전시\/행사)$/.test(line)
-      ) || '';
-      return { index, text, title };
-    })
-    .filter((row) => /오픈일정\s*보기/.test(row.text) && row.title)
-    .slice(0, 8));
-
-  const collected = [];
-  for (const row of rows) {
-    const key = `${row.title}|${row.index}`;
-    if (visited.has(key)) continue;
-    visited.add(key);
-    progress(`오픈일정 보기 확인: ${row.title.slice(0, 18)}`);
-
-    const opened = await page.evaluate((index) => {
-      const node = Array.from(document.querySelectorAll('a'))[index];
-      if (!node) return false;
-      node.click();
-      return true;
-    }, row.index).catch(() => false);
-    if (!opened) continue;
-
-    await page.waitForFunction(() => location.hash.includes('ticketopen.detail'), null, { timeout: 8000 }).catch(() => {});
-    await page.waitForSelector('.ticketing_area, .box_ticketing', { timeout: 8000 }).catch(() => {});
-    await page.waitForTimeout(700);
-    collected.push(...await extractMelonScheduleDetailItems(page, row.title));
-
-    await page.goBack({ waitUntil: 'domcontentloaded', timeout: 10000 }).catch(async () => {
-      await page.goto('https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=&schDt=', { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
-    });
-    await page.waitForTimeout(1500);
-    await selectMelonOpenDateSort(page, () => {}).catch(() => {});
-  }
-  return collected;
+async function melonFirstKey(page) {
+  return page.evaluate(() => {
+    const li = Array.from(document.querySelectorAll('li'))
+      .find((n) => /티켓오픈일/.test(n.innerText || '') && /조회/.test(n.innerText || ''));
+    return li ? (li.innerText || '').replace(/\s+/g, ' ').slice(0, 80) : '';
+  }).catch(() => '');
 }
 
-async function extractMelonScheduleDetailItems(page, fallbackTitle) {
-  return page.evaluate((fallbackTitle) => {
-    const fullDatePattern = /(20\d{2})[.\-/년\s]+(\d{1,2})[.\-/월\s]+(\d{1,2})/;
-    const timePattern = /([01]?\d|2[0-3])[:시]\s*([0-5]\d)?/;
-    const normalizeDate = (text) => {
-      const match = String(text || '').match(fullDatePattern);
-      if (!match) return null;
-      const [, year, month, day] = match;
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    };
-    const normalizeTime = (text) => {
-      const match = String(text || '').match(timePattern);
-      if (!match) return null;
-      return `${match[1].padStart(2, '0')}:${(match[2] || '00').padStart(2, '0')}`;
-    };
-    const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
-    const pageTitle = clean(fallbackTitle) ||
-      clean(document.querySelector('h1,h2,h3,.tit,.title,.goods_tit')?.textContent);
-    const cleanTitle = pageTitle.replace(/티켓\s*오픈\s*안내|티켓오픈\s*안내|안내/gi, '').trim();
-    const makeItem = (text, label) => {
-      const openDate = normalizeDate(text);
-      const openTime = normalizeTime(text);
-      if (!openDate || !openTime) return null;
-      const suffix = label && !/티켓오픈|오픈/.test(label) ? ` (${label})` : '';
-      return {
-        title: `${cleanTitle}${suffix}`,
-        openDate,
-        openTime,
-        url: location.href,
-      };
-    };
+async function gotoMelonPage(page, pageIndex, prevFirst) {
+  const clicked = await page.evaluate((n) => {
+    const link = Array.from(document.querySelectorAll('a, button'))
+      .find((a) => (a.textContent || '').trim() === String(n));
+    if (!link) return false;
+    link.click();
+    return true;
+  }, pageIndex).catch(() => false);
+  if (!clicked) return false;
+  try {
+    await page.waitForFunction((prev) => {
+      const li = Array.from(document.querySelectorAll('li'))
+        .find((n) => /티켓오픈일/.test(n.innerText || '') && /조회/.test(n.innerText || ''));
+      return li && (li.innerText || '').replace(/\s+/g, ' ').slice(0, 80) !== prev;
+    }, prevFirst, { timeout: 6000 });
+  } catch {
+    return false;
+  }
+  await page.waitForTimeout(400);
+  return true;
+}
 
-    const structured = Array.from(document.querySelectorAll('.ticketing_area li'))
-      .map((node) => {
-        const label = clean(node.querySelector('.tit_open')?.textContent || node.textContent.match(/선예매|일반예매|팬클럽\s*선예매|티켓오픈|오픈/)?.[0] || '');
-        const data = clean(node.querySelector('.data')?.textContent || node.textContent || '');
-        return makeItem(data, label);
-      })
-      .filter(Boolean);
-    if (structured.length) {
-      const byKey = new Map();
-      for (const item of structured) byKey.set(`${item.title}|${item.openDate}|${item.openTime}`, item);
-      return Array.from(byKey.values());
-    }
-
-    const nodes = Array.from(document.querySelectorAll('li, tr, dl, div, section, article'))
-      .map((node) => clean(node.innerText || node.textContent || ''))
-      .filter((text) => text.length < 1200 && fullDatePattern.test(text) && timePattern.test(text));
-
-    const byKey = new Map();
-    for (const text of nodes) {
-      const pattern = /(선예매|일반예매|팬클럽\s*선예매|티켓오픈|오픈)?\s*:?\s*(20\d{2}[.\-/년\s]+\d{1,2}[.\-/월\s]+\d{1,2})\s*([01]?\d|2[0-3])[:시]\s*([0-5]\d)?/g;
-      for (const match of text.matchAll(pattern)) {
-        const label = clean(match[1] || '');
-        const item = makeItem(`${match[2]} ${match[3]}:${match[4] || '00'}`, label);
-        if (!item) continue;
-        const key = `${item.title}|${item.openDate}|${item.openTime}`;
-        if (!byKey.has(key)) byKey.set(key, item);
+async function extractMelonDesktopItems(page) {
+  return page.evaluate(() => {
+    const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+    const items = [];
+    const seen = new Set();
+    for (const li of Array.from(document.querySelectorAll('li'))) {
+      const text = li.innerText || '';
+      if (!/티켓오픈일/.test(text)) continue;
+      const dm = text.match(/(20\d{2})\.(\d{1,2})\.(\d{1,2})\s*\([^)]*\)\s*(\d{1,2}):(\d{2})/);
+      if (!dm) continue;
+      const openDate = `${dm[1]}-${dm[2].padStart(2, '0')}-${dm[3].padStart(2, '0')}`;
+      const openTime = `${dm[4].padStart(2, '0')}:${dm[5]}`;
+      const vm = text.match(/조회\s*([\d,]+)/);
+      const viewCount = vm ? Number(vm[1].replace(/,/g, '')) : null;
+      let title = clean(li.querySelector('.tit, strong, .title') ? li.querySelector('.tit, strong, .title').textContent : '');
+      if (!title) {
+        const lines = text.split(/\n+/).map(clean).filter(Boolean);
+        title = lines.find((l) => !/^(티켓오픈일|단독판매|등록일|조회|20\d{2}\.)/.test(l) && l.length > 2) || '';
       }
+      if (!title) continue;
+      const a = li.querySelector('a');
+      const href = a ? (a.getAttribute('href') || '') : '';
+      const idm = href.match(/csoonId=(\d+)/);
+      const url = idm
+        ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${idm[1]}`
+        : 'https://ticket.melon.com/csoon/index.htm';
+      const key = `${title}|${openDate}|${openTime}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push({ title, openDate, openTime, viewCount, url });
     }
-    return Array.from(byKey.values());
-  }, fallbackTitle);
+    return items;
+  });
 }
 
 async function scrapeTicketlink(page, progress, emit) {
@@ -340,29 +331,6 @@ async function scrapeTicketlink(page, progress, emit) {
     if (count === previous) break;
     previous = count;
   }
-}
-
-async function selectMelonOpenDateSort(page, progress) {
-  await page.evaluate(() => {
-    const label = Array.from(document.querySelectorAll('label')).find((item) => item.textContent.includes('오픈일순'));
-    const input = label?.htmlFor ? document.getElementById(label.htmlFor) : label?.querySelector('input');
-    input?.click();
-    label?.click();
-  });
-  await page.waitForTimeout(1800);
-  const selected = await page.evaluate(() => {
-    const labels = Array.from(document.querySelectorAll('label'));
-    const label = labels.find((item) => item.textContent.includes('오픈일순'));
-    const input = label?.htmlFor ? document.getElementById(label.htmlFor) : label?.querySelector('input');
-    return {
-      selected: Boolean(input?.checked || label?.className.includes('on') || label?.className.includes('active')),
-      firstOpenDates: Array.from(document.querySelectorAll('a'))
-        .map((a) => a.innerText || '')
-        .filter((text) => /티켓오픈일\s*20\d{2}/.test(text))
-        .slice(0, 5),
-    };
-  });
-  progress(selected.selected ? '오픈일순 정렬 확인' : '오픈일순 클릭 후 목록 확인');
 }
 
 async function extractItemsFromPage(page, siteId) {
@@ -503,7 +471,8 @@ function normalizeItems(items, site) {
         openDate: item.openDate,
         openTime: item.openTime,
         openDateTime: item.openDate && item.openTime ? `${item.openDate}T${item.openTime}:00+09:00` : null,
-        url: resolveItemUrl(site, title, item.url),
+        viewCount: Number.isFinite(item.viewCount) ? item.viewCount : null,
+        url: item.url || site.url,
       };
     })
     .filter((item) => item.title && item.openDate)
@@ -511,16 +480,6 @@ function normalizeItems(items, site) {
       if (!item.openDateTime) return new Date(`${item.openDate}T23:59:59+09:00`) >= now;
       return new Date(item.openDateTime) >= now;
     });
-}
-
-// 멜론 목록 앵커는 실제 href 없이 JS로만 상세로 이동해(항상 홈처럼 보임),
-// 제목으로 멜론 오픈예정 목록을 필터링하는 딥링크를 만들어 해당 공연을 바로 찾게 한다.
-function resolveItemUrl(site, title, fallbackUrl) {
-  if (site.id === 'melon' && title) {
-    const query = encodeURIComponent(title);
-    return `https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=${query}&schDt=`;
-  }
-  return fallbackUrl || site.url;
 }
 
 function cleanupTitle(title) {

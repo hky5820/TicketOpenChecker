@@ -1567,3 +1567,48 @@ p {
   font-size: 10px;
   font-weight: 900;
 }
+
+/* 인기공연 하이라이트 (조회수 1000+ 또는 여러 예매처 오픈) */
+@keyframes popularGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(240, 160, 32, 0.45), 0 4px 14px -8px rgba(240, 160, 32, 0.55); }
+  50% { box-shadow: 0 0 0 1px rgba(240, 160, 32, 0.9), 0 7px 22px -6px rgba(240, 160, 32, 0.95); }
+}
+
+@keyframes popularShine {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.site-board-card.is-popular,
+.modal-item.is-popular,
+.unknown-card.is-popular {
+  border-color: #f0a020;
+  animation: popularGlow 1.8s ease-in-out infinite;
+}
+
+.popular-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+  height: 17px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffb020, #ff7a45, #ffb020);
+  background-size: 200% 100%;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  animation: popularShine 2.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-board-card.is-popular,
+  .modal-item.is-popular,
+  .unknown-card.is-popular,
+  .popular-flag {
+    animation: none;
+  }
+}

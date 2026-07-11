@@ -295,6 +295,7 @@ function toggleSiteHighlight(siteId) {
 }
 
 function render() {
+  state.popular = computePopular(state.items);
   const year = state.date.getFullYear();
   const month = state.date.getMonth();
   monthLabel.textContent = `${year}년 ${month + 1}월`;
@@ -522,7 +523,7 @@ function renderSiteBoard(items) {
 
 function renderSiteBoardCard(item, showSite = false) {
   const link = document.createElement('a');
-  link.className = `site-board-card site-${item.siteId}`;
+  link.className = `site-board-card site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
   link.href = item.url;
   link.target = '_blank';
   link.rel = 'noreferrer';
@@ -533,6 +534,7 @@ function renderSiteBoardCard(item, showSite = false) {
     <div class="board-card-title">
       ${siteTag}
       <strong>${escapeHtml(item.title)}</strong>
+      ${popularFlagHtml(item)}
     </div>
   `;
   return link;
@@ -601,13 +603,14 @@ function renderUnknown(items) {
   }
   items.forEach((item) => {
     const link = document.createElement('a');
-    link.className = `unknown-card site-${item.siteId}`;
+    link.className = `unknown-card site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
     link.href = item.url;
     link.target = '_blank';
     link.rel = 'noreferrer';
     link.innerHTML = `
       <span class="site-label site-${item.siteId}">${escapeHtml(item.site)}</span>
       <strong>${escapeHtml(item.title)}</strong>
+      ${popularFlagHtml(item)}
       <span>${item.openDate}</span>
     `;
     unknownList.appendChild(link);
@@ -676,13 +679,13 @@ function renderModalItems(items, siteId) {
       list.className = 'time-group-list';
       groupItems.forEach((item) => {
         const link = document.createElement('a');
-        link.className = `modal-item site-${item.siteId}`;
+        link.className = `modal-item site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
         link.href = item.url;
         link.target = '_blank';
         link.rel = 'noreferrer';
         link.innerHTML = `
           <span class="meta-badge time-badge">${escapeHtml(item.openTime || '시간 미정')}</span>
-          <strong>${escapeHtml(item.title)}</strong>
+          <strong>${isPopular(item) ? '🔥 ' : ''}${escapeHtml(item.title)}</strong>
           <span class="meta-badge site-badge site-${item.siteId}">${escapeHtml(item.site)}</span>
         `;
         list.appendChild(link);
@@ -737,6 +740,44 @@ function formatMonthDay(value) {
 
 function getWeekdayLabel(value) {
   return ['일', '월', '화', '수', '목', '금', '토'][parseLocalDate(value).getDay()];
+}
+
+const POPULAR_VIEW_THRESHOLD = 1000;
+
+function normTitleKey(title) {
+  return String(title || '')
+    .toLowerCase()
+    .replace(/티켓오픈|오픈|안내/g, '')
+    .replace(/[\s\[\]<>()·:,.!?~"'`\-_/]/g, '');
+}
+
+// 인기공연: 조회수 1000 이상이거나, 같은 공연이 2개 이상 예매처에서 열리는 경우.
+function computePopular(items) {
+  const byTitle = new Map();
+  items.forEach((item) => {
+    const key = normTitleKey(item.title);
+    if (!key) return;
+    if (!byTitle.has(key)) byTitle.set(key, new Set());
+    byTitle.get(key).add(item.siteId);
+  });
+  const multi = new Set();
+  byTitle.forEach((sites, key) => {
+    if (sites.size >= 2) multi.add(key);
+  });
+  return multi;
+}
+
+function isPopular(item) {
+  if (item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD) return true;
+  return state.popular ? state.popular.has(normTitleKey(item.title)) : false;
+}
+
+function popularFlagHtml(item) {
+  if (!isPopular(item)) return '';
+  const title = item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD
+    ? `조회 ${item.viewCount.toLocaleString()}회 인기공연`
+    : '여러 예매처 오픈 · 인기공연';
+  return `<span class="popular-flag" title="${title}">🔥 인기</span>`;
 }
 
 function escapeHtml(value) {

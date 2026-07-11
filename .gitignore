@@ -6,3 +6,4 @@ output/
 *.log
 *.err.log
 storage-state.json
+chrome-profile-desktop/

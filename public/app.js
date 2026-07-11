@@ -107,12 +107,19 @@ confirmGo.addEventListener('click', () => {
 });
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
+// 멜론: 멜론 모바일 페이지가 커스텀탭/PWA에서 빈 화면이 되고 intent:// 도 PWA에서
+// 차단되는 기기가 있어, CORS 개방된 tktapi 상세 API로 앱 안에서 직접 렌더한다.
 document.addEventListener('click', (event) => {
   if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
   if (!link || !link.href) return;
+  const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
   event.preventDefault();
   const title = link.querySelector('strong')?.textContent?.trim() || '';
+  if (melonId) {
+    openMelonDetail(melonId, title);
+    return;
+  }
   askNavigate(link.href, title);
 });
 
@@ -841,6 +848,79 @@ function openDayModal(dateKey, items) {
   modal.hidden = false;
   updateScrollLock();
 }
+
+// 멜론 공지 HTML에서 위험 요소(script 등)와 인라인 이벤트를 제거한다.
+function sanitizeNoticeHtml(html) {
+  const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+  doc.querySelectorAll('script, style, iframe, object, embed, link, meta, form').forEach((el) => el.remove());
+  doc.querySelectorAll('*').forEach((el) => {
+    [...el.attributes].forEach((attr) => {
+      const name = attr.name.toLowerCase();
+      if (name.startsWith('on') || (name === 'href' && /^javascript:/i.test(attr.value))) el.removeAttribute(attr.name);
+    });
+  });
+  return doc.body.innerHTML;
+}
+
+// 멜론 상세를 앱 안에서 렌더한다. tktapi 상세 API가 CORS 개방(ACAO: *)이라 직접 호출 가능.
+// 하단에 OS 공유 시트 버튼을 둔다: PWA에서 intent:// 가 차단돼도 공유 시트는 항상 떠서
+// 기본 브라우저/멜론티켓 앱으로 여는 공식 탈출구가 된다.
+async function openMelonDetail(csoonId, title) {
+  const desktopUrl = `https://ticket.melon.com/csoon/detail.htm?csoonId=${csoonId}`;
+  modalTitle.textContent = title || '멜론 티켓오픈';
+  modalList.innerHTML = '<p class="empty">멜론 상세 정보를 불러오는 중...</p>';
+  modal.hidden = false;
+  updateScrollLock();
+
+  let data = null;
+  try {
+    const res = await fetch(`https://tktapi.melon.com/poc/ticketOpen/detail.json?csoonId=${csoonId}&v=1`);
+    const json = await res.json();
+    if (json.result === 0 && json.data) data = json.data;
+  } catch {
+    // 아래 폴백 처리
+  }
+
+  const shareBtn = navigator.share
+    ? `<button type="button" class="melon-open-link" data-melon-share="${escapeHtml(desktopUrl)}" data-melon-title="${escapeHtml(title || '')}">브라우저/앱에서 열기</button>`
+    : `<a class="melon-open-link" href="${escapeHtml(resolveMelonUrl(desktopUrl))}" target="_blank" rel="noreferrer">멜론티켓에서 열기 ↗</a>`;
+
+  if (!data) {
+    modalList.innerHTML = `
+      <p class="empty">상세 정보를 불러오지 못했습니다.</p>
+      <div class="melon-detail">${shareBtn}</div>
+    `;
+    return;
+  }
+
+  const poster = data.posterUrl ? `https://cdnticket.melon.co.kr${data.posterUrl}` : '';
+  const sections = [
+    ['기본정보', data.infoPerf],
+    ['공연소개', data.infoComt],
+    ['할인정보', data.infoDisc],
+    ['기획사 정보', data.infoPartner ? escapeHtml(data.infoPartner).replace(/\n/g, '<br>') : ''],
+  ].filter(([, html]) => html && String(html).trim());
+
+  modalList.innerHTML = `
+    <div class="melon-detail">
+      ${poster ? `<img class="melon-detail-poster" src="${escapeHtml(poster)}" alt="" onerror="this.remove();">` : ''}
+      ${sections.map(([label, html]) => `
+        <section class="melon-detail-section">
+          <h3>${label}</h3>
+          <div class="melon-detail-body">${sanitizeNoticeHtml(html)}</div>
+        </section>
+      `).join('')}
+      ${shareBtn}
+    </div>
+  `;
+}
+
+// 공유 시트: 기본 브라우저·멜론티켓 앱 등으로 여는 OS 공식 통로 (PWA에서도 동작)
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-melon-share]');
+  if (!btn) return;
+  navigator.share({ title: btn.dataset.melonTitle || '멜론 티켓오픈', url: btn.dataset.melonShare }).catch(() => {});
+});
 
 
 function updateScrollLock() {

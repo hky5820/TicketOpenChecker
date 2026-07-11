@@ -132,7 +132,7 @@ p {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-  padding: max(16px, env(safe-area-inset-top)) 16px 32px;
+  padding: 0 16px max(18px, env(safe-area-inset-bottom));
 }
 
 .topbar {
@@ -142,8 +142,8 @@ p {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 6px 0 10px;
-  background: color-mix(in srgb, var(--canvas) 78%, transparent);
+  padding: max(10px, env(safe-area-inset-top)) 0 10px;
+  background: color-mix(in srgb, var(--canvas) 92%, transparent);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }

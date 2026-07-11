@@ -1638,9 +1638,9 @@ p {
 .popular-ribbon {
   position: absolute;
   top: 7px;
-  left: -32px;
+  right: -32px;
   width: 100px;
-  transform: rotate(-40deg);
+  transform: rotate(40deg);
   background: linear-gradient(145deg, #ffbe52, #f5a524);
   color: #fff;
   font-size: 8.5px;
@@ -1653,11 +1653,11 @@ p {
   z-index: 2;
 }
 
-/* 조회순/예매처별 등 세로 리스트 행에서는 리본이 넓지 않게 */
+/* 세로 리스트 행: 우측 상단 모서리에 작게 */
 .site-board-card .popular-ribbon {
-  top: 6px;
-  left: -34px;
-  width: 96px;
+  top: 5px;
+  right: -36px;
+  width: 92px;
 }
 
 /* 월 이동 / 캘린더-리스트 전환 시 부드러운 페이드 */
@@ -1742,6 +1742,20 @@ p {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* 리스트 행: 조회수는 항상 우측 하단에 붙여 우측 정렬 (상단 인기 리본과 분리) */
+.site-board-card .board-card-title {
+  padding-right: 72px;
+}
+
+.site-board-card .view-count {
+  position: absolute;
+  right: 12px;
+  bottom: 7px;
+  margin: 0;
+  padding: 0;
+  text-align: right;
 }
 
 .modal-mid {

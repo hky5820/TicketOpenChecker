@@ -1,6 +1,8 @@
 const STORAGE_KEY = 'ticket-open-checker:schedules';
 const VIEW_KEY = 'toc:view';
 const GROUP_KEY = 'toc:groupBy';
+// 인기공연 임계값: 최상단 render() 호출보다 먼저 초기화돼야 TDZ 오류가 없다.
+const POPULAR_VIEW_THRESHOLD = 500;
 
 function readStored(key, allowed, fallback) {
   try {
@@ -964,8 +966,6 @@ function formatMonthDay(value) {
 function getWeekdayLabel(value) {
   return ['일', '월', '화', '수', '목', '금', '토'][parseLocalDate(value).getDay()];
 }
-
-const POPULAR_VIEW_THRESHOLD = 500;
 
 // 인기공연: 조회수가 임계값(500) 이상.
 function isPopular(item) {

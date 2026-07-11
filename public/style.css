@@ -682,7 +682,7 @@ p {
 
 .calendar-grid {
   gap: 6px;
-  grid-auto-rows: 74px;
+  grid-auto-rows: minmax(74px, auto);
 }
 
 .day {
@@ -768,7 +768,6 @@ p {
   justify-content: center;
   gap: 4px;
   min-width: 0;
-  overflow: hidden;
 }
 
 .day-dot {
@@ -1352,7 +1351,7 @@ p {
   }
 
   .calendar-grid {
-    grid-auto-rows: 66px;
+    grid-auto-rows: minmax(64px, auto);
   }
 }
 
@@ -1385,7 +1384,7 @@ p {
   }
 
   .calendar-grid {
-    grid-auto-rows: 76px;
+    grid-auto-rows: minmax(68px, auto);
   }
 
   .day {

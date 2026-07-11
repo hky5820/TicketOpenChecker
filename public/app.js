@@ -484,7 +484,6 @@ function toggleSiteHighlight(siteId) {
 }
 
 function render() {
-  state.popular = computePopular(state.items);
   const year = state.date.getFullYear();
   const month = state.date.getMonth();
   monthLabel.textContent = `${year}년 ${month + 1}월`;
@@ -717,6 +716,7 @@ function renderSiteBoardCard(item, showSite = false) {
       ${siteTag}
       <strong>${escapeHtml(item.title)}</strong>
       ${popularFlagHtml(item)}
+      ${viewCountHtml(item)}
     </div>
   `;
   return link;
@@ -871,7 +871,10 @@ function renderModalItems(items, siteId) {
         link.innerHTML = `
           ${mThumb}
           <span class="meta-badge time-badge">${escapeHtml(item.openTime || '시간 미정')}</span>
-          <strong>${isPopular(item) ? '🔥 ' : ''}${escapeHtml(item.title)}</strong>
+          <span class="modal-mid">
+            <strong>${isPopular(item) ? '🔥 ' : ''}${escapeHtml(item.title)}</strong>
+            ${viewCountHtml(item)}
+          </span>
           <span class="meta-badge site-badge site-${item.siteId}">${escapeHtml(item.site)}</span>
         `;
         list.appendChild(link);
@@ -930,40 +933,20 @@ function getWeekdayLabel(value) {
 
 const POPULAR_VIEW_THRESHOLD = 500;
 
-function normTitleKey(title) {
-  return String(title || '')
-    .toLowerCase()
-    .replace(/티켓오픈|오픈|안내/g, '')
-    .replace(/[\s\[\]<>()·:,.!?~"'`\-_/]/g, '');
-}
-
-// 인기공연: 조회수 1000 이상이거나, 같은 공연이 2개 이상 예매처에서 열리는 경우.
-function computePopular(items) {
-  const byTitle = new Map();
-  items.forEach((item) => {
-    const key = normTitleKey(item.title);
-    if (!key) return;
-    if (!byTitle.has(key)) byTitle.set(key, new Set());
-    byTitle.get(key).add(item.siteId);
-  });
-  const multi = new Set();
-  byTitle.forEach((sites, key) => {
-    if (sites.size >= 2) multi.add(key);
-  });
-  return multi;
-}
-
+// 인기공연: 조회수가 임계값(500) 이상.
 function isPopular(item) {
-  if (item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD) return true;
-  return state.popular ? state.popular.has(normTitleKey(item.title)) : false;
+  return item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD;
 }
 
 function popularFlagHtml(item) {
   if (!isPopular(item)) return '';
-  const title = item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD
-    ? `조회 ${item.viewCount.toLocaleString()}회 인기공연`
-    : '여러 예매처 오픈 · 인기공연';
-  return `<span class="popular-flag" title="${title}">🔥 인기</span>`;
+  return `<span class="popular-flag" title="조회 ${item.viewCount.toLocaleString()}회 인기공연">🔥 인기</span>`;
+}
+
+// 조회수 숫자 표시
+function viewCountHtml(item) {
+  if (item.viewCount == null) return '';
+  return `<span class="view-count">조회 ${item.viewCount.toLocaleString()}</span>`;
 }
 
 function escapeHtml(value) {

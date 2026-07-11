@@ -682,7 +682,7 @@ p {
 
 .calendar-grid {
   gap: 6px;
-  grid-auto-rows: minmax(74px, auto);
+  grid-auto-rows: 74px;
 }
 
 .day {
@@ -1351,7 +1351,7 @@ p {
   }
 
   .calendar-grid {
-    grid-auto-rows: minmax(64px, auto);
+    grid-auto-rows: 72px;
   }
 }
 
@@ -1384,7 +1384,7 @@ p {
   }
 
   .calendar-grid {
-    grid-auto-rows: minmax(68px, auto);
+    grid-auto-rows: 80px;
   }
 
   .day {
@@ -1628,6 +1628,22 @@ p {
   .modal-item.is-popular,
   .unknown-card.is-popular,
   .popular-flag {
+    animation: none;
+  }
+}
+
+/* 월 이동 / 캘린더-리스트 전환 시 부드러운 페이드 */
+@keyframes viewFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.view-anim {
+  animation: viewFade 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-anim {
     animation: none;
   }
 }

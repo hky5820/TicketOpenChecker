@@ -38,13 +38,13 @@ document.getElementById('nextMonth').addEventListener('click', () => moveMonth(1
 document.getElementById('today').addEventListener('click', () => {
   state.date = new Date();
   render();
+  playViewAnim();
 });
 calendarViewButton.addEventListener('click', () => setView('calendar'));
 siteViewButton.addEventListener('click', () => setView('site'));
 document.getElementById('groupSite').addEventListener('click', () => setGroupBy('site'));
 document.getElementById('groupDate').addEventListener('click', () => setGroupBy('date'));
 loadButton.addEventListener('click', loadSchedules);
-document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 searchInput.addEventListener('input', renderSearchSuggestions);
 searchInput.addEventListener('focus', renderSearchSuggestions);
 document.querySelectorAll('.status-item').forEach((item) => {
@@ -92,6 +92,7 @@ confirmGo.addEventListener('click', () => {
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
 document.addEventListener('click', (event) => {
+  if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
   if (!link || !link.href) return;
   event.preventDefault();
@@ -104,6 +105,7 @@ let swipeX = 0;
 let swipeY = 0;
 let swipeTime = 0;
 let swipeEl = null;
+let suppressNextClick = false;
 document.addEventListener('pointerdown', (event) => {
   if (event.pointerType === 'mouse') return;
   swipeX = event.clientX;
@@ -120,6 +122,8 @@ document.addEventListener('pointerup', (event) => {
   if (Date.now() - swipeTime > 700) return;
   if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
   if (el.closest('.modal') || el.closest('.search-box')) return;
+  suppressNextClick = true;
+  setTimeout(() => { suppressNextClick = false; }, 400);
   if (el.closest('#calendar')) {
     moveMonth(dx < 0 ? 1 : -1);
   } else {
@@ -155,6 +159,14 @@ function toggleTheme() {
 function moveMonth(delta) {
   state.date = new Date(state.date.getFullYear(), state.date.getMonth() + delta, 1);
   render();
+  playViewAnim();
+}
+
+function playViewAnim() {
+  const el = state.view === 'calendar' ? calendar : siteBoard;
+  el.classList.remove('view-anim');
+  void el.offsetWidth;
+  el.classList.add('view-anim');
 }
 
 function setView(view) {
@@ -165,6 +177,7 @@ function setView(view) {
   calendarViewButton.setAttribute('aria-pressed', view === 'calendar' ? 'true' : 'false');
   siteViewButton.setAttribute('aria-pressed', view === 'site' ? 'true' : 'false');
   render();
+  playViewAnim();
 }
 
 function setGroupBy(mode) {
@@ -446,6 +459,7 @@ function renderCalendar(year, month) {
       <div class="day-dots"></div>
     `;
     button.addEventListener('click', () => {
+      if (suppressNextClick) return;
       if (dayItems.length) openDayModal(key, dayItems);
     });
 

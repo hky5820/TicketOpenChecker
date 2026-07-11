@@ -1,6 +1,6 @@
 // 티켓 오픈 캘린더 — 설치형 PWA용 서비스워커.
 // 아이콘 등 정적 이미지는 캐시 우선, 나머지(HTML/CSS/JS/data.json)는 네트워크 우선(신선도)으로 처리한다.
-const CACHE = 'toc-v1';
+const CACHE = 'toc-v2';
 const SHELL = [
   './',
   'index.html',

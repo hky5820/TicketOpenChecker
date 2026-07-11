@@ -401,19 +401,34 @@ async function extractItemsFromPage(page, siteId) {
       return (candidates[0] || lines[0] || '').replace(/\[[^\]]*오픈[^\]]*\]/g, '').trim();
     };
 
+    const cleanImg = (s) => {
+      if (!s) return '';
+      if (s.startsWith('//')) s = `https:${s}`;
+      else if (s.startsWith('/')) s = location.origin + s;
+      if (/^data:/.test(s)) return '';
+      if (/blank|spacer|1x1|noimage|no_image|dummy|placeholder/i.test(s)) return '';
+      return s;
+    };
     const getImg = (node) => {
       const img = node.querySelector && node.querySelector('img');
-      if (!img) return '';
-      let src = img.currentSrc || img.getAttribute('src') || img.getAttribute('data-src')
-        || img.getAttribute('data-original') || img.getAttribute('data-lazy') || '';
-      if (!src) {
+      if (img) {
+        // 지연로딩 항목은 data-* 에 실제 URL, src 엔 placeholder 가 들어있어 data-* 를 먼저 본다.
+        const cand = cleanImg(img.getAttribute('data-src')) || cleanImg(img.getAttribute('data-original'))
+          || cleanImg(img.getAttribute('data-lazy')) || cleanImg(img.getAttribute('data-echo'))
+          || cleanImg(img.currentSrc) || cleanImg(img.getAttribute('src'));
+        if (cand) return cand;
         const ss = img.getAttribute('srcset') || '';
-        if (ss) src = ss.split(',')[0].trim().split(/\s+/)[0];
+        if (ss) { const c = cleanImg(ss.split(',')[0].trim().split(/\s+/)[0]); if (c) return c; }
       }
-      if (src && src.startsWith('//')) src = `https:${src}`;
-      else if (src && src.startsWith('/')) src = location.origin + src;
-      if (/\.(gif|svg)(\?|$)/i.test(src) || /blank|spacer|1x1|noimage|no_image/i.test(src)) return '';
-      return src || '';
+      // background-image 로 포스터를 넣는 경우 대비
+      if (node.querySelectorAll) {
+        for (const el of node.querySelectorAll('*')) {
+          const bg = getComputedStyle(el).backgroundImage;
+          const m = bg && bg.match(/url\(["']?(.*?)["']?\)/);
+          if (m) { const c = cleanImg(m[1]); if (c) return c; }
+        }
+      }
+      return '';
     };
 
     let sourceNodes = [];

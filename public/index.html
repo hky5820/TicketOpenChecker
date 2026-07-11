@@ -14,11 +14,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="티켓오픈">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <style>:root{color-scheme:only light}html,body{background:#eef2fb}</style>
+  <style>html,body{background:#eef2fb}</style>
   <script>
-    // 항상 라이트(화이트) 모드. 단말/시스템 다크모드를 따라가지 않는다.
-    document.documentElement.setAttribute('data-theme', 'light');
-    try { document.documentElement.style.colorScheme = 'light'; } catch (e) {}
+    // 앱 자체 라이트/다크 토글. 시스템 다크는 따라가지 않고 기본은 라이트.
+    (function () {
+      try {
+        var dark = localStorage.getItem('toc_theme') === 'dark';
+        var root = document.documentElement;
+        root.setAttribute('data-theme', dark ? 'dark' : 'light');
+        root.style.colorScheme = dark ? 'dark' : 'light';
+        var m = document.getElementById('metaTheme');
+        if (m) m.content = dark ? '#0b0e15' : '#eef2fb';
+      } catch (e) {}
+    })();
   </script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -36,6 +44,9 @@
         </div>
         <div class="toolbar-right">
           <button id="today" class="chip-button" type="button">오늘</button>
+          <button id="themeToggle" class="icon-button" type="button" title="다크/라이트 전환" aria-label="다크/라이트 전환">
+            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
+          </button>
           <button id="load" class="icon-button load-button" type="button" title="불러오기" aria-label="불러오기">
             <span class="button-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
           </button>

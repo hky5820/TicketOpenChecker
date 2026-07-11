@@ -56,6 +56,7 @@ siteViewButton.addEventListener('click', () => setView('site'));
 document.getElementById('groupSite').addEventListener('click', () => setGroupBy('site'));
 document.getElementById('groupDate').addEventListener('click', () => setGroupBy('date'));
 loadButton.addEventListener('click', loadSchedules);
+document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 searchInput.addEventListener('input', renderSearchSuggestions);
 searchInput.addEventListener('focus', renderSearchSuggestions);
 document.querySelectorAll('.status-item').forEach((item) => {
@@ -190,7 +191,9 @@ if ('serviceWorker' in navigator) {
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
+  const root = document.documentElement;
+  root.setAttribute('data-theme', next);
+  root.style.colorScheme = next;
   const meta = document.getElementById('metaTheme');
   if (meta) meta.content = next === 'dark' ? '#0b0e15' : '#eef2fb';
   try {

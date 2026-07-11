@@ -7,7 +7,7 @@ X-WR-CALNAME:Ticket Open Checker
 X-WR-TIMEZONE:Asia/Seoul
 BEGIN:VEVENT
 UID:interpark|연극 장군슈퍼|2026-07-13|01:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260712T160000Z
 DTEND:20260712T163000Z
 SUMMARY:[NOL 티켓] 연극 장군슈퍼
@@ -16,7 +16,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]<씨네미술관>영화와 그림책이 건네는 삶의 위로 - 대구|2026-07-13|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T010000Z
 DTEND:20260713T013000Z
 SUMMARY:[티켓링크] [단독판매]<씨네미술관>영화와 그림책이 건네는 삶의 위로 - 대구
@@ -25,7 +25,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65370
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]뮤지컬 「문나이트」 - 울진|2026-07-13|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T010000Z
 DTEND:20260713T013000Z
 SUMMARY:[티켓링크] [단독판매]뮤지컬 「문나이트」 - 울진
@@ -34,7 +34,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65323
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|칼리드 내한공연|2026-07-13|12:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T030000Z
 DTEND:20260713T033000Z
 SUMMARY:[NOL 티켓] 칼리드 내한공연
@@ -43,7 +43,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]​가족 뮤지컬 <구름빵> - 경산​|2026-07-13|13:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T040000Z
 DTEND:20260713T043000Z
 SUMMARY:[티켓링크] [단독판매]​가족 뮤지컬 <구름빵> - 경산​
@@ -52,7 +52,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65387
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 〈그날들〉|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[NOL 티켓] 뮤지컬 〈그날들〉
@@ -61,7 +61,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 <그날들> 마지막|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[티켓링크] 뮤지컬 <그날들> 마지막
@@ -70,7 +70,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65359
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 헬로카봇 <카봇크루가 되어줘!> - 하남|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[티켓링크] 뮤지컬 헬로카봇 <카봇크루가 되어줘!> - 하남
@@ -79,7 +79,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65364
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 헬로카봇 시즌10 〈카봇크루가 되어줘!〉 - 하남|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[NOL 티켓] 뮤지컬 헬로카봇 시즌10 〈카봇크루가 되어줘!〉 - 하남
@@ -88,7 +88,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|ONE UNIVERSE FESTIVAL 2026 - Special Ticket|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[NOL 티켓] ONE UNIVERSE FESTIVAL 2026 - Special Ticket
@@ -97,7 +97,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|RAUM ARTIST SERIES Ⅳ 첼리스트 전서우 독주회|2026-07-13|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T050000Z
 DTEND:20260713T053000Z
 SUMMARY:[티켓링크] RAUM ARTIST SERIES Ⅳ 첼리스트 전서우 독주회
@@ -106,7 +106,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65375
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]2026 문화예술 대공연( K-EDU Culture WAVE)​|2026-07-13|16:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T070000Z
 DTEND:20260713T073000Z
 SUMMARY:[티켓링크] [단독판매]2026 문화예술 대공연( K-EDU Culture WAVE)​
@@ -115,7 +115,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65362
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]2026 신인음악회 - 대구|2026-07-13|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T080000Z
 DTEND:20260713T083000Z
 SUMMARY:[티켓링크] [단독판매]2026 신인음악회 - 대구
@@ -124,7 +124,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65381
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]2026 청소년 협주곡의 밤 - 대구|2026-07-13|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T080000Z
 DTEND:20260713T083000Z
 SUMMARY:[티켓링크] [단독판매]2026 청소년 협주곡의 밤 - 대구
@@ -133,7 +133,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65380
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|불독맨션 : MINTPAPER 20th SPECIAL LIVE|2026-07-13|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T080000Z
 DTEND:20260713T083000Z
 SUMMARY:[NOL 티켓] 불독맨션 : MINTPAPER 20th SPECIAL LIVE
@@ -142,7 +142,7 @@ URL:https://tickets.interpark.com/contents/notice/detail/14426
 END:VEVENT
 BEGIN:VEVENT
 UID:melon|世代共感 세대공감4|2026-07-13|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T090000Z
 DTEND:20260713T093000Z
 SUMMARY:[멜론 티켓] 世代共感 세대공감4
@@ -151,7 +151,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12536
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|짙은 : MINTPAPER 20th SPECIAL LIVE|2026-07-13|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T090000Z
 DTEND:20260713T093000Z
 SUMMARY:[NOL 티켓] 짙은 : MINTPAPER 20th SPECIAL LIVE
@@ -160,7 +160,7 @@ URL:https://tickets.interpark.com/contents/notice/detail/14427
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|ITZY The 5th Fan Meeting 있지 믿지\, 날자! “ALL IN\, MIDZY”|2026-07-13|19:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T100000Z
 DTEND:20260713T103000Z
 SUMMARY:[NOL 티켓] ITZY The 5th Fan Meeting 있지 믿지\, 날자! “ALL IN\, MIDZY”
@@ -169,7 +169,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|박재정 미니 콘서트 - ‘대화’|2026-07-13|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T110000Z
 DTEND:20260713T113000Z
 SUMMARY:[NOL 티켓] 박재정 미니 콘서트 - ‘대화’
@@ -178,7 +178,7 @@ URL:https://tickets.interpark.com/contents/notice/detail/14477
 END:VEVENT
 BEGIN:VEVENT
 UID:melon|HongEunki Special Event [은기다방]|2026-07-13|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260713T110000Z
 DTEND:20260713T113000Z
 SUMMARY:[멜론 티켓] HongEunki Special Event [은기다방]
@@ -187,7 +187,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12533
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 멜로우TV < Run it up\, 팀 나빠 > - 부산|2026-07-14|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T010000Z
 DTEND:20260714T013000Z
 SUMMARY:[티켓링크] 뮤지컬 멜로우TV < Run it up\, 팀 나빠 > - 부산
@@ -196,7 +196,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65371
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구|2026-07-14|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T010000Z
 DTEND:20260714T013000Z
 SUMMARY:[NOL 티켓] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구
@@ -205,7 +205,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구|2026-07-14|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T010000Z
 DTEND:20260714T013000Z
 SUMMARY:[티켓링크] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구
@@ -214,7 +214,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65357
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주|2026-07-14|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T010000Z
 DTEND:20260714T013000Z
 SUMMARY:[NOL 티켓] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주
@@ -223,7 +223,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주|2026-07-14|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T010000Z
 DTEND:20260714T013000Z
 SUMMARY:[티켓링크] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주
@@ -232,7 +232,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65358
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|2026 뮤지컬 <미드나잇 : 액터뮤지션> - THE CHOICE 1차|2026-07-14|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T020000Z
 DTEND:20260714T023000Z
 SUMMARY:[티켓링크] 2026 뮤지컬 <미드나잇 : 액터뮤지션> - THE CHOICE 1차
@@ -241,7 +241,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65388
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|연극 〈더 헬멧〉|2026-07-14|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T020000Z
 DTEND:20260714T023000Z
 SUMMARY:[NOL 티켓] 연극 〈더 헬멧〉
@@ -250,7 +250,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 서울문화재단 광복절 기념 특별프로그램 〈극장은 달린다!〉|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[NOL 티켓] 2026 서울문화재단 광복절 기념 특별프로그램 〈극장은 달린다!〉
@@ -259,7 +259,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|국립국악관현악단 〈2026 작곡가 프로젝트〉|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[NOL 티켓] 국립국악관현악단 〈2026 작곡가 프로젝트〉
@@ -268,7 +268,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|국립합창단〈한국 가곡의 모든 것〉|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[NOL 티켓] 국립합창단〈한국 가곡의 모든 것〉
@@ -277,7 +277,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|낭만박상환 끼발산 키득가득 의 〈숏숏쇼〉 - 용인|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[NOL 티켓] 낭만박상환 끼발산 키득가득 의 〈숏숏쇼〉 - 용인
@@ -286,7 +286,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|낭만박상환 끼발산 키득가득의 <숏숏쇼> - 용인|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[티켓링크] 낭만박상환 끼발산 키득가득의 <숏숏쇼> - 용인
@@ -295,7 +295,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65382
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 〈콰이어 오브 맨〉|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[NOL 티켓] 뮤지컬 〈콰이어 오브 맨〉
@@ -304,7 +304,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|쇼뮤지컬<프린세스 캐치! 티니핑> - 전주|2026-07-14|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T050000Z
 DTEND:20260714T053000Z
 SUMMARY:[티켓링크] 쇼뮤지컬<프린세스 캐치! 티니핑> - 전주
@@ -313,7 +313,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65384
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]뮤지컬 <죽음에 관하여> 2차|2026-07-14|15:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T060000Z
 DTEND:20260714T063000Z
 SUMMARY:[티켓링크] [단독판매]뮤지컬 <죽음에 관하여> 2차
@@ -322,7 +322,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65348
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 〈소크라테스 패러독스〉|2026-07-14|15:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T060000Z
 DTEND:20260714T063000Z
 SUMMARY:[NOL 티켓] 뮤지컬 〈소크라테스 패러독스〉
@@ -331,7 +331,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]서도밴드 정규 1집 콘서트 <원>​​|2026-07-14|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T080000Z
 DTEND:20260714T083000Z
 SUMMARY:[티켓링크] [단독판매]서도밴드 정규 1집 콘서트 <원>​​
@@ -340,7 +340,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65350
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 HYNN(박혜원) 콘서트 〈Midnight Blue : Luna-rium〉|2026-07-14|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T080000Z
 DTEND:20260714T083000Z
 SUMMARY:[NOL 티켓] 2026 HYNN(박혜원) 콘서트 〈Midnight Blue : Luna-rium〉
@@ -349,7 +349,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:melon|톤앤뮤직 플리라이브 vol.3 : 누니\, 권그린\, 이재경|2026-07-14|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T090000Z
 DTEND:20260714T093000Z
 SUMMARY:[멜론 티켓] 톤앤뮤직 플리라이브 vol.3 : 누니\, 권그린\, 이재경
@@ -358,7 +358,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12529
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|TRICO FESTIVAL 2026 - 강원 정선|2026-07-14|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T090000Z
 DTEND:20260714T093000Z
 SUMMARY:[NOL 티켓] TRICO FESTIVAL 2026 - 강원 정선
@@ -367,7 +367,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 손태진 단독 콘서트 〈THE MAESTRO〉 - 수원|2026-07-14|19:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T100000Z
 DTEND:20260714T103000Z
 SUMMARY:[NOL 티켓] 2026 손태진 단독 콘서트 〈THE MAESTRO〉 - 수원
@@ -376,7 +376,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|2026 손태진 단독 콘서트 < THE MAESTRO > - 수원|2026-07-14|19:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T100000Z
 DTEND:20260714T103000Z
 SUMMARY:[티켓링크] 2026 손태진 단독 콘서트 < THE MAESTRO > - 수원
@@ -385,7 +385,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65376
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|2026 N.Flying LIVE ‘&CON5 : into REM’ -서울 콘서트 공연장 변경|2026-07-14|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260714T110000Z
 DTEND:20260714T113000Z
 SUMMARY:[티켓링크] 2026 N.Flying LIVE ‘&CON5 : into REM’ -서울 콘서트 공연장 변경
@@ -394,7 +394,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65379
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대구|2026-07-15|09:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T000000Z
 DTEND:20260715T003000Z
 SUMMARY:[티켓링크] 뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대구
@@ -403,7 +403,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65385
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대전|2026-07-15|09:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T000000Z
 DTEND:20260715T003000Z
 SUMMARY:[티켓링크] 뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대전
@@ -412,7 +412,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65386
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]가족뮤지컬 <코밈> - 서울|2026-07-15|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T010000Z
 DTEND:20260715T013000Z
 SUMMARY:[티켓링크] [단독판매]가족뮤지컬 <코밈> - 서울
@@ -421,7 +421,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65332
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|가족뮤지컬 〈코밈〉- 서울|2026-07-15|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T010000Z
 DTEND:20260715T013000Z
 SUMMARY:[NOL 티켓] 가족뮤지컬 〈코밈〉- 서울
@@ -430,7 +430,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 타키포오 [몬스터 전쟁의 서막 \; 더 좀비]- 청주|2026-07-15|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T010000Z
 DTEND:20260715T013000Z
 SUMMARY:[NOL 티켓] 뮤지컬 타키포오 [몬스터 전쟁의 서막 \; 더 좀비]- 청주
@@ -439,7 +439,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산|2026-07-15|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T010000Z
 DTEND:20260715T013000Z
 SUMMARY:[티켓링크] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산
@@ -448,7 +448,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65372
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산|2026-07-15|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T010000Z
 DTEND:20260715T013000Z
 SUMMARY:[NOL 티켓] 바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산
@@ -457,7 +457,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부|2026-07-15|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T020000Z
 DTEND:20260715T023000Z
 SUMMARY:[티켓링크] 2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부
@@ -466,7 +466,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65377
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부|2026-07-15|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T020000Z
 DTEND:20260715T023000Z
 SUMMARY:[NOL 티켓] 2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부
@@ -475,7 +475,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|에|2026-07-15|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T020000Z
 DTEND:20260715T023000Z
 SUMMARY:[티켓링크] 에
@@ -484,7 +484,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65378
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|의정부예술의전당 대극장|2026-07-15|11:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T020000Z
 DTEND:20260715T023000Z
 SUMMARY:[NOL 티켓] 의정부예술의전당 대극장
@@ -493,7 +493,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|〈2026 STAGE 100: 연극제〉 모딧세이|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[NOL 티켓] 〈2026 STAGE 100: 연극제〉 모딧세이
@@ -502,7 +502,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|〈2026 STAGE 100: 연극제〉 바쁜 사람들|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[NOL 티켓] 〈2026 STAGE 100: 연극제〉 바쁜 사람들
@@ -511,7 +511,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|〈2026 STAGE 100: 연극제〉 외투|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[NOL 티켓] 〈2026 STAGE 100: 연극제〉 외투
@@ -520,7 +520,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 GHOST 페스티벌|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[NOL 티켓] 2026 GHOST 페스티벌
@@ -529,7 +529,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:melon|2026 GHOST 페스티벌 - 얼리버드|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[멜론 티켓] 2026 GHOST 페스티벌 - 얼리버드
@@ -538,7 +538,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12534
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|2026 GHOST 페스티벌 - 얼리버드|2026-07-15|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T050000Z
 DTEND:20260715T053000Z
 SUMMARY:[티켓링크] 2026 GHOST 페스티벌 - 얼리버드
@@ -546,8 +546,26 @@ DESCRIPTION:2026-07-15 14:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notic
 URL:https://m.ticketlink.co.kr/help/notice/65373
 END:VEVENT
 BEGIN:VEVENT
+UID:melon|먼데이프로젝트 시즌9 [이파란 단독 콘서트 〈미스테리! 초럭셔리 왕실파티와 사라진 보석〉]|2026-07-15|20:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260715T110000Z
+DTEND:20260715T113000Z
+SUMMARY:[멜론 티켓] 먼데이프로젝트 시즌9 [이파란 단독 콘서트 〈미스테리! 초럭셔리 왕실파티와 사라진 보석〉]
+DESCRIPTION:2026-07-15 20:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12516
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12516
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|쿠잉 단독 콘서트 [SUMMER KISS : 4 IN 6 OUT]|2026-07-15|20:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260715T110000Z
+DTEND:20260715T113000Z
+SUMMARY:[멜론 티켓] 쿠잉 단독 콘서트 [SUMMER KISS : 4 IN 6 OUT]
+DESCRIPTION:2026-07-15 20:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12522
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12522
+END:VEVENT
+BEGIN:VEVENT
 UID:melon|POSER | 2026 SUMMER CLUB TOUR : 서울|2026-07-15|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260715T110000Z
 DTEND:20260715T113000Z
 SUMMARY:[멜론 티켓] POSER | 2026 SUMMER CLUB TOUR : 서울
@@ -556,7 +574,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12531
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|2026 카즈미 타테이시 트리오 내한공연-지브리\, 재즈를 만나다-(서울)|2026-07-16|12:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T030000Z
 DTEND:20260716T033000Z
 SUMMARY:[NOL 티켓] 2026 카즈미 타테이시 트리오 내한공연-지브리\, 재즈를 만나다-(서울)
@@ -565,7 +583,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]연극 <노인의 꿈> - 동해|2026-07-16|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T050000Z
 DTEND:20260716T053000Z
 SUMMARY:[티켓링크] [단독판매]연극 <노인의 꿈> - 동해
@@ -574,7 +592,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65366
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[용인] 2026 빅3 '행복한만남' [강진\, 김용임\, 진성]|2026-07-16|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T050000Z
 DTEND:20260716T053000Z
 SUMMARY:[티켓링크] [용인] 2026 빅3 '행복한만남' [강진\, 김용임\, 진성]
@@ -583,7 +601,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65383
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|[용인] 2026 빅3 “행복한만남” [강진\, 김용임\, 진성]|2026-07-16|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T050000Z
 DTEND:20260716T053000Z
 SUMMARY:[NOL 티켓] [용인] 2026 빅3 “행복한만남” [강진\, 김용임\, 진성]
@@ -592,7 +610,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|뮤지컬 〈박열〉|2026-07-16|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T050000Z
 DTEND:20260716T053000Z
 SUMMARY:[NOL 티켓] 뮤지컬 〈박열〉
@@ -601,7 +619,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|뮤지컬 <박열> 마지막​|2026-07-16|14:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T050000Z
 DTEND:20260716T053000Z
 SUMMARY:[티켓링크] 뮤지컬 <박열> 마지막​
@@ -610,7 +628,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65368
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|스미노 하야토 피아노 리사이틀|2026-07-16|15:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T060000Z
 DTEND:20260716T063000Z
 SUMMARY:[NOL 티켓] 스미노 하야토 피아노 리사이틀
@@ -619,7 +637,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|창작가무극 〈청사초롱 불 밝혀라〉|2026-07-16|15:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T060000Z
 DTEND:20260716T063000Z
 SUMMARY:[NOL 티켓] 창작가무극 〈청사초롱 불 밝혀라〉
@@ -628,7 +646,7 @@ URL:https://tickets.interpark.com/contents/notice
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|민트페스타 vol.86|2026-07-16|17:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T080000Z
 DTEND:20260716T083000Z
 SUMMARY:[NOL 티켓] 민트페스타 vol.86
@@ -637,7 +655,7 @@ URL:https://tickets.interpark.com/contents/notice/detail/14526
 END:VEVENT
 BEGIN:VEVENT
 UID:interpark|민트페스타 vol.87|2026-07-16|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T090000Z
 DTEND:20260716T093000Z
 SUMMARY:[NOL 티켓] 민트페스타 vol.87
@@ -645,8 +663,26 @@ DESCRIPTION:2026-07-16 18:00 ticket open\\nhttps://tickets.interpark.com/content
 URL:https://tickets.interpark.com/contents/notice/detail/14527
 END:VEVENT
 BEGIN:VEVENT
+UID:melon|POSER | 2026 SUMMER CLUB TOUR : 부산|2026-07-16|19:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260716T100000Z
+DTEND:20260716T103000Z
+SUMMARY:[멜론 티켓] POSER | 2026 SUMMER CLUB TOUR : 부산
+DESCRIPTION:2026-07-16 19:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12512
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12512
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|POSER | 2026 SUMMER CLUB TOUR : 대구|2026-07-16|19:30@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260716T103000Z
+DTEND:20260716T110000Z
+SUMMARY:[멜론 티켓] POSER | 2026 SUMMER CLUB TOUR : 대구
+DESCRIPTION:2026-07-16 19:30 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12519
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12519
+END:VEVENT
+BEGIN:VEVENT
 UID:interpark|2026 임영웅 콘서트 [IM HERO - THE STADIUM 2]|2026-07-16|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T110000Z
 DTEND:20260716T113000Z
 SUMMARY:[NOL 티켓] 2026 임영웅 콘서트 [IM HERO - THE STADIUM 2]
@@ -654,8 +690,17 @@ DESCRIPTION:2026-07-16 20:00 ticket open\\nhttps://tickets.interpark.com/content
 URL:https://tickets.interpark.com/contents/notice/detail/14497
 END:VEVENT
 BEGIN:VEVENT
+UID:melon|2026 YERIN FAN CONCERT : ‘STAR BLOOM’|2026-07-16|20:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260716T110000Z
+DTEND:20260716T113000Z
+SUMMARY:[멜론 티켓] 2026 YERIN FAN CONCERT : ‘STAR BLOOM’
+DESCRIPTION:2026-07-16 20:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12523
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12523
+END:VEVENT
+BEGIN:VEVENT
 UID:melon|O.O.O단독 콘서트 : 느리고\, 흐린 춤(Slow\, Blurry Dance)|2026-07-16|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260716T110000Z
 DTEND:20260716T113000Z
 SUMMARY:[멜론 티켓] O.O.O단독 콘서트 : 느리고\, 흐린 춤(Slow\, Blurry Dance)
@@ -663,8 +708,17 @@ DESCRIPTION:2026-07-16 20:00 ticket open\\nhttps://ticket.melon.com/csoon/detail
 URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12535
 END:VEVENT
 BEGIN:VEVENT
+UID:melon|POSER | 2026 SUMMER CLUB TOUR : 대전|2026-07-16|20:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20260716T110000Z
+DTEND:20260716T113000Z
+SUMMARY:[멜론 티켓] POSER | 2026 SUMMER CLUB TOUR : 대전
+DESCRIPTION:2026-07-16 20:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12525
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12525
+END:VEVENT
+BEGIN:VEVENT
 UID:melon|리메이 1st 팬콘서트 〈숲속의 메아리들〉|2026-07-17|18:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260717T090000Z
 DTEND:20260717T093000Z
 SUMMARY:[멜론 티켓] 리메이 1st 팬콘서트 〈숲속의 메아리들〉
@@ -673,7 +727,7 @@ URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12532
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]2026 KIM JAE JOONG CONCERT [THE WAVE] in Seoul|2026-07-21|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260721T110000Z
 DTEND:20260721T113000Z
 SUMMARY:[티켓링크] [단독판매]2026 KIM JAE JOONG CONCERT [THE WAVE] in Seoul
@@ -682,7 +736,7 @@ URL:https://m.ticketlink.co.kr/help/notice/65374
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]JO1DER SHOW 2026 ‘EIEN 永緣’ LIMITED EDITION IN SEOUL​|2026-07-21|20:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260721T110000Z
 DTEND:20260721T113000Z
 SUMMARY:[티켓링크] [단독판매]JO1DER SHOW 2026 ‘EIEN 永緣’ LIMITED EDITION IN SEOUL​
@@ -691,11 +745,20 @@ URL:https://m.ticketlink.co.kr/help/notice/65279
 END:VEVENT
 BEGIN:VEVENT
 UID:ticketlink|[단독판매]썸머나이트 <지누션 & 디바> - 경주|2026-07-28|10:00@ticket-open-checker
-DTSTAMP:20260711T133501Z
+DTSTAMP:20260711T135916Z
 DTSTART:20260728T010000Z
 DTEND:20260728T013000Z
 SUMMARY:[티켓링크] [단독판매]썸머나이트 <지누션 & 디바> - 경주
 DESCRIPTION:2026-07-28 10:00 ticket open\\nhttps://m.ticketlink.co.kr/help/notice/65361
 URL:https://m.ticketlink.co.kr/help/notice/65361
+END:VEVENT
+BEGIN:VEVENT
+UID:melon|Sustainable Wave Festival 서스테이너블 웨이브 페스티벌|2062-07-03|10:00@ticket-open-checker
+DTSTAMP:20260711T135916Z
+DTSTART:20620703T010000Z
+DTEND:20620703T013000Z
+SUMMARY:[멜론 티켓] Sustainable Wave Festival 서스테이너블 웨이브 페스티벌
+DESCRIPTION:2062-07-03 10:00 ticket open\\nhttps://ticket.melon.com/csoon/detail.htm?csoonId=12495
+URL:https://ticket.melon.com/csoon/detail.htm?csoonId=12495
 END:VEVENT
 END:VCALENDAR

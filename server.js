@@ -323,9 +323,10 @@ async function fetchMelonPage(page, pageIndex) {
       // 모바일 딥링크를 기본 URL로 사용한다: 모바일에선 그대로 상세 SPA로,
       // 데스크톱에선 ticket.melon.com/csoon/detail.htm 로 리다이렉트되어 양쪽 다 정상.
       // (데스크톱 URL을 쓰면 모바일에서 홈으로 튕기는 문제가 있었다.)
+      // 멜론 모바일은 특정 공고 콜드 로드 딥링크를 지원하지 않아, 데스크톱 상세 URL을 쓴다.
       const url = cid
-        ? `https://m.ticket.melon.com/public/index.html#ticketOpen.detail?csoonId=${cid[1]}`
-        : 'https://m.ticket.melon.com/public/index.html#ticketOpen.list';
+        ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${cid[1]}`
+        : 'https://ticket.melon.com/csoon/index.htm';
       const imgEl = li.querySelector('img');
       let image = imgEl ? (imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || '') : '';
       if (image.startsWith('//')) image = `https:${image}`;

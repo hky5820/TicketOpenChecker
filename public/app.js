@@ -982,11 +982,13 @@ function popularFlagHtml(item) {
 // 데스크톱 URL(ticket.melon.com/csoon/detail.htm)은 모바일에서 홈으로 튕길 수 있어,
 // 모바일에선 상세 SPA로 바로 가고 데스크톱에선 상세로 리다이렉트되는 딥링크로 통일한다.
 function resolveMelonUrl(url) {
-  const m = /ticket\.melon\.com\/csoon\/detail\.htm\?csoonId=(\d+)/.exec(url || '');
-  // 대문자 O: 멜론 모바일 SPA의 실제 인앱 렌더 핸들러(ticketOpen.detail).
-  // 소문자(ticketopen.detail)는 리다이렉트 테이블에 걸려 데스크톱으로 되돌아가며
-  // 모바일에서 무한 리다이렉트/빈 화면이 된다.
-  return m ? `https://m.ticket.melon.com/public/index.html#ticketOpen.detail?csoonId=${m[1]}` : url;
+  // 멜론 모바일 SPA는 특정 공고로의 콜드 로드 딥링크를 지원하지 않는다
+  // (소문자 해시=리다이렉트 루프→빈 화면, 대문자 해시=홈). 그래서 어떤 형태든
+  // 정석인 데스크톱 상세 URL로 정규화한다: 데스크톱에선 정상, 모바일에선 멜론이
+  // 자기 모바일뷰로 강제하는 부분은 멜론 한계.
+  if (!/melon\.com/.test(url || '')) return url;
+  const m = /csoonId=(\d+)/.exec(url);
+  return m ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}` : url;
 }
 
 // 조회수 숫자 표시

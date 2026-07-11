@@ -107,8 +107,12 @@ confirmModal.addEventListener('click', (event) => {
 function toAndroidIntentUrl(httpsUrl) {
   try {
     const u = new URL(httpsUrl);
-    // package 지정: 없으면 크롬이 다시 커스텀탭으로 열어버린다. 크롬 앱을 명시해 풀 브라우저로 강제.
-    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
+    // package 지정: 없으면 다시 커스텀탭으로 열려버린다. PWA는 설치한 브라우저 엔진에서
+    // 돌므로, 현재 엔진(UA)과 같은 브라우저의 풀 버전으로 연다. 미설치 시 fallback_url.
+    const pkg = /SamsungBrowser/i.test(navigator.userAgent)
+      ? 'com.sec.android.app.sbrowser'
+      : 'com.android.chrome';
+    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=${pkg};S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
   } catch {
     return httpsUrl;
   }

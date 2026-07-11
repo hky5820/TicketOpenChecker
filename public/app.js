@@ -731,7 +731,7 @@ function renderSiteBoard(items) {
 function renderSiteBoardCard(item, showSite = false, showDate = false) {
   const link = document.createElement('a');
   link.className = `site-board-card site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
-  link.href = item.url;
+  link.href = resolveMelonUrl(item.url);
   link.target = '_blank';
   link.rel = 'noreferrer';
   const siteTag = showSite
@@ -821,7 +821,7 @@ function renderUnknown(items) {
   items.forEach((item) => {
     const link = document.createElement('a');
     link.className = `unknown-card site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
-    link.href = item.url;
+    link.href = resolveMelonUrl(item.url);
     link.target = '_blank';
     link.rel = 'noreferrer';
     link.innerHTML = `
@@ -897,7 +897,7 @@ function renderModalItems(items, siteId) {
       groupItems.forEach((item) => {
         const link = document.createElement('a');
         link.className = `modal-item site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
-        link.href = item.url;
+        link.href = resolveMelonUrl(item.url);
         link.target = '_blank';
         link.rel = 'noreferrer';
         const mThumb = item.image
@@ -976,6 +976,14 @@ function isPopular(item) {
 function popularFlagHtml(item) {
   if (!isPopular(item)) return '';
   return `<span class="popular-ribbon" title="조회 ${item.viewCount.toLocaleString()}회 인기공연">인기</span>`;
+}
+
+// 멜론 데스크톱 상세 URL을 모바일 딥링크로 변환한다.
+// 데스크톱 URL(ticket.melon.com/csoon/detail.htm)은 모바일에서 홈으로 튕길 수 있어,
+// 모바일에선 상세 SPA로 바로 가고 데스크톱에선 상세로 리다이렉트되는 딥링크로 통일한다.
+function resolveMelonUrl(url) {
+  const m = /ticket\.melon\.com\/csoon\/detail\.htm\?csoonId=(\d+)/.exec(url || '');
+  return m ? `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${m[1]}` : url;
 }
 
 // 조회수 숫자 표시

@@ -460,6 +460,7 @@ p {
 .primary-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   height: 42px;
   gap: 8px;
   padding: 0 18px;
@@ -467,6 +468,7 @@ p {
   background: var(--accent);
   color: white;
   font-weight: 850;
+  text-decoration: none; /* 앵커로 쓰일 때도 버튼처럼 보이게 */
 }
 
 .primary-button:hover:not([disabled]) {

@@ -100,17 +100,10 @@ confirmModal.addEventListener('click', (event) => {
     closeConfirm();
   }
 });
+// confirmGo 는 실제 <a> — 브라우저 기본 네비게이션에 맡긴다(사용자 직접 탭이라
+// intent:// 도 차단 없이 실행됨). 여기서는 다이얼로그만 닫는다. preventDefault 금지.
 confirmGo.addEventListener('click', () => {
-  if (pendingUrl) {
-    if (pendingUrl.startsWith('intent:')) {
-      // intent:// 는 팝업이 아니라 현재 컨텍스트에서 실행해야 외부 앱/기본 브라우저가 뜬다.
-      // (외부 핸들러만 실행되고 이 페이지는 이동하지 않는다.)
-      window.location.href = pendingUrl;
-    } else {
-      window.open(pendingUrl, '_blank', 'noopener');
-    }
-  }
-  closeConfirm();
+  setTimeout(closeConfirm, 80);
 });
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
@@ -942,6 +935,15 @@ function closeModal() {
 
 function askNavigate(url, title) {
   pendingUrl = url;
+  // 이동 버튼은 실제 앵커: 사용자 직접 탭이 그대로 네비게이션이 되어
+  // intent:// 도 크롬의 JS 네비게이션 차단에 걸리지 않는다.
+  confirmGo.setAttribute('href', url);
+  if (url.startsWith('intent:')) {
+    // intent 는 같은 컨텍스트에서 실행해야 외부 핸들러가 뜬다(_blank 금지).
+    confirmGo.removeAttribute('target');
+  } else {
+    confirmGo.setAttribute('target', '_blank');
+  }
   confirmSub.textContent = title || '';
   confirmSub.hidden = !title;
   confirmModal.hidden = false;
@@ -952,6 +954,7 @@ function askNavigate(url, title) {
 function closeConfirm() {
   confirmModal.hidden = true;
   pendingUrl = null;
+  confirmGo.setAttribute('href', '#');
   updateScrollLock();
 }
 

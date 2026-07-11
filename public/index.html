@@ -28,7 +28,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=20260712j">
+  <link rel="stylesheet" href="style.css?v=20260712k">
 </head>
 <body>
   <main class="app">
@@ -121,11 +121,12 @@
       <p id="confirmSub" class="confirm-sub"></p>
       <div class="confirm-actions">
         <button id="confirmCancel" class="text-button" type="button" data-confirm-close>취소</button>
-        <button id="confirmGo" class="primary-button" type="button">이동</button>
+        <!-- intent:// 는 JS 네비게이션이 차단될 수 있어, 진짜 앵커를 직접 탭하게 한다. -->
+        <a id="confirmGo" class="primary-button" href="#" rel="noreferrer noopener">이동</a>
       </div>
     </section>
   </div>
 
-  <script src="app.js?v=20260712j"></script>
+  <script src="app.js?v=20260712k"></script>
 </body>
 </html>

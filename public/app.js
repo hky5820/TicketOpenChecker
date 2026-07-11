@@ -101,24 +101,25 @@ confirmModal.addEventListener('click', (event) => {
   }
 });
 confirmGo.addEventListener('click', () => {
-  if (pendingUrl) window.open(pendingUrl, '_blank', 'noopener');
+  if (pendingUrl) {
+    if (pendingUrl.startsWith('intent:')) {
+      // intent:// 는 팝업이 아니라 현재 컨텍스트에서 실행해야 외부 앱/기본 브라우저가 뜬다.
+      // (외부 핸들러만 실행되고 이 페이지는 이동하지 않는다.)
+      window.location.href = pendingUrl;
+    } else {
+      window.open(pendingUrl, '_blank', 'noopener');
+    }
+  }
   closeConfirm();
 });
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
-// 멜론은 모바일 페이지가 기기에 따라 빈 화면이 되는 문제가 있어(멜론 SPA 이슈),
-// CORS 개방된 tktapi 상세 API로 앱 안에서 직접 상세를 렌더한다.
 document.addEventListener('click', (event) => {
   if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
   if (!link || !link.href) return;
   event.preventDefault();
   const title = link.querySelector('strong')?.textContent?.trim() || '';
-  const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
-  if (melonId) {
-    openMelonDetail(melonId, title, link.href);
-    return;
-  }
   askNavigate(link.href, title);
 });
 
@@ -848,64 +849,6 @@ function openDayModal(dateKey, items) {
   updateScrollLock();
 }
 
-// 멜론 공지 HTML에서 위험 요소(script 등)와 인라인 이벤트를 제거한다.
-function sanitizeNoticeHtml(html) {
-  const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
-  doc.querySelectorAll('script, style, iframe, object, embed, link, meta, form').forEach((el) => el.remove());
-  doc.querySelectorAll('*').forEach((el) => {
-    [...el.attributes].forEach((attr) => {
-      const name = attr.name.toLowerCase();
-      if (name.startsWith('on') || (name === 'href' && /^javascript:/i.test(attr.value))) el.removeAttribute(attr.name);
-    });
-  });
-  return doc.body.innerHTML;
-}
-
-// 멜론 상세를 앱 안에서 렌더한다. tktapi 상세 API가 CORS 개방(ACAO: *)이라 직접 호출 가능.
-async function openMelonDetail(csoonId, title, fallbackUrl) {
-  modalTitle.textContent = title || '멜론 티켓오픈';
-  modalList.innerHTML = '<p class="empty">멜론 상세 정보를 불러오는 중...</p>';
-  modal.hidden = false;
-  updateScrollLock();
-
-  let data = null;
-  try {
-    const res = await fetch(`https://tktapi.melon.com/poc/ticketOpen/detail.json?csoonId=${csoonId}&v=1`);
-    const json = await res.json();
-    if (json.result === 0 && json.data) data = json.data;
-  } catch {
-    // 아래 폴백 링크 안내로 처리
-  }
-
-  if (!data) {
-    modalList.innerHTML = `
-      <p class="empty">상세 정보를 불러오지 못했습니다.</p>
-      <a class="melon-open-link" href="${escapeHtml(fallbackUrl)}" target="_blank" rel="noreferrer">멜론티켓에서 열기 ↗</a>
-    `;
-    return;
-  }
-
-  const poster = data.posterUrl ? `https://cdnticket.melon.co.kr${data.posterUrl}` : '';
-  const sections = [
-    ['기본정보', data.infoPerf],
-    ['공연소개', data.infoComt],
-    ['할인정보', data.infoDisc],
-    ['기획사 정보', data.infoPartner ? escapeHtml(data.infoPartner).replace(/\n/g, '<br>') : ''],
-  ].filter(([, html]) => html && String(html).trim());
-
-  modalList.innerHTML = `
-    <div class="melon-detail">
-      ${poster ? `<img class="melon-detail-poster" src="${escapeHtml(poster)}" alt="" onerror="this.remove();">` : ''}
-      ${sections.map(([label, html]) => `
-        <section class="melon-detail-section">
-          <h3>${label}</h3>
-          <div class="melon-detail-body">${sanitizeNoticeHtml(html)}</div>
-        </section>
-      `).join('')}
-      <a class="melon-open-link" href="${escapeHtml(resolveMelonUrl(fallbackUrl))}" target="_blank" rel="noreferrer">멜론티켓에서 열기 ↗</a>
-    </div>
-  `;
-}
 
 function updateScrollLock() {
   const open = !modal.hidden || !confirmModal.hidden;
@@ -1048,18 +991,22 @@ function popularFlagHtml(item) {
 // 데스크톱 URL(ticket.melon.com/csoon/detail.htm)은 모바일에서 홈으로 튕길 수 있어,
 // 모바일에선 상세 SPA로 바로 가고 데스크톱에선 상세로 리다이렉트되는 딥링크로 통일한다.
 function resolveMelonUrl(url) {
-  // Playwright 모바일 에뮬레이션(iOS/Android UA, 쿠키 없는 새 프로필)으로 검증:
-  // 소문자 해시 딥링크(#ticketopen.detail?csoonId=X)는 모바일에서 콜드 로드로도
-  // 상세가 완전히 렌더된다(데이터: tktapi.melon.com/poc/ticketOpen/detail.json).
-  // 대문자(#ticketOpen.detail)는 라우트 미매칭으로 홈으로 떨어진다.
-  // 기기별로 검증된 URL을 직접 써서 멜론의 UA 302 홉을 거치지 않는다.
+  // 멜론 모바일 페이지는 인앱브라우저/커스텀탭(PWA에서 링크를 열면 이걸로 열림)에서
+  // 빈 화면이 되는 문제가 있다. 안드로이드에서는 intent:// 스킴으로 커스텀탭을
+  // 벗어나 시스템 기본 핸들러(기본 브라우저, 멜론티켓 앱이 링크를 등록했으면 앱)로 연다.
   if (!/melon\.com/.test(url || '')) return url;
   const m = /csoonId=(\d+)/.exec(url);
   if (!m) return url;
-  const mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
-  return mobile
-    ? `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${m[1]}`
-    : `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}`;
+  const ua = navigator.userAgent;
+  const desktopUrl = `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}`;
+  if (/Android/i.test(ua)) {
+    return `intent://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(desktopUrl)};end`;
+  }
+  if (/iPhone|iPad|Mobile/i.test(ua)) {
+    // iOS 등: 모바일 딥링크(에뮬레이션 검증됨 — 콜드 로드로 상세 렌더)
+    return `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${m[1]}`;
+  }
+  return desktopUrl;
 }
 
 // 조회수 숫자 표시

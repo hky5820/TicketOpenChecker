@@ -15,7 +15,7 @@ const state = {
   date: new Date(),
   items: [],
   view: readStored(VIEW_KEY, ['calendar', 'site'], 'calendar'),
-  groupBy: readStored(GROUP_KEY, ['date', 'site'], 'date'),
+  groupBy: readStored(GROUP_KEY, ['date', 'site', 'views'], 'date'),
 };
 
 const calendar = document.getElementById('calendar');
@@ -55,6 +55,7 @@ calendarViewButton.addEventListener('click', () => setView('calendar'));
 siteViewButton.addEventListener('click', () => setView('site'));
 document.getElementById('groupSite').addEventListener('click', () => setGroupBy('site'));
 document.getElementById('groupDate').addEventListener('click', () => setGroupBy('date'));
+document.getElementById('groupViews').addEventListener('click', () => setGroupBy('views'));
 loadButton.addEventListener('click', loadSchedules);
 document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 searchInput.addEventListener('input', renderSearchSuggestions);
@@ -314,12 +315,15 @@ function syncControls() {
   siteViewButton.classList.toggle('is-selected', state.view === 'site');
   calendarViewButton.setAttribute('aria-pressed', state.view === 'calendar' ? 'true' : 'false');
   siteViewButton.setAttribute('aria-pressed', state.view === 'site' ? 'true' : 'false');
-  const gDate = document.getElementById('groupDate');
-  const gSite = document.getElementById('groupSite');
-  gDate.classList.toggle('is-selected', state.groupBy === 'date');
-  gSite.classList.toggle('is-selected', state.groupBy === 'site');
-  gDate.setAttribute('aria-pressed', state.groupBy === 'date' ? 'true' : 'false');
-  gSite.setAttribute('aria-pressed', state.groupBy === 'site' ? 'true' : 'false');
+  const groups = {
+    date: document.getElementById('groupDate'),
+    views: document.getElementById('groupViews'),
+    site: document.getElementById('groupSite'),
+  };
+  Object.entries(groups).forEach(([mode, btn]) => {
+    btn.classList.toggle('is-selected', state.groupBy === mode);
+    btn.setAttribute('aria-pressed', state.groupBy === mode ? 'true' : 'false');
+  });
 }
 
 function setView(view) {
@@ -506,6 +510,8 @@ function render() {
 
   if (state.view === 'calendar') {
     renderCalendar(year, month);
+  } else if (state.groupBy === 'views') {
+    renderViewsBoard(datedMonthItems);
   } else if (state.groupBy === 'date') {
     renderDateBoard(datedMonthItems);
   } else {
@@ -513,6 +519,29 @@ function render() {
   }
   renderUnknown(unknownItems);
   renderSearchSuggestions();
+}
+
+function renderViewsBoard(items) {
+  siteBoard.innerHTML = '';
+  siteBoard.classList.add('by-date');
+  const sorted = items
+    .filter((item) => item.openTime)
+    .slice()
+    .sort((a, b) => {
+      const av = a.viewCount == null ? -1 : a.viewCount;
+      const bv = b.viewCount == null ? -1 : b.viewCount;
+      return bv - av
+        || `${a.openDate}T${a.openTime}`.localeCompare(`${b.openDate}T${b.openTime}`)
+        || a.title.localeCompare(b.title, 'ko');
+    });
+  if (!sorted.length) {
+    siteBoard.innerHTML = '<p class="empty">이번 달 일정이 없습니다.</p>';
+    return;
+  }
+  const list = document.createElement('div');
+  list.className = 'views-list';
+  sorted.forEach((item) => list.appendChild(renderSiteBoardCard(item, true, true)));
+  siteBoard.appendChild(list);
 }
 
 function renderDateBoard(items) {
@@ -697,7 +726,7 @@ function renderSiteBoard(items) {
   });
 }
 
-function renderSiteBoardCard(item, showSite = false) {
+function renderSiteBoardCard(item, showSite = false, showDate = false) {
   const link = document.createElement('a');
   link.className = `site-board-card site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
   link.href = item.url;
@@ -706,16 +735,20 @@ function renderSiteBoardCard(item, showSite = false) {
   const siteTag = showSite
     ? `<span class="board-card-site site-${item.siteId}">${escapeHtml(siteShortName(item.siteId))}</span>`
     : '';
+  const dateTag = showDate
+    ? `<span class="board-card-date">${escapeHtml(formatMonthDay(item.openDate))} ${escapeHtml(item.openTime || '')}</span>`
+    : '';
   // 썸네일 칸을 먼저 잡고, 이미지가 깨지면 칸까지 제거한다(빈 회색칸 방지).
   const thumb = item.image
     ? `<img class="board-thumb" src="${escapeHtml(item.image)}" alt="" onerror="this.closest('.site-board-card')?.classList.remove('has-thumb');this.remove();">`
     : '';
   link.innerHTML = `
+    ${popularFlagHtml(item)}
     ${thumb}
     <div class="board-card-title">
       ${siteTag}
+      ${dateTag}
       <strong>${escapeHtml(item.title)}</strong>
-      ${popularFlagHtml(item)}
       ${viewCountHtml(item)}
     </div>
   `;
@@ -790,9 +823,9 @@ function renderUnknown(items) {
     link.target = '_blank';
     link.rel = 'noreferrer';
     link.innerHTML = `
+      ${popularFlagHtml(item)}
       <span class="site-label site-${item.siteId}">${escapeHtml(item.site)}</span>
       <strong>${escapeHtml(item.title)}</strong>
-      ${popularFlagHtml(item)}
       <span>${item.openDate}</span>
     `;
     unknownList.appendChild(link);
@@ -869,10 +902,11 @@ function renderModalItems(items, siteId) {
           ? `<img class="modal-thumb" src="${escapeHtml(item.image)}" alt="" onerror="this.closest('.modal-item')?.classList.remove('has-thumb');this.remove();">`
           : '';
         link.innerHTML = `
+          ${popularFlagHtml(item)}
           ${mThumb}
           <span class="meta-badge time-badge">${escapeHtml(item.openTime || '시간 미정')}</span>
           <span class="modal-mid">
-            <strong>${isPopular(item) ? '🔥 ' : ''}${escapeHtml(item.title)}</strong>
+            <strong>${escapeHtml(item.title)}</strong>
             ${viewCountHtml(item)}
           </span>
           <span class="meta-badge site-badge site-${item.siteId}">${escapeHtml(item.site)}</span>
@@ -938,9 +972,10 @@ function isPopular(item) {
   return item.viewCount != null && item.viewCount >= POPULAR_VIEW_THRESHOLD;
 }
 
+// TicketManager 양도/취소 표시처럼 카드 모서리에 대각선 띠(리본)로 인기 표시.
 function popularFlagHtml(item) {
   if (!isPopular(item)) return '';
-  return `<span class="popular-flag" title="조회 ${item.viewCount.toLocaleString()}회 인기공연">🔥 인기</span>`;
+  return `<span class="popular-ribbon" title="조회 ${item.viewCount.toLocaleString()}회 인기공연">인기</span>`;
 }
 
 // 조회수 숫자 표시

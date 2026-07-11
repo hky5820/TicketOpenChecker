@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>티켓 오픈 캘린더</title>
   <meta id="metaTheme" name="theme-color" content="#eef2fb">
   <meta name="color-scheme" content="light">
@@ -28,7 +28,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=20260712a">
+  <link rel="stylesheet" href="style.css?v=20260712b">
 </head>
 <body>
   <main class="app">
@@ -82,8 +82,9 @@
         <div class="cal-viewport">
           <div id="calendar" class="calendar-grid"></div>
         </div>
-        <div id="groupSwitch" class="group-switch" role="group" aria-label="그룹 기준" hidden>
+        <div id="groupSwitch" class="group-switch" role="group" aria-label="정렬/그룹 기준" hidden>
           <button id="groupDate" class="group-button is-selected" type="button" data-group="date" aria-pressed="true">날짜순</button>
+          <button id="groupViews" class="group-button" type="button" data-group="views" aria-pressed="false">조회순</button>
           <button id="groupSite" class="group-button" type="button" data-group="site" aria-pressed="false">예매처별</button>
         </div>
         <div id="siteBoard" class="site-board" hidden></div>
@@ -125,6 +126,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=20260712a"></script>
+  <script src="app.js?v=20260712b"></script>
 </body>
 </html>

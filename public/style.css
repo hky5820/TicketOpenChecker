@@ -86,12 +86,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  background:
-    radial-gradient(38% 32% at 12% 8%, rgba(124, 151, 255, 0.22), transparent 70%),
-    radial-gradient(34% 30% at 88% 12%, rgba(120, 190, 255, 0.16), transparent 70%),
-    radial-gradient(40% 40% at 84% 92%, rgba(77, 212, 172, 0.14), transparent 70%),
-    linear-gradient(160deg, #f6f8fe, #eef2fb);
-  background-attachment: fixed;
+  background: var(--canvas);
   color: var(--ink);
   font-family: "Pretendard", "Segoe UI Variable", "Segoe UI", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", Arial, sans-serif;
   font-size: 13px;
@@ -101,12 +96,29 @@ body {
 }
 
 :root[data-theme="dark"] body {
+  background: var(--canvas);
+}
+
+/* 뷰포트 전체(상단 노치·하단 제스처 안전영역 포함)를 확실히 칠하는 고정 배경 레이어.
+   모바일에서 background-attachment: fixed 가 dvh 변화 시 안전영역을 못 덮는 버그 대응. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(38% 32% at 12% 8%, rgba(124, 151, 255, 0.22), transparent 70%),
+    radial-gradient(34% 30% at 88% 12%, rgba(120, 190, 255, 0.16), transparent 70%),
+    radial-gradient(40% 40% at 84% 92%, rgba(77, 212, 172, 0.14), transparent 70%),
+    linear-gradient(160deg, #f6f8fe, #eef2fb);
+}
+
+:root[data-theme="dark"] body::before {
   background:
     radial-gradient(38% 32% at 12% 8%, rgba(90, 110, 220, 0.26), transparent 70%),
     radial-gradient(34% 30% at 88% 12%, rgba(60, 130, 200, 0.18), transparent 70%),
     radial-gradient(40% 40% at 84% 92%, rgba(50, 150, 120, 0.16), transparent 70%),
     linear-gradient(160deg, #10131b, #0d1017);
-  background-attachment: fixed;
 }
 
 button,
@@ -1791,23 +1803,11 @@ p {
   white-space: nowrap;
 }
 
-/* 리스트 뷰: 바깥 패널 카드를 없애 헤더와 리스트가 자연스럽게 이어지게 */
+/* 리스트 뷰: 바깥 패널 카드만 없애 헤더와 리스트가 자연스럽게 이어지게 하고,
+   날짜 그룹 카드(테두리)와 좌우 여백은 유지한다. */
 .workspace.is-site-view .calendar-panel {
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0;
-}
-
-.date-group {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.date-group .site-date-head {
-  padding: 2px 2px 6px;
+  padding: 0 12px;
 }

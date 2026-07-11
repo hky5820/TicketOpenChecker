@@ -4,7 +4,7 @@ const state = {
   date: new Date(),
   items: [],
   view: 'calendar',
-  groupBy: 'site',
+  groupBy: 'date',
 };
 
 const calendar = document.getElementById('calendar');
@@ -99,6 +99,34 @@ document.addEventListener('click', (event) => {
   askNavigate(link.href, title);
 });
 
+// 스와이프: 캘린더 위에서는 달을 넘기고, 그 외 영역에서는 캘린더↔리스트를 전환한다. (터치/펜만)
+let swipeX = 0;
+let swipeY = 0;
+let swipeTime = 0;
+let swipeEl = null;
+document.addEventListener('pointerdown', (event) => {
+  if (event.pointerType === 'mouse') return;
+  swipeX = event.clientX;
+  swipeY = event.clientY;
+  swipeTime = Date.now();
+  swipeEl = event.target;
+}, { passive: true });
+document.addEventListener('pointerup', (event) => {
+  const el = swipeEl;
+  swipeEl = null;
+  if (!el || event.pointerType === 'mouse') return;
+  const dx = event.clientX - swipeX;
+  const dy = event.clientY - swipeY;
+  if (Date.now() - swipeTime > 700) return;
+  if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+  if (el.closest('.modal') || el.closest('.search-box')) return;
+  if (el.closest('#calendar')) {
+    moveMonth(dx < 0 ? 1 : -1);
+  } else {
+    setView(state.view === 'calendar' ? 'site' : 'calendar');
+  }
+}, { passive: true });
+
 restoreItems();
 render();
 loadStaticItems();
@@ -152,7 +180,7 @@ function loadSchedules() {
   clearItems();
   resetStatus();
   loadButton.disabled = true;
-  loadButton.querySelector('.button-icon').textContent = '…';
+  loadButton.classList.add('is-loading');
   summary.textContent = '사이트별 일정을 불러오는 중입니다.';
 
   const source = new EventSource('/api/load');
@@ -181,20 +209,20 @@ function loadSchedules() {
     saveItems();
     source.close();
     loadButton.disabled = false;
-    loadButton.querySelector('.button-icon').textContent = '↻';
+    loadButton.classList.remove('is-loading');
     render();
   });
   source.addEventListener('fatal', (event) => {
     const payload = JSON.parse(event.data);
     source.close();
     loadButton.disabled = false;
-    loadButton.querySelector('.button-icon').textContent = '↻';
+    loadButton.classList.remove('is-loading');
     summary.textContent = `불러오기 실패: ${payload.message}`;
   });
   source.onerror = () => {
     source.close();
     loadButton.disabled = false;
-    loadButton.querySelector('.button-icon').textContent = '↻';
+    loadButton.classList.remove('is-loading');
   };
 }
 

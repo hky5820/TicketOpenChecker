@@ -129,9 +129,10 @@ p {
 }
 
 .app {
-  width: min(1540px, calc(100% - 36px));
+  width: 100%;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 14px 0 30px;
+  padding: max(16px, env(safe-area-inset-top)) 16px 32px;
 }
 
 .topbar {
@@ -139,60 +140,123 @@ p {
   top: 0;
   z-index: 10;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 0 10px;
+  background: color-mix(in srgb, var(--canvas) 78%, transparent);
+  -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
-.compact-title {
-  display: grid;
-  grid-template-columns: 28px auto;
-  grid-template-rows: auto auto;
-  gap: 0 9px;
+.toolbar {
+  display: flex;
   align-items: center;
-  min-width: 150px;
-  min-height: 42px;
-  padding: 7px 11px;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip-button {
+  height: 36px;
+  padding: 0 13px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--shadow-soft);
-}
-
-.compact-title::before {
-  content: "T";
-  display: grid;
-  grid-row: 1 / 3;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border-radius: 7px;
-  background: var(--chip-strong);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.compact-title strong {
+  background: var(--btn-bg);
   color: var(--ink);
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.1;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.compact-title span {
+.chip-button:hover {
+  background: var(--paper-soft);
+  border-color: var(--line-strong);
+}
+
+.icon-button.load-button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.icon-button.load-button svg {
+  color: #fff;
+}
+
+.icon-button.load-button:hover:not([disabled]) {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.icon-button.load-button[disabled] {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.icon-button.load-button.is-loading svg {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 6px 0;
+}
+
+.month-nav h2 {
+  min-width: 128px;
+  text-align: center;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+.nav-arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.nav-arrow:hover {
+  background: var(--paper-soft);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.nav-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.summary-line {
+  margin: 0 0 12px;
+  text-align: center;
   color: var(--muted);
-  font-size: 11px;
-  font-weight: 750;
-  line-height: 1.1;
+  font-size: 12.5px;
+  font-weight: 700;
 }
 
 .search-box {
   position: relative;
-  flex: 1 1 460px;
-  max-width: 620px;
+  width: 100%;
 }
 
 .search-box input {
@@ -1250,56 +1314,14 @@ p {
 
 @media (max-width: 860px) {
   .app {
-    width: min(100% - 16px, 760px);
-    padding-top: 8px;
-  }
-
-  .topbar {
-    position: static;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-    padding: 6px 0 10px;
-    backdrop-filter: none;
-  }
-
-  .month-head {
-    align-items: center;
-    gap: 6px 10px;
-  }
-
-  .compact-title {
-    width: fit-content;
-    min-height: 36px;
-    padding: 5px 9px;
-  }
-
-  .compact-title::before {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-
-  .compact-title strong {
-    font-size: 12px;
-  }
-
-  .compact-title span {
-    font-size: 10px;
-  }
-
-  .search-box {
-    width: 100%;
-    max-width: none;
+    max-width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .search-box input {
-    height: 38px;
-    font-size: 12px;
-  }
-
-  .actions {
-    justify-content: flex-start;
+    height: 40px;
+    font-size: 12.5px;
   }
 
   .workspace {
@@ -1335,13 +1357,14 @@ p {
 }
 
 @media (max-width: 560px) {
-  .topbar {
-    gap: 7px;
-    padding-bottom: 8px;
+  .app {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
-  .actions {
-    gap: 6px;
+  .topbar {
+    gap: 8px;
+    padding-bottom: 8px;
   }
 
   .view-switch {
@@ -1353,11 +1376,8 @@ p {
     min-height: 30px;
   }
 
-  .icon-button,
-  .text-button,
-  .primary-button {
-    min-height: 38px;
-    height: 38px;
+  .month-nav h2 {
+    font-size: 17px;
   }
 
   .calendar-panel {

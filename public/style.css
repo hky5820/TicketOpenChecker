@@ -573,10 +573,9 @@ p {
 }
 
 .month-head {
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 8px 14px;
-  margin-bottom: 10px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .month-head h2,
@@ -1269,10 +1268,6 @@ p {
     gap: 6px 10px;
   }
 
-  .group-switch {
-    margin-left: 0;
-  }
-
   .compact-title {
     width: fit-content;
     min-height: 36px;
@@ -1498,9 +1493,10 @@ p {
 
 /* 리스트(예매처별 보기) 그룹 전환 */
 .group-switch {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   gap: 3px;
-  margin-left: auto;
+  margin: 0 0 10px auto;
   padding: 3px;
   border: 1px solid var(--glass-bd);
   border-radius: 999px;

@@ -64,7 +64,9 @@ document.addEventListener('click', (event) => {
   }
 });
 modal.addEventListener('click', (event) => {
-  if (event.target.matches('[data-close]')) closeModal();
+  if (event.target.closest('[data-close]') || !event.target.closest('.modal-card')) {
+    closeModal();
+  }
 });
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
@@ -79,7 +81,9 @@ const confirmGo = document.getElementById('confirmGo');
 let pendingUrl = null;
 
 confirmModal.addEventListener('click', (event) => {
-  if (event.target.matches('[data-confirm-close]')) closeConfirm();
+  if (event.target.closest('[data-confirm-close]') || !event.target.closest('.confirm-card')) {
+    closeConfirm();
+  }
 });
 confirmGo.addEventListener('click', () => {
   if (pendingUrl) window.open(pendingUrl, '_blank', 'noopener');

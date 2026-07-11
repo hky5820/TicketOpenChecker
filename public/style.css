@@ -15,14 +15,14 @@
   --accent-deep: #2f49c9;
   --accent-soft: #eef2ff;
   --accent-ring: rgba(67, 97, 238, 0.20);
-  --surface: rgba(255, 255, 255, 0.62);
-  --surface-solid: rgba(255, 255, 255, 0.9);
-  --surface-muted: rgba(255, 255, 255, 0.26);
-  --btn-bg: rgba(255, 255, 255, 0.68);
-  --glass: rgba(255, 255, 255, 0.48);
-  --glass-bd: rgba(255, 255, 255, 0.72);
-  --blur: saturate(180%) blur(14px);
-  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --surface-muted: rgba(238, 242, 251, 0.55);
+  --btn-bg: #ffffff;
+  --glass: rgba(255, 255, 255, 0.9);
+  --glass-bd: var(--line);
+  --blur: none;
+  --sheen: 0 0 0 rgba(0, 0, 0, 0);
   --chip-strong: #33406b;
   --interpark: #2e63f0;
   --interpark-deep: #1f49c4;
@@ -52,13 +52,13 @@
   --accent-deep: #6d84f0;
   --accent-soft: rgba(109, 140, 255, 0.16);
   --accent-ring: rgba(125, 151, 255, 0.30);
-  --surface: rgba(32, 40, 58, 0.56);
-  --surface-solid: rgba(35, 43, 62, 0.92);
+  --surface: rgba(35, 43, 62, 0.92);
+  --surface-solid: #232b3e;
   --surface-muted: rgba(255, 255, 255, 0.03);
-  --btn-bg: rgba(43, 52, 74, 0.62);
-  --glass: rgba(42, 51, 72, 0.5);
-  --glass-bd: rgba(255, 255, 255, 0.14);
-  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --btn-bg: #2b344a;
+  --glass: rgba(35, 43, 62, 0.92);
+  --glass-bd: var(--line);
+  --sheen: 0 0 0 rgba(0, 0, 0, 0);
   --chip-strong: #5670e0;
   --interpark-deep: #9db6ff;
   --interpark-soft: rgba(46, 99, 240, 0.18);
@@ -86,11 +86,10 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(42% 34% at 12% 8%, rgba(124, 151, 255, 0.42), transparent 70%),
-    radial-gradient(36% 30% at 90% 12%, rgba(255, 143, 177, 0.34), transparent 70%),
-    radial-gradient(46% 42% at 86% 92%, rgba(77, 212, 172, 0.30), transparent 70%),
-    radial-gradient(42% 40% at 8% 92%, rgba(176, 136, 255, 0.32), transparent 70%),
-    linear-gradient(160deg, #f6f8fe, #eaf0fb);
+    radial-gradient(38% 32% at 12% 8%, rgba(124, 151, 255, 0.22), transparent 70%),
+    radial-gradient(34% 30% at 88% 12%, rgba(120, 190, 255, 0.16), transparent 70%),
+    radial-gradient(40% 40% at 84% 92%, rgba(77, 212, 172, 0.14), transparent 70%),
+    linear-gradient(160deg, #f6f8fe, #eef2fb);
   background-attachment: fixed;
   color: var(--ink);
   font-family: "Pretendard", "Segoe UI Variable", "Segoe UI", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", Arial, sans-serif;
@@ -201,7 +200,7 @@ p {
   height: 42px;
   padding: 0 15px;
   border: 1px solid var(--glass-bd);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--glass);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -233,7 +232,7 @@ p {
   overflow: auto;
   padding: 8px;
   border: 1px solid var(--glass-bd);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--surface-solid);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -316,7 +315,7 @@ p {
   height: 42px;
   padding: 3px;
   border: 1px solid var(--glass-bd);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--glass);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -329,7 +328,7 @@ p {
 .primary-button {
   min-height: 36px;
   border: 1px solid var(--glass-bd);
-  border-radius: 10px;
+  border-radius: 7px;
   background: var(--btn-bg);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -421,7 +420,7 @@ p {
 .calendar-panel,
 .side-panel {
   border: 1px solid var(--glass-bd);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--surface);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -574,9 +573,10 @@ p {
 }
 
 .month-head {
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 13px;
+  gap: 8px 14px;
+  margin-bottom: 10px;
 }
 
 .month-head h2,
@@ -632,8 +632,8 @@ p {
   min-height: 0;
   height: 100%;
   padding: 7px 5px 6px;
-  border: 1px solid var(--glass-bd);
-  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
   background: var(--glass);
   color: var(--ink);
   box-shadow: var(--sheen);
@@ -1265,8 +1265,12 @@ p {
   }
 
   .month-head {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    gap: 6px 10px;
+  }
+
+  .group-switch {
+    margin-left: 0;
   }
 
   .compact-title {
@@ -1448,7 +1452,7 @@ p {
   gap: 8px;
   padding: 22px 22px 18px;
   border: 1px solid var(--glass-bd);
-  border-radius: 18px;
+  border-radius: 10px;
   background: var(--surface-solid);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);
@@ -1537,7 +1541,7 @@ p {
   min-width: 0;
   padding: 12px;
   border: 1px solid var(--glass-bd);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--surface);
   -webkit-backdrop-filter: var(--blur);
   backdrop-filter: var(--blur);

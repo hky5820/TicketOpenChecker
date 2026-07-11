@@ -20,7 +20,7 @@ async function main() {
 
   try {
     const loaded = await collectItems(`http://127.0.0.1:${server.port}/api/load`);
-    const items = normalizeForExport(loaded.items);
+    const items = fillMissingSites(normalizeForExport(loaded.items), previousItems);
     const loadedAt = loaded.loadedAt || new Date().toISOString();
 
     await fs.writeFile(DATA_PATH, `${JSON.stringify({
@@ -140,18 +140,57 @@ async function loadPreviousItems() {
     urls.push(`https://${owner}.github.io/${repo}/data.json`);
   }
 
+  // 원격(마지막 배포본) + 로컬 저장본을 모두 모아 dedupe 한다.
+  // 한 예매처가 일시적으로 0건이어도 직전 데이터로 채우기 위함이다.
+  const collected = new Map();
+  const absorb = (items) => {
+    if (Array.isArray(items)) for (const item of items) collected.set(itemKey(item), item);
+  };
+
   for (const url of urls) {
     try {
       const response = await fetch(url, { cache: 'no-store' });
       if (!response.ok) continue;
       const payload = await response.json();
-      const items = Array.isArray(payload) ? payload : payload.items;
-      if (Array.isArray(items)) return items;
+      absorb(Array.isArray(payload) ? payload : payload.items);
     } catch {
       // Previous exports are optional, especially on the first run.
     }
   }
-  return [];
+
+  try {
+    const localRaw = await fs.readFile(DATA_PATH, 'utf8');
+    const payload = JSON.parse(localRaw);
+    absorb(Array.isArray(payload) ? payload : payload.items);
+  } catch {
+    // 로컬 저장본이 없을 수 있다.
+  }
+
+  return Array.from(collected.values());
+}
+
+// 특정 예매처가 이번 수집에서 0건이면 직전(미래 일정) 데이터를 유지한다.
+const EXPECTED_SITES = ['interpark', 'melon', 'ticketlink'];
+function fillMissingSites(items, previousItems) {
+  if (!previousItems.length) return items;
+  const present = new Set(items.map((item) => item.siteId));
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const isFuture = (item) => {
+    if (!item.openDate) return true;
+    return new Date(`${item.openDate}T23:59:59+09:00`) >= startOfToday;
+  };
+
+  const extras = [];
+  for (const siteId of EXPECTED_SITES) {
+    if (present.has(siteId)) continue;
+    const kept = previousItems.filter((item) => item.siteId === siteId && isFuture(item));
+    if (kept.length) {
+      extras.push(...kept);
+      console.log(`[fallback] ${siteId} returned 0 items; kept ${kept.length} from previous export.`);
+    }
+  }
+  return extras.length ? normalizeForExport([...items, ...extras]) : items;
 }
 
 function diffItems(items, previousItems) {

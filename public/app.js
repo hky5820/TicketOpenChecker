@@ -94,33 +94,62 @@ const confirmModal = document.getElementById('confirmModal');
 const confirmSub = document.getElementById('confirmSub');
 const confirmGo = document.getElementById('confirmGo');
 let pendingUrl = null;
+let pendingMelonId = null;
+let pendingTitle = '';
 
 confirmModal.addEventListener('click', (event) => {
   if (event.target.closest('[data-confirm-close]') || !event.target.closest('.confirm-card')) {
     closeConfirm();
   }
 });
-// confirmGo 는 실제 <a> — 브라우저 기본 네비게이션에 맡긴다(사용자 직접 탭이라
-// intent:// 도 차단 없이 실행됨). 여기서는 다이얼로그만 닫는다. preventDefault 금지.
+
+// https URL → 안드로이드 intent:// (커스텀탭/PWA를 벗어나 기본 브라우저에서 연다)
+function toAndroidIntentUrl(httpsUrl) {
+  try {
+    const u = new URL(httpsUrl);
+    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
+  } catch {
+    return httpsUrl;
+  }
+}
+
+// confirmGo 는 실제 <a> — 사용자 직접 탭이 그대로 네비게이션이라 intent:// 실행이 허용된다.
+// 다만 일부 기기/WebAPK 에서는 intent 가 조용히 차단되어 아무 일도 안 일어난다.
+// → 탭 후 페이지가 계속 보이면(외부 앱이 안 떴으면) 자동 폴백:
+//   멜론 = 인앱 상세 모달, 그 외 = 새 탭(커스텀탭)으로라도 연다.
 confirmGo.addEventListener('click', () => {
+  const isIntent = (confirmGo.getAttribute('href') || '').startsWith('intent:');
+  const url = pendingUrl;
+  const melonId = pendingMelonId;
+  const title = pendingTitle;
+  if (!isIntent) {
+    setTimeout(closeConfirm, 80);
+    return;
+  }
+  const onHide = () => {
+    if (document.hidden) {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onHide);
+    }
+  };
+  const timer = setTimeout(() => {
+    document.removeEventListener('visibilitychange', onHide);
+    if (melonId) openMelonDetail(melonId, title);
+    else if (url) window.open(url, '_blank', 'noopener');
+  }, 1400);
+  document.addEventListener('visibilitychange', onHide);
   setTimeout(closeConfirm, 80);
 });
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
-// 멜론: 멜론 모바일 페이지가 커스텀탭/PWA에서 빈 화면이 되고 intent:// 도 PWA에서
-// 차단되는 기기가 있어, CORS 개방된 tktapi 상세 API로 앱 안에서 직접 렌더한다.
 document.addEventListener('click', (event) => {
   if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
   if (!link || !link.href) return;
-  const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
   event.preventDefault();
   const title = link.querySelector('strong')?.textContent?.trim() || '';
-  if (melonId) {
-    openMelonDetail(melonId, title);
-    return;
-  }
-  askNavigate(link.href, title);
+  const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
+  askNavigate(link.href, title, melonId);
 });
 
 // 스와이프(터치): 캘린더 위 = 달 넘기기, 그 외 영역 = 캘린더↔리스트 전환.
@@ -1013,15 +1042,17 @@ function closeModal() {
   updateScrollLock();
 }
 
-function askNavigate(url, title) {
+function askNavigate(url, title, melonId) {
   pendingUrl = url;
-  // 이동 버튼은 실제 앵커: 사용자 직접 탭이 그대로 네비게이션이 되어
-  // intent:// 도 크롬의 JS 네비게이션 차단에 걸리지 않는다.
-  confirmGo.setAttribute('href', url);
-  if (url.startsWith('intent:')) {
-    // intent 는 같은 컨텍스트에서 실행해야 외부 핸들러가 뜬다(_blank 금지).
-    confirmGo.removeAttribute('target');
+  pendingMelonId = melonId || null;
+  pendingTitle = title || '';
+  // 안드로이드: 모든 예매처 링크를 intent:// 로 열어 커스텀탭이 아닌 기본 브라우저에서 띄운다.
+  // 이동 버튼은 실제 앵커라 사용자 탭이 그대로 네비게이션이 되어 intent 차단에 걸리지 않는다.
+  if (/Android/i.test(navigator.userAgent) && /^https:/.test(url)) {
+    confirmGo.setAttribute('href', toAndroidIntentUrl(url));
+    confirmGo.removeAttribute('target'); // intent 는 같은 컨텍스트에서 실행해야 한다
   } else {
+    confirmGo.setAttribute('href', url);
     confirmGo.setAttribute('target', '_blank');
   }
   confirmSub.textContent = title || '';
@@ -1034,6 +1065,8 @@ function askNavigate(url, title) {
 function closeConfirm() {
   confirmModal.hidden = true;
   pendingUrl = null;
+  pendingMelonId = null;
+  pendingTitle = '';
   confirmGo.setAttribute('href', '#');
   updateScrollLock();
 }
@@ -1074,22 +1107,17 @@ function popularFlagHtml(item) {
 // 데스크톱 URL(ticket.melon.com/csoon/detail.htm)은 모바일에서 홈으로 튕길 수 있어,
 // 모바일에선 상세 SPA로 바로 가고 데스크톱에선 상세로 리다이렉트되는 딥링크로 통일한다.
 function resolveMelonUrl(url) {
-  // 멜론 모바일 페이지는 인앱브라우저/커스텀탭(PWA에서 링크를 열면 이걸로 열림)에서
-  // 빈 화면이 되는 문제가 있다. 안드로이드에서는 intent:// 스킴으로 커스텀탭을
-  // 벗어나 시스템 기본 핸들러(기본 브라우저, 멜론티켓 앱이 링크를 등록했으면 앱)로 연다.
+  // 멜론은 항상 https 정규 URL 로 통일한다(안드로이드 intent 변환은 askNavigate 담당).
+  // 안드로이드/데스크톱: 데스크톱 상세 URL — 기본 브라우저에서 열면 모바일은 302로
+  // 정상 모바일 상세로 넘어가고, 데스크톱은 그대로 열린다.
+  // iOS: 모바일 해시 딥링크(에뮬레이션 검증 — 콜드 로드로 상세 렌더).
   if (!/melon\.com/.test(url || '')) return url;
   const m = /csoonId=(\d+)/.exec(url);
   if (!m) return url;
-  const ua = navigator.userAgent;
-  const desktopUrl = `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}`;
-  if (/Android/i.test(ua)) {
-    return `intent://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(desktopUrl)};end`;
-  }
-  if (/iPhone|iPad|Mobile/i.test(ua)) {
-    // iOS 등: 모바일 딥링크(에뮬레이션 검증됨 — 콜드 로드로 상세 렌더)
+  if (/iPhone|iPad/i.test(navigator.userAgent)) {
     return `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${m[1]}`;
   }
-  return desktopUrl;
+  return `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}`;
 }
 
 // 조회수 숫자 표시

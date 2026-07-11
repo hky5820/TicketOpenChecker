@@ -982,13 +982,18 @@ function popularFlagHtml(item) {
 // 데스크톱 URL(ticket.melon.com/csoon/detail.htm)은 모바일에서 홈으로 튕길 수 있어,
 // 모바일에선 상세 SPA로 바로 가고 데스크톱에선 상세로 리다이렉트되는 딥링크로 통일한다.
 function resolveMelonUrl(url) {
-  // 멜론 모바일 SPA는 특정 공고로의 콜드 로드 딥링크를 지원하지 않는다
-  // (소문자 해시=리다이렉트 루프→빈 화면, 대문자 해시=홈). 그래서 어떤 형태든
-  // 정석인 데스크톱 상세 URL로 정규화한다: 데스크톱에선 정상, 모바일에선 멜론이
-  // 자기 모바일뷰로 강제하는 부분은 멜론 한계.
+  // Playwright 모바일 에뮬레이션(iOS/Android UA, 쿠키 없는 새 프로필)으로 검증:
+  // 소문자 해시 딥링크(#ticketopen.detail?csoonId=X)는 모바일에서 콜드 로드로도
+  // 상세가 완전히 렌더된다(데이터: tktapi.melon.com/poc/ticketOpen/detail.json).
+  // 대문자(#ticketOpen.detail)는 라우트 미매칭으로 홈으로 떨어진다.
+  // 기기별로 검증된 URL을 직접 써서 멜론의 UA 302 홉을 거치지 않는다.
   if (!/melon\.com/.test(url || '')) return url;
   const m = /csoonId=(\d+)/.exec(url);
-  return m ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}` : url;
+  if (!m) return url;
+  const mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+  return mobile
+    ? `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${m[1]}`
+    : `https://ticket.melon.com/csoon/detail.htm?csoonId=${m[1]}`;
 }
 
 // 조회수 숫자 표시

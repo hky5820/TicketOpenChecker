@@ -1811,3 +1811,57 @@ p {
   box-shadow: none;
   padding: 0 12px;
 }
+
+/* 멜론 인앱 상세 (멜론 모바일 페이지가 기기별로 먹통이라 앱 안에서 직접 렌더) */
+.melon-detail {
+  display: grid;
+  gap: 14px;
+}
+
+.melon-detail-poster {
+  justify-self: center;
+  max-width: min(220px, 70%);
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
+.melon-detail-section h3 {
+  margin: 0 0 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.melon-detail-body {
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.melon-detail-body p {
+  margin: 0 0 2px;
+}
+
+.melon-detail-body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.melon-open-link {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 9px 16px;
+  border: 1px solid var(--melon);
+  border-radius: 999px;
+  color: var(--melon-deep);
+  background: var(--melon-soft);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}

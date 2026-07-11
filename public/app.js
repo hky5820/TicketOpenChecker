@@ -107,7 +107,8 @@ confirmModal.addEventListener('click', (event) => {
 function toAndroidIntentUrl(httpsUrl) {
   try {
     const u = new URL(httpsUrl);
-    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
+    // package 지정: 없으면 크롬이 다시 커스텀탭으로 열어버린다. 크롬 앱을 명시해 풀 브라우저로 강제.
+    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
   } catch {
     return httpsUrl;
   }

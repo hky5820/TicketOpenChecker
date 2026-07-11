@@ -14,9 +14,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="티켓오픈">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <style>:root{color-scheme:only light}html,body{background:#eef2fb}</style>
   <script>
     // 항상 라이트(화이트) 모드. 단말/시스템 다크모드를 따라가지 않는다.
     document.documentElement.setAttribute('data-theme', 'light');
+    try { document.documentElement.style.colorScheme = 'light'; } catch (e) {}
   </script>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -45,13 +47,6 @@
       </div>
     </header>
 
-    <nav class="month-nav" aria-label="월 이동">
-      <button id="prevMonth" class="nav-arrow" type="button" title="이전 달" aria-label="이전 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></span></button>
-      <h2 id="monthLabel"></h2>
-      <button id="nextMonth" class="nav-arrow" type="button" title="다음 달" aria-label="다음 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span></button>
-    </nav>
-    <p id="summary" class="summary-line">불러오기를 누르면 최신 일정이 표시됩니다.</p>
-
     <section class="workspace">
       <aside class="status-strip" aria-live="polite">
         <div class="status-head">
@@ -64,10 +59,18 @@
       </aside>
 
       <section class="calendar-panel">
+        <nav class="month-nav" aria-label="월 이동">
+          <button id="prevMonth" class="nav-arrow" type="button" title="이전 달" aria-label="이전 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></span></button>
+          <h2 id="monthLabel"></h2>
+          <button id="nextMonth" class="nav-arrow" type="button" title="다음 달" aria-label="다음 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span></button>
+        </nav>
+        <p id="summary" class="summary-line">불러오기를 누르면 최신 일정이 표시됩니다.</p>
         <div id="weekdayGrid" class="weekday-grid" aria-hidden="true">
           <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
         </div>
-        <div id="calendar" class="calendar-grid"></div>
+        <div class="cal-viewport">
+          <div id="calendar" class="calendar-grid"></div>
+        </div>
         <div id="groupSwitch" class="group-switch" role="group" aria-label="그룹 기준" hidden>
           <button id="groupDate" class="group-button is-selected" type="button" data-group="date" aria-pressed="true">날짜순</button>
           <button id="groupSite" class="group-button" type="button" data-group="site" aria-pressed="false">예매처별</button>

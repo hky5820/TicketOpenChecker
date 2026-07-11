@@ -303,10 +303,13 @@ async function extractMelonDesktopItems(page) {
       const url = idm
         ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${idm[1]}`
         : 'https://ticket.melon.com/csoon/index.htm';
+      const imgEl = li.querySelector('img');
+      let image = imgEl ? (imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || '') : '';
+      if (image && image.startsWith('//')) image = `https:${image}`;
       const key = `${title}|${openDate}|${openTime}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      items.push({ title, openDate, openTime, viewCount, url });
+      items.push({ title, openDate, openTime, viewCount, url, image });
     }
     return items;
   });
@@ -398,6 +401,21 @@ async function extractItemsFromPage(page, siteId) {
       return (candidates[0] || lines[0] || '').replace(/\[[^\]]*오픈[^\]]*\]/g, '').trim();
     };
 
+    const getImg = (node) => {
+      const img = node.querySelector && node.querySelector('img');
+      if (!img) return '';
+      let src = img.currentSrc || img.getAttribute('src') || img.getAttribute('data-src')
+        || img.getAttribute('data-original') || img.getAttribute('data-lazy') || '';
+      if (!src) {
+        const ss = img.getAttribute('srcset') || '';
+        if (ss) src = ss.split(',')[0].trim().split(/\s+/)[0];
+      }
+      if (src && src.startsWith('//')) src = `https:${src}`;
+      else if (src && src.startsWith('/')) src = location.origin + src;
+      if (/\.(gif|svg)(\?|$)/i.test(src) || /blank|spacer|1x1|noimage|no_image/i.test(src)) return '';
+      return src || '';
+    };
+
     let sourceNodes = [];
     if (siteId === 'ticketlink') {
       // 신규 모바일 목록은 각 항목이 <a>이고 "…티켓오픈 안내 / 2026.07.14(화) 11:00 / 에 티켓오픈" 형태다.
@@ -410,6 +428,7 @@ async function extractItemsFromPage(page, siteId) {
         .map((node) => ({
           text: node.innerText || node.textContent || '',
           url: node.href || location.href,
+          image: getImg(node),
           mode: 'ticketlink',
         }));
     } else if (siteId === 'melon') {
@@ -429,6 +448,7 @@ async function extractItemsFromPage(page, siteId) {
         .map((node) => ({
           text: node.innerText || node.textContent || '',
           url: node.href || location.href,
+          image: getImg(node),
           mode: 'interpark',
         }));
     } else {
@@ -452,7 +472,7 @@ async function extractItemsFromPage(page, siteId) {
       const title = titleFromText(item.text, item.mode);
       if (!title || isBadTitle(title)) continue;
       const key = `${title}|${openDate}|${openTime || ''}`;
-      if (!byKey.has(key)) byKey.set(key, { title, openDate, openTime, url: item.url });
+      if (!byKey.has(key)) byKey.set(key, { title, openDate, openTime, url: item.url, image: item.image || '' });
     }
 
     return Array.from(byKey.values());
@@ -472,6 +492,7 @@ function normalizeItems(items, site) {
         openTime: item.openTime,
         openDateTime: item.openDate && item.openTime ? `${item.openDate}T${item.openTime}:00+09:00` : null,
         viewCount: Number.isFinite(item.viewCount) ? item.viewCount : null,
+        image: item.image || null,
         url: item.url || site.url,
       };
     })

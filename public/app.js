@@ -1,10 +1,21 @@
 const STORAGE_KEY = 'ticket-open-checker:schedules';
+const VIEW_KEY = 'toc:view';
+const GROUP_KEY = 'toc:groupBy';
+
+function readStored(key, allowed, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return allowed.includes(value) ? value : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 const state = {
   date: new Date(),
   items: [],
-  view: 'calendar',
-  groupBy: 'date',
+  view: readStored(VIEW_KEY, ['calendar', 'site'], 'calendar'),
+  groupBy: readStored(GROUP_KEY, ['date', 'site'], 'date'),
 };
 
 const calendar = document.getElementById('calendar');
@@ -119,6 +130,8 @@ document.addEventListener('touchstart', (event) => {
   touchDecided = false;
   touchHoriz = false;
   touchEl = event.target;
+  // 캘린더 그리드 위 스와이프는 월 전환(슬라이드 애니메이션)이 따로 처리한다.
+  if (touchEl && touchEl.closest('.cal-viewport')) touchActive = false;
 }, { passive: true });
 
 document.addEventListener('touchmove', (event) => {
@@ -146,16 +159,26 @@ document.addEventListener('touchend', (event) => {
   if (Math.abs(dx) < 45) return;
   suppressNextClick = true;
   setTimeout(() => { suppressNextClick = false; }, 400);
-  if (touchEl && touchEl.closest('#calendar')) {
-    moveMonth(dx < 0 ? 1 : -1);
-  } else {
-    setView(state.view === 'calendar' ? 'site' : 'calendar');
-  }
+  setView(state.view === 'calendar' ? 'site' : 'calendar');
 }, { passive: true });
 
+syncControls();
 restoreItems();
 render();
 loadStaticItems();
+
+calendar.addEventListener('click', (event) => {
+  if (suppressNextClick) return;
+  const btn = event.target.closest('.day');
+  if (!btn || !btn.dataset.date) return;
+  const key = btn.dataset.date;
+  const dayItems = state.items
+    .filter((item) => item.openDate === key && item.openTime)
+    .sort((a, b) => a.openTime.localeCompare(b.openTime));
+  if (dayItems.length) openDayModal(key, dayItems);
+});
+
+initCalendarSwipe();
 
 // 남아있는 옛 서비스워커가 있으면 해제하고 캐시를 비운다 (stale 캐시 문제 종결).
 if ('serviceWorker' in navigator) {
@@ -190,23 +213,124 @@ function playViewAnim() {
   el.classList.add('view-anim');
 }
 
+// TicketManager식 월 스와이프: 손가락 따라 현재 달이 밀려나고 인접 달이 옆에서 들어온다.
+function initCalendarSwipe() {
+  const vp = document.querySelector('.cal-viewport');
+  if (!vp) return;
+  let sx = 0;
+  let sy = 0;
+  let active = false;
+  let decided = false;
+  let horiz = false;
+  let dir = 0;
+  let W = 0;
+  let pane = null;
+  const SETTLE = 300;
+  const EASE = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+
+  function cleanup() {
+    if (pane) { pane.remove(); pane = null; }
+    calendar.style.transition = '';
+    calendar.style.transform = '';
+  }
+
+  vp.addEventListener('touchstart', (event) => {
+    if (event.touches.length !== 1 || state.view !== 'calendar') { active = false; return; }
+    const t = event.touches[0];
+    sx = t.clientX; sy = t.clientY; active = true; decided = false; horiz = false; dir = 0;
+    W = vp.offsetWidth || 320;
+  }, { passive: true });
+
+  vp.addEventListener('touchmove', (event) => {
+    if (!active || event.touches.length !== 1) return;
+    const t = event.touches[0];
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+    if (!decided) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (Math.abs(dy) > Math.abs(dx)) { active = false; return; }
+      decided = true; horiz = true; dir = dx < 0 ? 1 : -1;
+      suppressNextClick = true;
+      let ty = state.date.getFullYear();
+      let tm = state.date.getMonth() + dir;
+      if (tm < 0) { tm = 11; ty -= 1; }
+      if (tm > 11) { tm = 0; ty += 1; }
+      pane = document.createElement('div');
+      pane.className = 'calendar-grid cal-pane';
+      pane.innerHTML = calendarGridHTML(ty, tm);
+      vp.appendChild(pane);
+      pane.style.transition = 'none';
+      calendar.style.transition = 'none';
+      pane.style.transform = `translate3d(${dir > 0 ? W : -W}px, 0, 0)`;
+    }
+    if (horiz) {
+      if (event.cancelable) event.preventDefault();
+      const dxc = dir > 0 ? Math.max(-W, Math.min(0, dx)) : Math.min(W, Math.max(0, dx));
+      calendar.style.transform = `translate3d(${dxc}px, 0, 0)`;
+      if (pane) pane.style.transform = `translate3d(${(dir > 0 ? W : -W) + dxc}px, 0, 0)`;
+    }
+  }, { passive: false });
+
+  function finish(event) {
+    if (!active) return;
+    active = false;
+    if (!decided) return;
+    const dx = event.changedTouches[0].clientX - sx;
+    const pass = Math.abs(dx) > W * 0.16;
+    calendar.style.transition = EASE;
+    if (pane) pane.style.transition = EASE;
+    if (pass) {
+      calendar.style.transform = `translate3d(${dir > 0 ? -W : W}px, 0, 0)`;
+      if (pane) pane.style.transform = 'translate3d(0, 0, 0)';
+      setTimeout(() => {
+        state.date = new Date(state.date.getFullYear(), state.date.getMonth() + dir, 1);
+        render();
+        cleanup();
+        suppressNextClick = false;
+      }, SETTLE);
+    } else {
+      calendar.style.transform = 'translate3d(0, 0, 0)';
+      if (pane) pane.style.transform = `translate3d(${dir > 0 ? W : -W}px, 0, 0)`;
+      setTimeout(() => { cleanup(); suppressNextClick = false; }, SETTLE);
+    }
+  }
+
+  vp.addEventListener('touchend', finish, { passive: true });
+  vp.addEventListener('touchcancel', () => {
+    if (!active) return;
+    active = false;
+    calendar.style.transition = EASE;
+    calendar.style.transform = 'translate3d(0, 0, 0)';
+    setTimeout(cleanup, SETTLE);
+  }, { passive: true });
+}
+
+function syncControls() {
+  workspace.classList.toggle('is-site-view', state.view === 'site');
+  calendarViewButton.classList.toggle('is-selected', state.view === 'calendar');
+  siteViewButton.classList.toggle('is-selected', state.view === 'site');
+  calendarViewButton.setAttribute('aria-pressed', state.view === 'calendar' ? 'true' : 'false');
+  siteViewButton.setAttribute('aria-pressed', state.view === 'site' ? 'true' : 'false');
+  const gDate = document.getElementById('groupDate');
+  const gSite = document.getElementById('groupSite');
+  gDate.classList.toggle('is-selected', state.groupBy === 'date');
+  gSite.classList.toggle('is-selected', state.groupBy === 'site');
+  gDate.setAttribute('aria-pressed', state.groupBy === 'date' ? 'true' : 'false');
+  gSite.setAttribute('aria-pressed', state.groupBy === 'site' ? 'true' : 'false');
+}
+
 function setView(view) {
   state.view = view;
-  workspace.classList.toggle('is-site-view', view === 'site');
-  calendarViewButton.classList.toggle('is-selected', view === 'calendar');
-  siteViewButton.classList.toggle('is-selected', view === 'site');
-  calendarViewButton.setAttribute('aria-pressed', view === 'calendar' ? 'true' : 'false');
-  siteViewButton.setAttribute('aria-pressed', view === 'site' ? 'true' : 'false');
+  try { localStorage.setItem(VIEW_KEY, view); } catch { /* 저장 실패 무시 */ }
+  syncControls();
   render();
   playViewAnim();
 }
 
 function setGroupBy(mode) {
   state.groupBy = mode;
-  document.getElementById('groupSite').classList.toggle('is-selected', mode === 'site');
-  document.getElementById('groupDate').classList.toggle('is-selected', mode === 'date');
-  document.getElementById('groupSite').setAttribute('aria-pressed', mode === 'site' ? 'true' : 'false');
-  document.getElementById('groupDate').setAttribute('aria-pressed', mode === 'date' ? 'true' : 'false');
+  try { localStorage.setItem(GROUP_KEY, mode); } catch { /* 저장 실패 무시 */ }
+  syncControls();
   render();
 }
 
@@ -451,52 +575,38 @@ function renderDateBoard(items) {
 }
 
 function renderCalendar(year, month) {
-  calendar.innerHTML = '';
+  calendar.innerHTML = calendarGridHTML(year, month);
+}
+
+// 임의의 연/월에 대한 42칸 그리드 HTML (스와이프 인입 패널 재사용용, 리스너 없음)
+function calendarGridHTML(year, month) {
   const first = new Date(year, month, 1);
   const start = new Date(year, month, 1 - first.getDay());
   const todayKey = formatDate(new Date());
-
+  let html = '';
   for (let i = 0; i < 42; i += 1) {
     const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
     const key = formatDate(date);
-    const dayItems = state.items
-      .filter((item) => item.openDate === key && item.openTime)
-      .sort((a, b) => a.openTime.localeCompare(b.openTime));
-    const hasHighlightedSite = highlightedSite && dayItems.some((item) => item.siteId === highlightedSite);
+    const dayItems = state.items.filter((item) => item.openDate === key && item.openTime);
     const counts = getSiteCounts(dayItems);
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'day';
-    if (dayItems.length) button.classList.add('has');
-    if (date.getMonth() !== month) button.classList.add('is-muted');
-    if (key === todayKey) button.classList.add('is-today');
-    if (key === highlightedDate) button.classList.add('is-highlighted');
-    if (hasHighlightedSite) button.classList.add('is-site-highlighted', `site-${highlightedSite}`);
-    button.dataset.date = key;
-    button.innerHTML = `
-      <div class="date-row">
-        <span class="date-number">${date.getDate()}</span>
-      </div>
-      <div class="day-dots"></div>
-    `;
-    button.addEventListener('click', () => {
-      if (suppressNextClick) return;
-      if (dayItems.length) openDayModal(key, dayItems);
-    });
-
-    const dots = button.querySelector('.day-dots');
+    const cls = ['day'];
+    if (dayItems.length) cls.push('has');
+    if (date.getMonth() !== month) cls.push('is-muted');
+    if (key === todayKey) cls.push('is-today');
+    if (key === highlightedDate) cls.push('is-highlighted');
+    if (highlightedSite && dayItems.some((item) => item.siteId === highlightedSite)) {
+      cls.push('is-site-highlighted', `site-${highlightedSite}`);
+    }
+    let dots = '';
     SITES.forEach((site) => {
       const count = counts[site.id];
-      if (!count) return;
-      const dot = document.createElement('span');
-      dot.className = `day-dot site-${site.id}`;
-      dot.textContent = count;
-      dot.title = `${site.name} ${count}건 오픈`;
-      dots.appendChild(dot);
+      if (count) dots += `<span class="day-dot site-${site.id}">${count}</span>`;
     });
-    calendar.appendChild(button);
+    html += `<button type="button" class="${cls.join(' ')}" data-date="${key}">`
+      + `<div class="date-row"><span class="date-number">${date.getDate()}</span></div>`
+      + `<div class="day-dots">${dots}</div></button>`;
   }
+  return html;
 }
 
 function getSiteCounts(items) {
@@ -587,14 +697,19 @@ function renderSiteBoard(items) {
 
 function renderSiteBoardCard(item, showSite = false) {
   const link = document.createElement('a');
-  link.className = `site-board-card site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
+  link.className = `site-board-card site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
   link.href = item.url;
   link.target = '_blank';
   link.rel = 'noreferrer';
   const siteTag = showSite
     ? `<span class="board-card-site site-${item.siteId}">${escapeHtml(siteShortName(item.siteId))}</span>`
     : '';
+  // 썸네일 칸을 먼저 잡고, 이미지가 깨지면 칸까지 제거한다(빈 회색칸 방지).
+  const thumb = item.image
+    ? `<img class="board-thumb" src="${escapeHtml(item.image)}" alt="" onerror="this.closest('.site-board-card')?.classList.remove('has-thumb');this.remove();">`
+    : '';
   link.innerHTML = `
+    ${thumb}
     <div class="board-card-title">
       ${siteTag}
       <strong>${escapeHtml(item.title)}</strong>

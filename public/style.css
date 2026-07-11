@@ -1658,3 +1658,43 @@ p {
     animation: none;
   }
 }
+
+/* 월 스와이프 뷰포트 & 인입 패널 */
+.cal-viewport {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.cal-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+/* 리스트 아이템 썸네일 */
+.site-board-card.has-thumb {
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+}
+
+.board-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+}
+
+.site-board-card:not(.has-thumb) .board-thumb {
+  display: none;
+}
+
+/* 캘린더 카드 안 월 네비 */
+.calendar-panel .month-nav {
+  margin: 2px 0 6px;
+}

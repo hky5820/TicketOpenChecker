@@ -924,7 +924,7 @@ function getWeekdayLabel(value) {
   return ['일', '월', '화', '수', '목', '금', '토'][parseLocalDate(value).getDay()];
 }
 
-const POPULAR_VIEW_THRESHOLD = 1000;
+const POPULAR_VIEW_THRESHOLD = 500;
 
 function normTitleKey(title) {
   return String(title || '')

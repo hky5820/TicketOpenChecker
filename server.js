@@ -33,6 +33,8 @@ const SITES = [
   },
 ];
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -56,23 +58,31 @@ app.get('/api/load', async (req, res) => {
     desktopContext = await launchDesktopContext();
 
     const allItems = [];
-    const globalSeen = new Set();
+    const seenIndex = new Map();
     const streamItems = (site, rawItems) => {
-      const normalized = dedupeItems(normalizeItems(rawItems, site))
-        .filter((item) => {
-          const key = itemKey(item);
-          if (globalSeen.has(key)) return false;
-          globalSeen.add(key);
-          return true;
-        });
-      if (!normalized.length) return [];
-      allItems.push(...normalized);
+      const toSend = [];
+      for (const item of dedupeItems(normalizeItems(rawItems, site))) {
+        const key = itemKey(item);
+        const existing = seenIndex.get(key);
+        if (existing) {
+          // 이미지 등 뒤늦게 채워진 필드를 기존 항목에 반영 후 다시 보낸다.
+          if (item.image && !existing.image) {
+            existing.image = item.image;
+            toSend.push(existing);
+          }
+          continue;
+        }
+        seenIndex.set(key, item);
+        allItems.push(item);
+        toSend.push(item);
+      }
+      if (!toSend.length) return [];
       send('items', {
         site: site.id,
-        items: normalized,
+        items: toSend,
         total: allItems.length,
       });
-      return normalized;
+      return toSend;
     };
 
     await Promise.all(SITES.map(async (site) => {
@@ -316,23 +326,54 @@ async function extractMelonDesktopItems(page) {
 }
 
 async function scrapeTicketlink(page, progress, emit) {
-  // 티켓링크는 모바일 UA일 때 m.ticketlink.co.kr(React SPA)로 리다이렉트된다.
-  // 옛 데스크톱 사이트의 a.info_wrap / getNoticeList() 전역이 없으므로,
-  // 무한 스크롤로 목록을 늘려가며 텍스트 기반으로 추출한다.
-  await page.goto('https://www.ticketlink.co.kr/help/notice#TICKET_OPEN', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(3000);
-  progress('오픈 예정 목록 로딩 중');
-  emit(await extractItemsFromPage(page, 'ticketlink'));
+  // 티켓링크 오픈예정 목록 API가 제목/오픈일시/조회수/포스터를 한 번에 준다. (브라우저 불필요)
+  const collected = new Map();
+  for (let pageIndex = 1; pageIndex <= 6; pageIndex += 1) {
+    progress(`오픈예정 목록 API ${pageIndex}페이지`);
+    const items = await fetchTicketlinkPage(pageIndex);
+    if (!items.length) break;
+    items.forEach((item) => { if (!collected.has(item.url)) collected.set(item.url, item); });
+    emit(items);
+    if (items.length < 15) break; // 마지막 페이지
+    await sleep(400);
+  }
+  progress(`${collected.size}건`);
+}
 
-  let previous = 0;
-  for (let step = 1; step <= 12; step += 1) {
-    await page.mouse.wheel(0, 2600);
-    await page.waitForTimeout(900);
-    emit(await extractItemsFromPage(page, 'ticketlink'));
-    const count = await page.locator('a').count().catch(() => 0);
-    progress(`스크롤 로딩 ${step}/12, 링크 ${count}개 확인`);
-    if (count === previous) break;
-    previous = count;
+async function fetchTicketlinkPage(pageIndex) {
+  try {
+    const url = `https://mapi.ticketlink.co.kr/mapi/notice/list?page=${pageIndex}`
+      + '&noticeCategoryCode=TICKET_OPEN&orderType=OPEN_DATE';
+    const res = await fetch(url, { headers: { 'User-Agent': DESKTOP_USER_AGENT, Accept: 'application/json' } });
+    if (!res.ok) return [];
+    const json = await res.json();
+    const notices = (json && json.data && json.data.notices) || [];
+    return notices
+      .map((n) => {
+        const dm = String(n.ticketOpenDatetime || '').match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+        let image = n.imagePath || n.noticeImagePath || '';
+        if (image && typeof image === 'object') image = image.imgUrl || '';
+        if (typeof image !== 'string') image = '';
+        if (image.startsWith('//')) image = `https:${image}`;
+        else if (image.startsWith('http://')) image = image.replace(/^http:/, 'https:');
+        const title = String(n.title || '')
+          // 실제 HTML 태그(<b>,</b>,<p ...>)만 제거하고 <씨네미술관> 같은 한글 꺾쇠는 보존한다.
+          .replace(/<\/?[a-zA-Z][^>]*>/g, ' ')
+          .replace(/&nbsp;|&amp;|&lt;|&gt;/g, (m) => ({ '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>' }[m]))
+          .replace(/\s+/g, ' ')
+          .trim();
+        return {
+          title,
+          openDate: dm ? `${dm[1]}-${dm[2]}-${dm[3]}` : null,
+          openTime: dm ? `${dm[4]}:${dm[5]}` : null,
+          viewCount: Number.isFinite(n.viewCount) ? n.viewCount : null,
+          image,
+          url: `https://m.ticketlink.co.kr/help/notice/${n.noticeId}`,
+        };
+      })
+      .filter((item) => item.title && item.openDate);
+  } catch {
+    return [];
   }
 }
 

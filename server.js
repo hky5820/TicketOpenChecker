@@ -324,8 +324,8 @@ async function fetchMelonPage(page, pageIndex) {
       // 데스크톱에선 ticket.melon.com/csoon/detail.htm 로 리다이렉트되어 양쪽 다 정상.
       // (데스크톱 URL을 쓰면 모바일에서 홈으로 튕기는 문제가 있었다.)
       const url = cid
-        ? `https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=${cid[1]}`
-        : 'https://m.ticket.melon.com/public/index.html#ticketopen.list';
+        ? `https://m.ticket.melon.com/public/index.html#ticketOpen.detail?csoonId=${cid[1]}`
+        : 'https://m.ticket.melon.com/public/index.html#ticketOpen.list';
       const imgEl = li.querySelector('img');
       let image = imgEl ? (imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || '') : '';
       if (image.startsWith('//')) image = `https:${image}`;

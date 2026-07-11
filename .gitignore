@@ -7,3 +7,6 @@ output/
 *.err.log
 storage-state.json
 chrome-profile-desktop/
+
+# vendored skill-repo payloads (backs hooks; skills/commands live in .claude/skills & .claude/commands)
+.claude/plugins/

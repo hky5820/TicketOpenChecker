@@ -30,10 +30,6 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="compact-title">
-        <strong>티켓 오픈</strong>
-        <span>Calendar</span>
-      </div>
       <div class="search-box">
         <input id="searchInput" type="search" autocomplete="off" placeholder="공연명으로 날짜 찾기">
         <div id="searchSuggestions" class="search-suggestions" hidden></div>
@@ -41,20 +37,26 @@
       <div class="actions">
         <div class="view-switch" role="group" aria-label="보기 모드">
           <button id="calendarView" class="view-button is-selected" type="button" title="캘린더 보기" aria-label="캘린더 보기" aria-pressed="true">
-            <span aria-hidden="true">▦</span>
+            <!-- awesome-design-tools: Feather "grid" 아이콘 -->
+            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>
           </button>
           <button id="siteView" class="view-button" type="button" title="예매처별 보기" aria-label="예매처별 보기" aria-pressed="false">
-            <span aria-hidden="true">☷</span>
+            <!-- awesome-design-tools: Feather "list" 아이콘 -->
+            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span>
           </button>
         </div>
         <button id="themeToggle" class="icon-button" type="button" title="테마 전환" aria-label="테마 전환">
-          <span aria-hidden="true">◐</span>
+          <!-- awesome-design-tools: Feather "moon" 아이콘 -->
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
         </button>
-        <button id="prevMonth" class="icon-button" type="button" title="이전 달" aria-label="이전 달">‹</button>
+        <!-- awesome-design-tools: Feather "chevron-left" 아이콘 -->
+        <button id="prevMonth" class="icon-button" type="button" title="이전 달" aria-label="이전 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></span></button>
         <button id="today" class="text-button" type="button">오늘</button>
-        <button id="nextMonth" class="icon-button" type="button" title="다음 달" aria-label="다음 달">›</button>
+        <!-- awesome-design-tools: Feather "chevron-right" 아이콘 -->
+        <button id="nextMonth" class="icon-button" type="button" title="다음 달" aria-label="다음 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span></button>
         <button id="load" class="primary-button" type="button">
-          <span class="button-icon">↻</span>
+          <!-- awesome-design-tools: Feather "refresh-cw" 아이콘 -->
+          <span class="button-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
           불러오기
         </button>
       </div>
@@ -100,7 +102,7 @@
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-head">
         <h2 id="modalTitle"></h2>
-        <button class="icon-button" type="button" data-close title="닫기" aria-label="닫기">×</button>
+<!-- awesome-design-tools: Feather "x" 아이콘 --><button class="icon-button" type="button" data-close title="닫기" aria-label="닫기"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span></button>
       </div>
       <div id="modalList" class="modal-list"></div>
     </section>

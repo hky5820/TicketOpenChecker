@@ -119,8 +119,12 @@ function listenWithFallback(port) {
 }
 
 async function launchMobileContext() {
+  // 로컬에서 창을 띄울 때는 실제 Chrome(channel:'chrome')을 자동화 플래그 제거하고 실행 — mycode 방식.
+  // 시스템에 설치된 진짜 Chrome을 써서 봇 감지를 회피한다. (헤드리스/CI 환경은 번들 Chromium 사용)
   const context = await chromium.launchPersistentContext(CHROME_PROFILE_DIR, {
+    ...(HEADLESS ? {} : { channel: 'chrome' }),
     headless: HEADLESS,
+    ignoreDefaultArgs: ['--enable-automation'],
     args: [
       '--disable-blink-features=AutomationControlled',
       '--no-first-run',
@@ -318,18 +322,23 @@ async function extractMelonScheduleDetailItems(page, fallbackTitle) {
 }
 
 async function scrapeTicketlink(page, progress, emit) {
+  // 티켓링크는 모바일 UA일 때 m.ticketlink.co.kr(React SPA)로 리다이렉트된다.
+  // 옛 데스크톱 사이트의 a.info_wrap / getNoticeList() 전역이 없으므로,
+  // 무한 스크롤로 목록을 늘려가며 텍스트 기반으로 추출한다.
   await page.goto('https://www.ticketlink.co.kr/help/notice#TICKET_OPEN', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(2500);
-  await selectTicketlinkOpenSort(page, progress);
+  await page.waitForTimeout(3000);
+  progress('오픈 예정 목록 로딩 중');
+  emit(await extractItemsFromPage(page, 'ticketlink'));
 
-  let previousCount = 0;
-  for (let step = 1; step <= 10; step += 1) {
-    progress(`오픈예정순 목록 ${step}/10`);
+  let previous = 0;
+  for (let step = 1; step <= 12; step += 1) {
+    await page.mouse.wheel(0, 2600);
+    await page.waitForTimeout(900);
     emit(await extractItemsFromPage(page, 'ticketlink'));
-    const state = await loadNextTicketlinkOpenSortPage(page).catch(() => ({ ok: false, count: previousCount, isEnd: true }));
-    await page.waitForTimeout(500);
-    if (!state.ok || state.isEnd || state.count === previousCount) break;
-    previousCount = state.count;
+    const count = await page.locator('a').count().catch(() => 0);
+    progress(`스크롤 로딩 ${step}/12, 링크 ${count}개 확인`);
+    if (count === previous) break;
+    previous = count;
   }
 }
 
@@ -354,42 +363,6 @@ async function selectMelonOpenDateSort(page, progress) {
     };
   });
   progress(selected.selected ? '오픈일순 정렬 확인' : '오픈일순 클릭 후 목록 확인');
-}
-
-async function selectTicketlinkOpenSort(page, progress) {
-  const selected = await page.evaluate(() => {
-    const input = document.getElementById('sort_02');
-    if (typeof selectSort === 'function' && input) {
-      selectSort(input, 'OPEN_DATE');
-    }
-    window.SORT = 'OPEN_DATE';
-    document.getElementById('sort_02')?.setAttribute('checked', 'checked');
-    const button = document.querySelector('button.btn_dropdown');
-    if (button) button.textContent = '오픈예정순';
-    return {
-      selected: window.SORT === 'OPEN_DATE',
-      buttonText: button?.textContent?.trim() || '',
-      count: document.querySelectorAll('a.info_wrap').length,
-    };
-  });
-  await page.waitForTimeout(500);
-  progress(selected.selected ? '오픈예정순 정렬 확인' : `오픈예정순 선택 시도, 현재 ${selected.buttonText || '확인불가'}`);
-}
-
-async function loadNextTicketlinkOpenSortPage(page) {
-  return page.evaluate(() => {
-    if (typeof getNoticeList !== 'function') return { ok: false, count: document.querySelectorAll('a.info_wrap').length };
-    window.SORT = 'OPEN_DATE';
-    getNoticeList(window.PAGE++, 'TICKET_OPEN', window.SEARCH_KEYWORD, 'OPEN_DATE');
-    const button = document.querySelector('button.btn_dropdown');
-    if (button) button.textContent = '오픈예정순';
-    return {
-      ok: true,
-      page: window.PAGE,
-      count: document.querySelectorAll('a.info_wrap').length,
-      isEnd: Boolean(window.IS_END_OF_ITEM),
-    };
-  });
 }
 
 async function extractItemsFromPage(page, siteId) {
@@ -459,11 +432,18 @@ async function extractItemsFromPage(page, siteId) {
 
     let sourceNodes = [];
     if (siteId === 'ticketlink') {
-      sourceNodes = Array.from(document.querySelectorAll('a.info_wrap')).map((node) => ({
-        text: node.innerText || node.textContent || '',
-        url: node.href || location.href,
-        mode: 'ticketlink',
-      }));
+      // 신규 모바일 목록은 각 항목이 <a>이고 "…티켓오픈 안내 / 2026.07.14(화) 11:00 / 에 티켓오픈" 형태다.
+      // (구 데스크톱 a.info_wrap 도 티켓오픈+날짜 텍스트를 가지므로 같은 필터로 호환된다.)
+      sourceNodes = Array.from(document.querySelectorAll('a.info_wrap, a'))
+        .filter((node) => {
+          const text = node.innerText || node.textContent || '';
+          return /티켓오픈/.test(text) && fullDatePattern.test(text);
+        })
+        .map((node) => ({
+          text: node.innerText || node.textContent || '',
+          url: node.href || location.href,
+          mode: 'ticketlink',
+        }));
     } else if (siteId === 'melon') {
       sourceNodes = Array.from(document.querySelectorAll('a'))
         .filter((node) => /티켓오픈일\s*20\d{2}/.test(node.innerText || node.textContent || ''))

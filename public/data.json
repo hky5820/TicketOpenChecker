@@ -1,816 +1,843 @@
 {
-  "generatedAt": "2026-06-19T07:09:18.521Z",
-  "itemCount": 90,
+  "generatedAt": "2026-07-11T09:19:19.363Z",
+  "itemCount": 93,
   "items": [
     {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "2026 ONE HOUR 7월",
-      "openDate": "2026-06-19",
-      "openTime": "18:00",
-      "openDateTime": "2026-06-19T18:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "경이로운 금요일 : Rebel Week | 스내피돌 X 언더플로우 X 채소현",
-      "openDate": "2026-06-19",
-      "openTime": "18:00",
-      "openDateTime": "2026-06-19T18:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "전종혁 첫 번 째 미니 콘서트 [연정] - 부산",
-      "openDate": "2026-06-19",
-      "openTime": "18:00",
-      "openDateTime": "2026-06-19T18:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "JAURIM CONCERT IN JAPAN 2026 ~LIFE! X TOKYO~",
-      "openDate": "2026-06-19",
-      "openTime": "18:00",
-      "openDateTime": "2026-06-19T18:00:00+09:00",
+      "title": "연극 장군슈퍼",
+      "openDate": "2026-07-13",
+      "openTime": "01:00",
+      "openDateTime": "2026-07-13T01:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 광주>​",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65165"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 구미>​",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65167"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 당진>​",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65168"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] 2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 인천>",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65169"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 춘천>​",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65164"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] ​2026 이상준쇼 전국투어 공연 <이상준쇼 45 - 충주>​",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65166"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 PLAVE World Tour [KEEP IT MANIC] in Incheon",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14162"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "컬러풀 스테이지 #18 플릿(FLEET), 리프(LIF)",
-      "openDate": "2026-06-19",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-19T19:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 XLOV ASIA TOUR 〈Serving-X〉 IN SEOUL",
-      "openDate": "2026-06-19",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-19T20:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14188"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "831 'NOBODY CAN FLY' 2026 world tour in SEOUL",
-      "openDate": "2026-06-19",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-19T20:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65125"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "벤치위레오 단독 콘서트 〈KICK OFF〉",
-      "openDate": "2026-06-19",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-19T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "엔분의일 투어 콘서트 〈2026 HIGHTENSION〉 광주",
-      "openDate": "2026-06-19",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-19T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "TONE Studio Stay-easy Ep.6 〈은도희〉",
-      "openDate": "2026-06-19",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-19T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] 2026 KIMSUNGKYU LIVE [LV4: LEAP TO VECTOR] FINAL IN BUSAN​",
-      "openDate": "2026-06-22",
-      "openTime": "04:00",
-      "openDateTime": "2026-06-22T04:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65067"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "베베핀 뮤지컬 <두근두근 새친구> - 이천​",
-      "openDate": "2026-06-22",
+      "title": "[단독판매]<씨네미술관>영화와 그림책이 건네는 삶의 위로 - 대구",
+      "openDate": "2026-07-13",
       "openTime": "10:00",
-      "openDateTime": "2026-06-22T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65171"
+      "openDateTime": "2026-07-13T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65370"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]뮤지컬 「문나이트」 - 울진",
+      "openDate": "2026-07-13",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-13T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65323"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "우기유니의 어드벤처 쇼! - 서울",
-      "openDate": "2026-06-22",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-22T10:00:00+09:00",
+      "title": "칼리드 내한공연",
+      "openDate": "2026-07-13",
+      "openTime": "12:00",
+      "openDateTime": "2026-07-13T12:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "우기유니의 어드벤처 쇼! - 서울",
-      "openDate": "2026-06-22",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-22T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65159"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "참여형 뮤지컬 <슈퍼윙스 : 초능력 곤충 대소동> - 진주",
-      "openDate": "2026-06-22",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-22T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65179"
+      "title": "[단독판매]​가족 뮤지컬 <구름빵> - 경산​",
+      "openDate": "2026-07-13",
+      "openTime": "13:00",
+      "openDateTime": "2026-07-13T13:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65387"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "황수지 피아노 독주회",
-      "openDate": "2026-06-22",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-22T10:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 어린이 베스트셀러 뮤지컬 〈사과가쿵!〉 - 고양",
-      "openDate": "2026-06-22",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-22T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "어린이뮤지컬 〈콧구멍을 후비면〉 - 광주",
-      "openDate": "2026-06-22",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-22T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "어린이뮤지컬 〈콧구멍을 후비면〉 - 김해",
-      "openDate": "2026-06-22",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-22T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "뮤지컬 <사칠> 1차​",
-      "openDate": "2026-06-22",
+      "title": "뮤지컬 〈그날들〉",
+      "openDate": "2026-07-13",
       "openTime": "14:00",
-      "openDateTime": "2026-06-22T14:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65174"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "이은결 30주년 〈ONE OF ONE〉 - 부산",
-      "openDate": "2026-06-22",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-22T14:00:00+09:00",
+      "openDateTime": "2026-07-13T14:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "이은결 30주년 < ONE OF ONE > - 부산",
-      "openDate": "2026-06-22",
+      "title": "뮤지컬 <그날들> 마지막",
+      "openDate": "2026-07-13",
       "openTime": "14:00",
-      "openDateTime": "2026-06-22T14:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65140"
+      "openDateTime": "2026-07-13T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65359"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "뮤지컬 헬로카봇 <카봇크루가 되어줘!> - 하남",
+      "openDate": "2026-07-13",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-13T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65364"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "에디킴 X 케이시 콘서트 VOICE TO VOICE",
-      "openDate": "2026-06-22",
+      "title": "뮤지컬 헬로카봇 시즌10 〈카봇크루가 되어줘!〉 - 하남",
+      "openDate": "2026-07-13",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-13T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "ONE UNIVERSE FESTIVAL 2026 - Special Ticket",
+      "openDate": "2026-07-13",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-13T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "RAUM ARTIST SERIES Ⅳ 첼리스트 전서우 독주회",
+      "openDate": "2026-07-13",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-13T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65375"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]2026 문화예술 대공연( K-EDU Culture WAVE)​",
+      "openDate": "2026-07-13",
       "openTime": "16:00",
-      "openDateTime": "2026-06-22T16:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
+      "openDateTime": "2026-07-13T16:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65362"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]2026 신인음악회 - 대구",
+      "openDate": "2026-07-13",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-13T17:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65381"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]2026 청소년 협주곡의 밤 - 대구",
+      "openDate": "2026-07-13",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-13T17:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65380"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "일리야 라쉬코프스키, 라흐마니노프 3개의 피아노 협주곡 - 부산",
-      "openDate": "2026-06-22",
-      "openTime": "16:00",
-      "openDateTime": "2026-06-22T16:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
+      "title": "불독맨션 : MINTPAPER 20th SPECIAL LIVE",
+      "openDate": "2026-07-13",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-13T17:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14426"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan sign Event",
-      "openDate": "2026-06-22",
+      "title": "世代共感 세대공감4",
+      "openDate": "2026-07-13",
+      "openTime": "18:00",
+      "openDateTime": "2026-07-13T18:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "짙은 : MINTPAPER 20th SPECIAL LIVE",
+      "openDate": "2026-07-13",
+      "openTime": "18:00",
+      "openDateTime": "2026-07-13T18:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14427"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "ITZY The 5th Fan Meeting 있지 믿지, 날자! “ALL IN, MIDZY”",
+      "openDate": "2026-07-13",
       "openTime": "19:00",
-      "openDateTime": "2026-06-22T19:00:00+09:00",
+      "openDateTime": "2026-07-13T19:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "2026 YENA ENCORE LIVE 네모로부터 시작된, 잡힐 듯 말 듯 한 이세계 : 극장판 (선예매)",
+      "openDate": "2026-07-13",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-13T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12483"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "박재정 미니 콘서트 - ‘대화’",
+      "openDate": "2026-07-13",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-13T20:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14477"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "HongEunki Special Event [은기다방]",
+      "openDate": "2026-07-13",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-13T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "Red Velvet FAN-CON 〈A Day in Red & Velvet〉 추가 회차 (선예매 1차)",
+      "openDate": "2026-07-13",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-13T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12517"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "뮤지컬 멜로우TV < Run it up, 팀 나빠 > - 부산",
+      "openDate": "2026-07-14",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-14T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65371"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구",
+      "openDate": "2026-07-14",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-14T10:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 대구",
+      "openDate": "2026-07-14",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-14T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65357"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주",
+      "openDate": "2026-07-14",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-14T10:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 청주",
+      "openDate": "2026-07-14",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-14T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65358"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "2026 뮤지컬 <미드나잇 : 액터뮤지션> - THE CHOICE 1차",
+      "openDate": "2026-07-14",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-14T11:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65388"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "연극 〈더 헬멧〉",
+      "openDate": "2026-07-14",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-14T11:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 서울문화재단 광복절 기념 특별프로그램 〈극장은 달린다!〉",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "국립국악관현악단 〈2026 작곡가 프로젝트〉",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "국립합창단〈한국 가곡의 모든 것〉",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "낭만박상환 끼발산 키득가득 의 〈숏숏쇼〉 - 용인",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "낭만박상환 끼발산 키득가득의 <숏숏쇼> - 용인",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65382"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "뮤지컬 〈콰이어 오브 맨〉",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "쇼뮤지컬<프린세스 캐치! 티니핑> - 전주",
+      "openDate": "2026-07-14",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-14T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65384"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]뮤지컬 <죽음에 관하여> 2차",
+      "openDate": "2026-07-14",
+      "openTime": "15:00",
+      "openDateTime": "2026-07-14T15:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65348"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "뮤지컬 〈소크라테스 패러독스〉",
+      "openDate": "2026-07-14",
+      "openTime": "15:00",
+      "openDateTime": "2026-07-14T15:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]서도밴드 정규 1집 콘서트 <원>​​",
+      "openDate": "2026-07-14",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-14T17:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65350"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 HYNN(박혜원) 콘서트 〈Midnight Blue : Luna-rium〉",
+      "openDate": "2026-07-14",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-14T17:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "톤앤뮤직 플리라이브 vol.3 : 누니, 권그린, 이재경",
+      "openDate": "2026-07-14",
+      "openTime": "18:00",
+      "openDateTime": "2026-07-14T18:00:00+09:00",
       "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "장경민 콘서트 '숲의 소음'",
-      "openDate": "2026-06-22",
+      "title": "TRICO FESTIVAL 2026 - 강원 정선",
+      "openDate": "2026-07-14",
+      "openTime": "18:00",
+      "openDateTime": "2026-07-14T18:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 손태진 단독 콘서트 〈THE MAESTRO〉 - 수원",
+      "openDate": "2026-07-14",
       "openTime": "19:00",
-      "openDateTime": "2026-06-22T19:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14241"
+      "openDateTime": "2026-07-14T19:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "[단독판매] Ensemble Stars!! DREAM LIVE Tour 10th xALL STARS!! - Seoul",
-      "openDate": "2026-06-22",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65180"
+      "title": "2026 손태진 단독 콘서트 < THE MAESTRO > - 수원",
+      "openDate": "2026-07-14",
+      "openTime": "19:00",
+      "openDateTime": "2026-07-14T19:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65376"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "[단독판매] ​YEOSU with MyK FESTA​",
-      "openDate": "2026-06-22",
+      "title": "2026 N.Flying LIVE ‘&CON5 : into REM’ -서울 콘서트 공연장 변경",
+      "openDate": "2026-07-14",
       "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65137"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "[Play＆Stay] BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL + Hotels",
-      "openDate": "2026-06-22",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14006"
+      "openDateTime": "2026-07-14T20:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65379"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "2026 Lee Yun Seo Birthday party [Yuni-Birth] Fan Meeting",
-      "openDate": "2026-06-22",
+      "title": "Red Velvet FAN-CON 〈A Day in Red & Velvet〉 추가 회차 (선예매 2차)",
+      "openDate": "2026-07-14",
       "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
+      "openDateTime": "2026-07-14T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12517"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대구",
+      "openDate": "2026-07-15",
+      "openTime": "09:00",
+      "openDateTime": "2026-07-15T09:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65385"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "뮤지컬 집사TV 시즌 2 part.2 : <대저택 끝 없는 문> - 대전",
+      "openDate": "2026-07-15",
+      "openTime": "09:00",
+      "openDateTime": "2026-07-15T09:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65386"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]가족뮤지컬 <코밈> - 서울",
+      "openDate": "2026-07-15",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-15T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65332"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "BOYNEXTDOOR TOUR 'KNOCK ON Vol.2' IN SEOUL",
-      "openDate": "2026-06-22",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
+      "title": "가족뮤지컬 〈코밈〉- 서울",
+      "openDate": "2026-07-15",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-15T10:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "뮤지컬 타키포오 [몬스터 전쟁의 서막 ; 더 좀비]- 청주",
+      "openDate": "2026-07-15",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-15T10:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산",
+      "openDate": "2026-07-15",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-15T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65372"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "바다탐험대 옥토넛 시즌4 : 숨겨진 보물을 찾아라! - 아산",
+      "openDate": "2026-07-15",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-15T10:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부",
+      "openDate": "2026-07-15",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-15T11:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65377"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 김경호 전국투어 콘서트 : 발라드를 위한 時 - 의정부",
+      "openDate": "2026-07-15",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-15T11:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "에",
+      "openDate": "2026-07-15",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-15T11:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65378"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "의정부예술의전당 대극장",
+      "openDate": "2026-07-15",
+      "openTime": "11:00",
+      "openDateTime": "2026-07-15T11:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "〈2026 STAGE 100: 연극제〉 모딧세이",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "〈2026 STAGE 100: 연극제〉 바쁜 사람들",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "〈2026 STAGE 100: 연극제〉 외투",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 GHOST 페스티벌",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "2026 GHOST 페스티벌 - 얼리버드",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65373"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "SUMMER FRAGILE SEOUL V.001",
-      "openDate": "2026-06-22",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-22T20:00:00+09:00",
+      "title": "2026 GHOST 페스티벌 - 얼리버드",
+      "openDate": "2026-07-15",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-15T14:00:00+09:00",
       "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "[과천] 가족뮤지컬 〈로보카폴리 - 브룸스타운의 에너지를 지켜라!〉",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "먼데이프로젝트 시즌9 [이파란 단독 콘서트 〈미스테리! 초럭셔리 왕실파티와 사라진 보석〉]",
+      "openDate": "2026-07-15",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-15T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[과천] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65178"
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "쿠잉 단독 콘서트 [SUMMER KISS : 4 IN 6 OUT]",
+      "openDate": "2026-07-15",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-15T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] [경주] 한국수력원자력 프리미어 <조성진 피아노 리사이틀>",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65017"
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "POSER | 2026 SUMMER CLUB TOUR : 서울",
+      "openDate": "2026-07-15",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-15T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[여수] 가족뮤지컬 <로보카폴리 - 브룸스타운의 에너지를 지켜라!>​",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65177"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "싱어롱뮤지컬 브레드이발소 〈브레드와 윌크의 세계여행〉 - 창원",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "싱어롱뮤지컬 브레드이발소 <브레드와 윌크의 세계여행> - 창원​",
-      "openDate": "2026-06-23",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-23T10:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65172"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] 동락관 개관 10주년 기념콘서트 시즌I 소란 - 안동​",
-      "openDate": "2026-06-23",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-23T11:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65162"
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "Red Velvet FAN-CON 〈A Day in Red & Velvet〉 추가 회차",
+      "openDate": "2026-07-15",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-15T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12517"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "우석훈 코미디 단편선 - 서울",
-      "openDate": "2026-06-23",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-23T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 대전",
-      "openDate": "2026-06-23",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-23T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "이머시브 뮤지컬 〈고래밥 - 바다 대운동회〉 - 부산",
-      "openDate": "2026-06-23",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-23T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] ​세쿠 내한 공연 (Sekou Live in Seoul)​",
-      "openDate": "2026-06-23",
+      "title": "2026 카즈미 타테이시 트리오 내한공연-지브리, 재즈를 만나다-(서울)",
+      "openDate": "2026-07-16",
       "openTime": "12:00",
-      "openDateTime": "2026-06-23T12:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65149"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 〈더:매직서커스〉 - 남양주",
-      "openDate": "2026-06-23",
-      "openTime": "12:00",
-      "openDateTime": "2026-06-23T12:00:00+09:00",
+      "openDateTime": "2026-07-16T12:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "입터진 라이브",
-      "openDate": "2026-06-23",
-      "openTime": "12:00",
-      "openDateTime": "2026-06-23T12:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65185"
+      "title": "[단독판매]연극 <노인의 꿈> - 동해",
+      "openDate": "2026-07-16",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-16T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65366"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[용인] 2026 빅3 '행복한만남' [강진, 김용임, 진성]",
+      "openDate": "2026-07-16",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-16T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65383"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "[용인] 2026 빅3 “행복한만남” [강진, 김용임, 진성]",
+      "openDate": "2026-07-16",
+      "openTime": "14:00",
+      "openDateTime": "2026-07-16T14:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
       "title": "뮤지컬 〈박열〉",
-      "openDate": "2026-06-23",
+      "openDate": "2026-07-16",
       "openTime": "14:00",
-      "openDateTime": "2026-06-23T14:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "뮤지컬 〈브라더스 까라마조프〉",
-      "openDate": "2026-06-23",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-23T14:00:00+09:00",
+      "openDateTime": "2026-07-16T14:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
       "site": "티켓링크",
       "siteId": "ticketlink",
-      "title": "뮤지컬 <박열> 3차",
-      "openDate": "2026-06-23",
+      "title": "뮤지컬 <박열> 마지막​",
+      "openDate": "2026-07-16",
       "openTime": "14:00",
-      "openDateTime": "2026-06-23T14:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65182"
+      "openDateTime": "2026-07-16T14:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65368"
     },
     {
       "site": "NOL 티켓",
       "siteId": "interpark",
-      "title": "뮤지컬 바람으로의 여행",
-      "openDate": "2026-06-23",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-23T14:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "일리야 라쉬코프스키, 라흐마니노프 3개의 피아노 협주곡 - 대전",
-      "openDate": "2026-06-23",
-      "openTime": "16:00",
-      "openDateTime": "2026-06-23T16:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "THE SOLUTIONS(솔루션스) 콘서트 ‘Maximizer Ⅱ’",
-      "openDate": "2026-06-23",
-      "openTime": "19:00",
-      "openDateTime": "2026-06-23T19:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14270"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "인디빌리지 Vol.1 에로틱웜즈익스히비션의 어지러운 마을",
-      "openDate": "2026-06-23",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-23T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "nowhere 2",
-      "openDate": "2026-06-23",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-23T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "​[단독판매] 앙상블 이덴티테트 제3회 정기연주회 < 4 Colors > - 대구​",
-      "openDate": "2026-06-24",
-      "openTime": "00:00",
-      "openDateTime": "2026-06-24T00:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65120"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "뮤지컬 타키포오 [몬스터 전쟁의 서막 ; 더 좀비] - 용인",
-      "openDate": "2026-06-24",
-      "openTime": "09:00",
-      "openDateTime": "2026-06-24T09:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 라이브 가족뮤지컬 〈알라딘〉 - 서울(영등포)",
-      "openDate": "2026-06-24",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-24T10:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 뮤지컬 〈미드나잇 : 액터뮤지션〉",
-      "openDate": "2026-06-24",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-24T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "2026 뮤지컬 <미드나잇:액터뮤지션> 5차",
-      "openDate": "2026-06-24",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-24T11:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65189"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "뮤지컬 <청새치> 1차",
-      "openDate": "2026-06-24",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-24T11:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65181"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] 국립청년극단 <헤파이스토스 로미오와 줄리엣> - 춘천",
-      "openDate": "2026-06-24",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-24T14:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65193"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "제물포구문화체육센터 〈2026 SUMMER FESTA with 변진섭〉",
-      "openDate": "2026-06-24",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-24T14:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "베르디 콘서트 오페라 〈리골레토＆아이다＆라 트라비아타〉",
-      "openDate": "2026-06-24",
+      "title": "스미노 하야토 피아노 리사이틀",
+      "openDate": "2026-07-16",
       "openTime": "15:00",
-      "openDateTime": "2026-06-24T15:00:00+09:00",
+      "openDateTime": "2026-07-16T15:00:00+09:00",
       "url": "https://tickets.interpark.com/contents/notice"
     },
     {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "유승우 단독 공연 〈청춘의 단상〉",
-      "openDate": "2026-06-24",
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "창작가무극 〈청사초롱 불 밝혀라〉",
+      "openDate": "2026-07-16",
+      "openTime": "15:00",
+      "openDateTime": "2026-07-16T15:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "민트페스타 vol.86",
+      "openDate": "2026-07-16",
+      "openTime": "17:00",
+      "openDateTime": "2026-07-16T17:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14526"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "민트페스타 vol.87",
+      "openDate": "2026-07-16",
       "openTime": "18:00",
-      "openDateTime": "2026-06-24T18:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
+      "openDateTime": "2026-07-16T18:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14527"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "이혁정모(EHJM) 단독콘서트 ‘THE MEN’",
-      "openDate": "2026-06-24",
-      "openTime": "18:00",
-      "openDateTime": "2026-06-24T18:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "[단독판매] 2026 KIM MYUNG SOO FAN-CON < UNCHANGED >",
-      "openDate": "2026-06-24",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-24T20:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65161"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 1차)",
-      "openDate": "2026-06-24",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-24T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "일만 하고 놀지 않으면 바보가 된다구요!",
-      "openDate": "2026-06-24",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-24T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "RIO 단독 공연 〈Rose Water〉",
-      "openDate": "2026-06-24",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-24T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "2026 라이브 가족뮤지컬 〈신데렐라〉 - 수원",
-      "openDate": "2026-06-25",
-      "openTime": "09:00",
-      "openDateTime": "2026-06-25T09:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "내 마음의 시그널 TALK CONCERT IN 인천",
-      "openDate": "2026-06-25",
-      "openTime": "10:00",
-      "openDateTime": "2026-06-25T10:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "뮤지컬 〈알사탕〉 - 서울숲",
-      "openDate": "2026-06-25",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-25T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "뮤지컬 <드라큘라> 3차",
-      "openDate": "2026-06-25",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-25T11:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65184"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "뮤지컬 드라큘라 (Dracula：The Musical)",
-      "openDate": "2026-06-25",
-      "openTime": "11:00",
-      "openDateTime": "2026-06-25T11:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "더 스카웃:다시 태어나는 별 STARS REBORN-서울",
-      "openDate": "2026-06-25",
-      "openTime": "12:00",
-      "openDateTime": "2026-06-25T12:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "더 스카웃:다시 태어나는 별 STARS REBORN-광주",
-      "openDate": "2026-06-25",
-      "openTime": "13:00",
-      "openDateTime": "2026-06-25T13:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice"
-    },
-    {
-      "site": "티켓링크",
-      "siteId": "ticketlink",
-      "title": "​유카페카 사라스테 & 헬싱키 필하모닉 오케스트라​",
-      "openDate": "2026-06-25",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-25T14:00:00+09:00",
-      "url": "https://m.ticketlink.co.kr/help/notice/65144"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "먼데이프로젝트 시즌9 OUR SUMMER [심재현 X 히미츠]",
-      "openDate": "2026-06-25",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-25T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "먼데이프로젝트 IN 라이브클럽 [물결 단독콘서트]",
-      "openDate": "2026-06-25",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-25T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "별은 싱글 발매기념 단독콘서트 : 여름의 향기",
-      "openDate": "2026-06-25",
-      "openTime": "20:00",
-      "openDateTime": "2026-06-25T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "멜론 티켓",
-      "siteId": "melon",
-      "title": "제22회 제천국제음악영화제 〈원 썸머 나잇 위드 케이팝 시즌 2〉 블라인드",
-      "openDate": "2026-06-26",
-      "openTime": "14:00",
-      "openDateTime": "2026-06-26T14:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#action"
-    },
-    {
-      "site": "NOL 티켓",
-      "siteId": "interpark",
-      "title": "TAKUYA KIMURA Live Tour 2026 Checkpoint in Seoul",
-      "openDate": "2026-06-29",
+      "title": "POSER | 2026 SUMMER CLUB TOUR : 부산",
+      "openDate": "2026-07-16",
       "openTime": "19:00",
-      "openDateTime": "2026-06-29T19:00:00+09:00",
-      "url": "https://tickets.interpark.com/contents/notice/detail/14058"
+      "openDateTime": "2026-07-16T19:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY- (선예매 2차)",
-      "openDate": "2026-06-29",
+      "title": "POSER | 2026 SUMMER CLUB TOUR : 대구",
+      "openDate": "2026-07-16",
+      "openTime": "19:30",
+      "openDateTime": "2026-07-16T19:30:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "NOL 티켓",
+      "siteId": "interpark",
+      "title": "2026 임영웅 콘서트 [IM HERO - THE STADIUM 2]",
+      "openDate": "2026-07-16",
       "openTime": "20:00",
-      "openDateTime": "2026-06-29T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387"
+      "openDateTime": "2026-07-16T20:00:00+09:00",
+      "url": "https://tickets.interpark.com/contents/notice/detail/14497"
     },
     {
       "site": "멜론 티켓",
       "siteId": "melon",
-      "title": "2026-27 aespa LIVE TOUR -SYNK : COMPLaeXITY-",
-      "openDate": "2026-06-30",
+      "title": "2026 YENA ENCORE LIVE 네모로부터 시작된, 잡힐 듯 말 듯 한 이세계 : 극장판",
+      "openDate": "2026-07-16",
       "openTime": "20:00",
-      "openDateTime": "2026-06-30T20:00:00+09:00",
-      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12387"
+      "openDateTime": "2026-07-16T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12483"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "2026 YERIN FAN CONCERT : ‘STAR BLOOM’",
+      "openDate": "2026-07-16",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-16T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "O.O.O단독 콘서트 : 느리고, 흐린 춤(Slow, Blurry Dance)",
+      "openDate": "2026-07-16",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-16T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "POSER | 2026 SUMMER CLUB TOUR : 대전",
+      "openDate": "2026-07-16",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-16T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "리메이 1st 팬콘서트 〈숲속의 메아리들〉",
+      "openDate": "2026-07-17",
+      "openTime": "18:00",
+      "openDateTime": "2026-07-17T18:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]2026 KIM JAE JOONG CONCERT [THE WAVE] in Seoul",
+      "openDate": "2026-07-21",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-21T20:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65374"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]JO1DER SHOW 2026 ‘EIEN 永緣’ LIMITED EDITION IN SEOUL​",
+      "openDate": "2026-07-21",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-21T20:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65279"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "2026 CORTIS TOUR 〈PUT YOUR PHONE DOWN〉 BIRTHDAY PARTY (선예매 1차)",
+      "openDate": "2026-07-22",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-22T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12484"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "2026 CORTIS TOUR 〈PUT YOUR PHONE DOWN〉 BIRTHDAY PARTY (선예매 2차)",
+      "openDate": "2026-07-23",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-23T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12484"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "2026 CORTIS TOUR 〈PUT YOUR PHONE DOWN〉 BIRTHDAY PARTY",
+      "openDate": "2026-07-24",
+      "openTime": "20:00",
+      "openDateTime": "2026-07-24T20:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#ticketopen.detail?csoonId=12484"
+    },
+    {
+      "site": "티켓링크",
+      "siteId": "ticketlink",
+      "title": "[단독판매]썸머나이트 <지누션 & 디바> - 경주",
+      "openDate": "2026-07-28",
+      "openTime": "10:00",
+      "openDateTime": "2026-07-28T10:00:00+09:00",
+      "url": "https://m.ticketlink.co.kr/help/notice/65361"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "이지호 정규 1집 〈Jazz Community〉 쇼케이스",
+      "openDate": "2052-10-21",
+      "openTime": "19:00",
+      "openDateTime": "2052-10-21T19:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
+    },
+    {
+      "site": "멜론 티켓",
+      "siteId": "melon",
+      "title": "Sustainable Wave Festival 서스테이너블 웨이브 페스티벌",
+      "openDate": "2062-07-03",
+      "openTime": "10:00",
+      "openDateTime": "2062-07-03T10:00:00+09:00",
+      "url": "https://m.ticket.melon.com/public/index.html#action"
     }
   ]
 }

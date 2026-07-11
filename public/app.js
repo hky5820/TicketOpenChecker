@@ -40,6 +40,7 @@ document.getElementById('today').addEventListener('click', () => {
 calendarViewButton.addEventListener('click', () => setView('calendar'));
 siteViewButton.addEventListener('click', () => setView('site'));
 loadButton.addEventListener('click', loadSchedules);
+document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 searchInput.addEventListener('input', renderSearchSuggestions);
 searchInput.addEventListener('focus', renderSearchSuggestions);
 document.querySelectorAll('.status-item').forEach((item) => {
@@ -68,6 +69,27 @@ document.addEventListener('keydown', (event) => {
 restoreItems();
 render();
 loadStaticItems();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      // 서비스워커 등록 실패해도 앱은 정상 동작한다.
+    });
+  });
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  const meta = document.getElementById('metaTheme');
+  if (meta) meta.content = next === 'dark' ? '#0b0e15' : '#eef2fb';
+  try {
+    localStorage.setItem('toc_theme', next);
+  } catch {
+    // 저장 실패해도 현재 세션 테마는 유지된다.
+  }
+}
 
 function moveMonth(delta) {
   state.date = new Date(state.date.getFullYear(), state.date.getMonth() + delta, 1);
@@ -285,20 +307,22 @@ function renderCalendar(year, month) {
     button.innerHTML = `
       <div class="date-row">
         <span class="date-number">${date.getDate()}</span>
-        ${dayItems.length ? renderCountBadges(counts) : ''}
       </div>
-      <div class="event-list"></div>
+      <div class="day-dots"></div>
     `;
     button.addEventListener('click', () => {
       if (dayItems.length) openDayModal(key, dayItems);
     });
 
-    const list = button.querySelector('.event-list');
-    dayItems.slice(0, 3).forEach((item) => {
-      const chip = document.createElement('span');
-      chip.className = `event-chip site-${item.siteId}`;
-      chip.innerHTML = `<span class="event-time">${escapeHtml(item.openTime)}</span><span class="event-title">${escapeHtml(item.title)}</span>`;
-      list.appendChild(chip);
+    const dots = button.querySelector('.day-dots');
+    SITES.forEach((site) => {
+      const count = counts[site.id];
+      if (!count) return;
+      const dot = document.createElement('span');
+      dot.className = `day-dot site-${site.id}`;
+      dot.textContent = count;
+      dot.title = `${site.name} ${count}건 오픈`;
+      dots.appendChild(dot);
     });
     calendar.appendChild(button);
   }
@@ -311,19 +335,6 @@ function getSiteCounts(items) {
     ticketlink: items.filter((item) => item.siteId === 'ticketlink').length,
     melon: items.filter((item) => item.siteId === 'melon').length,
   };
-}
-
-function renderCountBadges(counts) {
-  const badges = [
-    ['all', '전체', counts.all],
-    ['interpark', 'NOL', counts.interpark],
-    ['ticketlink', '티링', counts.ticketlink],
-    ['melon', '멜론', counts.melon],
-  ];
-  return `<div class="count-badges" aria-label="일정 개수">${badges
-    .filter(([, , count]) => count)
-    .map(([site, label, count]) => `<span class="count-badge site-${site}" title="${label} ${count}건" aria-label="${label} ${count}건">${count}</span>`)
-    .join('')}</div>`;
 }
 
 function renderSiteBoard(items) {

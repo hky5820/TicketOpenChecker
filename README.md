@@ -6,11 +6,15 @@ Ticket opening calendar for NOL Ticket, Melon Ticket, and Ticketlink.
 
 ```bash
 npm ci
-npx playwright install chromium
 npm start
 ```
 
 Open `http://localhost:3000`.
+
+Locally, `불러오기` opens a real Google Chrome window (mycode style: `channel: 'chrome'`
+with automation flags stripped) so ticket sites don't flag it as a bot. Make sure Google
+Chrome is installed. Headless/CI runs fall back to Playwright's bundled Chromium, which you
+can install with `npx playwright install chromium` (only needed for `npm run export`).
 
 ## Static Export
 

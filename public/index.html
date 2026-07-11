@@ -4,6 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>티켓 오픈 캘린더</title>
+  <meta id="metaTheme" name="theme-color" content="#eef2fb">
+  <meta name="description" content="NOL·멜론·티켓링크 티켓 오픈 일정을 한눈에">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="티켓오픈">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script>
+    // 첫 페인트 전에 테마 적용 (깜빡임 방지)
+    (function () {
+      try {
+        var s = localStorage.getItem('toc_theme') || 'auto';
+        var dark = s === 'dark' || (s !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        var m = document.getElementById('metaTheme');
+        if (m) m.content = dark ? '#0b0e15' : '#eef2fb';
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,6 +47,9 @@
             <span aria-hidden="true">☷</span>
           </button>
         </div>
+        <button id="themeToggle" class="icon-button" type="button" title="테마 전환" aria-label="테마 전환">
+          <span aria-hidden="true">◐</span>
+        </button>
         <button id="prevMonth" class="icon-button" type="button" title="이전 달" aria-label="이전 달">‹</button>
         <button id="today" class="text-button" type="button">오늘</button>
         <button id="nextMonth" class="icon-button" type="button" title="다음 달" aria-label="다음 달">›</button>

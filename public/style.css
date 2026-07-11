@@ -762,12 +762,13 @@ p {
 
 .day-dots {
   display: flex;
-  flex-wrap: wrap;
-  align-content: start;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  max-width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .day-dot {
@@ -1357,8 +1358,8 @@ p {
 
 @media (max-width: 560px) {
   .app {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 4px;
+    padding-right: 4px;
   }
 
   .topbar {
@@ -1379,17 +1380,22 @@ p {
     font-size: 17px;
   }
 
+  .weekday-grid,
+  .calendar-grid {
+    gap: 3px;
+  }
+
   .calendar-panel {
-    padding: 10px;
+    padding: 6px;
   }
 
   .calendar-grid {
-    grid-auto-rows: 80px;
+    grid-auto-rows: 58px;
   }
 
   .day {
-    gap: 4px;
-    padding: 6px 3px 5px;
+    gap: 3px;
+    padding: 5px 2px;
   }
 
   .date-number {
@@ -1397,14 +1403,14 @@ p {
   }
 
   .day-dots {
-    gap: 3px;
+    gap: 2px;
   }
 
   .day-dot {
-    min-width: 16px;
-    height: 16px;
-    padding: 0 3px;
-    font-size: 9.5px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 2px;
+    font-size: 8.5px;
   }
 
   .modal-item {

@@ -135,12 +135,11 @@ restoreItems();
 render();
 loadStaticItems();
 
+// 남아있는 옛 서비스워커가 있으면 해제하고 캐시를 비운다 (stale 캐시 문제 종결).
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // 서비스워커 등록 실패해도 앱은 정상 동작한다.
-    });
-  });
+  navigator.serviceWorker.getRegistrations?.().then((regs) => {
+    regs.forEach((reg) => reg.update());
+  }).catch(() => {});
 }
 
 function toggleTheme() {

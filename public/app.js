@@ -100,31 +100,53 @@ document.addEventListener('click', (event) => {
   askNavigate(link.href, title);
 });
 
-// 스와이프: 캘린더 위에서는 달을 넘기고, 그 외 영역에서는 캘린더↔리스트를 전환한다. (터치/펜만)
-let swipeX = 0;
-let swipeY = 0;
-let swipeTime = 0;
-let swipeEl = null;
+// 스와이프(터치): 캘린더 위 = 달 넘기기, 그 외 영역 = 캘린더↔리스트 전환.
+// 터치 이벤트 + 가로 제스처일 때 preventDefault 로 브라우저 스크롤이 제스처를 가로채지 않게 한다.
 let suppressNextClick = false;
-document.addEventListener('pointerdown', (event) => {
-  if (event.pointerType === 'mouse') return;
-  swipeX = event.clientX;
-  swipeY = event.clientY;
-  swipeTime = Date.now();
-  swipeEl = event.target;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchActive = false;
+let touchDecided = false;
+let touchHoriz = false;
+let touchEl = null;
+
+document.addEventListener('touchstart', (event) => {
+  if (event.touches.length !== 1) { touchActive = false; return; }
+  const t = event.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  touchActive = true;
+  touchDecided = false;
+  touchHoriz = false;
+  touchEl = event.target;
 }, { passive: true });
-document.addEventListener('pointerup', (event) => {
-  const el = swipeEl;
-  swipeEl = null;
-  if (!el || event.pointerType === 'mouse') return;
-  const dx = event.clientX - swipeX;
-  const dy = event.clientY - swipeY;
-  if (Date.now() - swipeTime > 700) return;
-  if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
-  if (el.closest('.modal') || el.closest('.search-box')) return;
+
+document.addEventListener('touchmove', (event) => {
+  if (!touchActive || event.touches.length !== 1) return;
+  const t = event.touches[0];
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+  if (!touchDecided) {
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    touchDecided = true;
+    touchHoriz = Math.abs(dx) > Math.abs(dy);
+    if (!touchHoriz) { touchActive = false; return; } // 세로 → 스크롤에 양보
+    if (touchEl && (touchEl.closest('.modal') || touchEl.closest('.search-box'))) {
+      touchActive = false;
+      return;
+    }
+  }
+  if (touchHoriz && event.cancelable) event.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', (event) => {
+  if (!touchActive || !touchDecided || !touchHoriz) { touchActive = false; return; }
+  touchActive = false;
+  const dx = event.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) < 45) return;
   suppressNextClick = true;
   setTimeout(() => { suppressNextClick = false; }, 400);
-  if (el.closest('#calendar')) {
+  if (touchEl && touchEl.closest('#calendar')) {
     moveMonth(dx < 0 ? 1 : -1);
   } else {
     setView(state.view === 'calendar' ? 'site' : 'calendar');
@@ -446,6 +468,7 @@ function renderCalendar(year, month) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'day';
+    if (dayItems.length) button.classList.add('has');
     if (date.getMonth() !== month) button.classList.add('is-muted');
     if (key === todayKey) button.classList.add('is-today');
     if (key === highlightedDate) button.classList.add('is-highlighted');

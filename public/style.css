@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   --canvas: #eef2fb;
   --paper: #ffffff;
   --paper-soft: #f4f6fb;
@@ -695,13 +695,18 @@ p {
   min-height: 0;
   height: 100%;
   padding: 7px 5px 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-solid);
   color: var(--ink);
   box-shadow: var(--sheen);
   overflow: hidden;
   text-align: center;
+}
+
+.day.has {
+  background: var(--accent-soft);
+  border-color: #d8e0ff;
 }
 
 .day:hover {

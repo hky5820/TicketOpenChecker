@@ -76,6 +76,10 @@
   display: none !important;
 }
 
+body.no-scroll {
+  overflow: hidden;
+}
+
 html,
 body {
   min-width: 320px;
@@ -620,20 +624,21 @@ p {
 
 .day {
   position: relative;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding: 6px 6px 5px;
+  padding: 7px 5px 6px;
   border: 1px solid var(--glass-bd);
   border-radius: 12px;
   background: var(--glass);
   color: var(--ink);
   box-shadow: var(--sheen);
   overflow: hidden;
-  text-align: left;
+  text-align: center;
 }
 
 .day:hover {
@@ -681,10 +686,8 @@ p {
 .date-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  align-self: start;
+  justify-content: center;
   min-width: 0;
-  margin-bottom: 4px;
   font-weight: 800;
 }
 
@@ -699,6 +702,7 @@ p {
   flex-wrap: wrap;
   align-content: start;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   min-width: 0;
   overflow: hidden;
@@ -708,13 +712,13 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 19px;
+  height: 19px;
   padding: 0 5px;
   border-radius: 999px;
   background: var(--dot-color);
   color: #fff;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
@@ -1362,26 +1366,27 @@ p {
   }
 
   .calendar-grid {
-    grid-auto-rows: 62px;
+    grid-auto-rows: 76px;
   }
 
   .day {
-    padding: 5px;
+    gap: 4px;
+    padding: 6px 3px 5px;
   }
 
-  .date-row {
-    margin-bottom: 6px;
+  .date-number {
+    font-size: 12px;
   }
 
   .day-dots {
-    gap: 4px;
+    gap: 3px;
   }
 
   .day-dot {
-    min-width: 20px;
-    height: 20px;
-    padding: 0 4px;
-    font-size: 10.5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    font-size: 9.5px;
   }
 
   .modal-item {
@@ -1433,4 +1438,132 @@ p {
   height: 1.05em;
   stroke-width: 2;
   vertical-align: -0.15em;
+}
+
+/* 이동 확인 모달 */
+.confirm-card {
+  position: relative;
+  width: min(380px, 100%);
+  display: grid;
+  gap: 8px;
+  padding: 22px 22px 18px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 18px;
+  background: var(--surface-solid);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: 0 26px 70px rgba(31, 46, 84, 0.28), var(--sheen);
+  text-align: left;
+}
+
+.confirm-card h2 {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.confirm-card > p {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.confirm-sub {
+  margin-top: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-muted);
+  color: var(--ink) !important;
+  font-weight: 800 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.confirm-actions .text-button,
+.confirm-actions .primary-button {
+  height: 40px;
+}
+
+/* 리스트(예매처별 보기) 그룹 전환 */
+.group-switch {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: auto;
+  padding: 3px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 999px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-soft), var(--sheen);
+}
+
+.group-button {
+  min-height: 30px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.group-button.is-selected {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 14px -8px var(--accent);
+}
+
+.site-board.by-date {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.date-group {
+  --site-color: var(--accent);
+  --site-deep: var(--accent-deep);
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 14px;
+  background: var(--surface);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-soft), var(--sheen);
+}
+
+.board-card-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.board-card-title strong {
+  min-width: 0;
+}
+
+.board-card-site {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--site-color);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
 }

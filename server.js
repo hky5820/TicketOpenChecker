@@ -494,20 +494,33 @@ async function extractItemsFromPage(page, siteId) {
 function normalizeItems(items, site) {
   const now = new Date();
   return items
-    .map((item) => ({
-      site: site.name,
-      siteId: site.id,
-      title: cleanupTitle(item.title),
-      openDate: item.openDate,
-      openTime: item.openTime,
-      openDateTime: item.openDate && item.openTime ? `${item.openDate}T${item.openTime}:00+09:00` : null,
-      url: item.url || site.url,
-    }))
+    .map((item) => {
+      const title = cleanupTitle(item.title);
+      return {
+        site: site.name,
+        siteId: site.id,
+        title,
+        openDate: item.openDate,
+        openTime: item.openTime,
+        openDateTime: item.openDate && item.openTime ? `${item.openDate}T${item.openTime}:00+09:00` : null,
+        url: resolveItemUrl(site, title, item.url),
+      };
+    })
     .filter((item) => item.title && item.openDate)
     .filter((item) => {
       if (!item.openDateTime) return new Date(`${item.openDate}T23:59:59+09:00`) >= now;
       return new Date(item.openDateTime) >= now;
     });
+}
+
+// 멜론 목록 앵커는 실제 href 없이 JS로만 상세로 이동해(항상 홈처럼 보임),
+// 제목으로 멜론 오픈예정 목록을 필터링하는 딥링크를 만들어 해당 공연을 바로 찾게 한다.
+function resolveItemUrl(site, title, fallbackUrl) {
+  if (site.id === 'melon' && title) {
+    const query = encodeURIComponent(title);
+    return `https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=${query}&schDt=`;
+  }
+  return fallbackUrl || site.url;
 }
 
 function cleanupTitle(title) {

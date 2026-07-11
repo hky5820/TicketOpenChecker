@@ -4,6 +4,7 @@ const state = {
   date: new Date(),
   items: [],
   view: 'calendar',
+  groupBy: 'site',
 };
 
 const calendar = document.getElementById('calendar');
@@ -22,6 +23,7 @@ const searchInput = document.getElementById('searchInput');
 const searchSuggestions = document.getElementById('searchSuggestions');
 const calendarViewButton = document.getElementById('calendarView');
 const siteViewButton = document.getElementById('siteView');
+const groupSwitch = document.getElementById('groupSwitch');
 let highlightedDate = null;
 let highlightedSite = null;
 
@@ -39,6 +41,8 @@ document.getElementById('today').addEventListener('click', () => {
 });
 calendarViewButton.addEventListener('click', () => setView('calendar'));
 siteViewButton.addEventListener('click', () => setView('site'));
+document.getElementById('groupSite').addEventListener('click', () => setGroupBy('site'));
+document.getElementById('groupDate').addEventListener('click', () => setGroupBy('date'));
 loadButton.addEventListener('click', loadSchedules);
 document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 searchInput.addEventListener('input', renderSearchSuggestions);
@@ -63,7 +67,32 @@ modal.addEventListener('click', (event) => {
   if (event.target.matches('[data-close]')) closeModal();
 });
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') closeModal();
+  if (event.key === 'Escape') {
+    closeModal();
+    closeConfirm();
+  }
+});
+
+const confirmModal = document.getElementById('confirmModal');
+const confirmSub = document.getElementById('confirmSub');
+const confirmGo = document.getElementById('confirmGo');
+let pendingUrl = null;
+
+confirmModal.addEventListener('click', (event) => {
+  if (event.target.matches('[data-confirm-close]')) closeConfirm();
+});
+confirmGo.addEventListener('click', () => {
+  if (pendingUrl) window.open(pendingUrl, '_blank', 'noopener');
+  closeConfirm();
+});
+
+// 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
+  if (!link || !link.href) return;
+  event.preventDefault();
+  const title = link.querySelector('strong')?.textContent?.trim() || '';
+  askNavigate(link.href, title);
 });
 
 restoreItems();
@@ -103,6 +132,15 @@ function setView(view) {
   siteViewButton.classList.toggle('is-selected', view === 'site');
   calendarViewButton.setAttribute('aria-pressed', view === 'calendar' ? 'true' : 'false');
   siteViewButton.setAttribute('aria-pressed', view === 'site' ? 'true' : 'false');
+  render();
+}
+
+function setGroupBy(mode) {
+  state.groupBy = mode;
+  document.getElementById('groupSite').classList.toggle('is-selected', mode === 'site');
+  document.getElementById('groupDate').classList.toggle('is-selected', mode === 'date');
+  document.getElementById('groupSite').setAttribute('aria-pressed', mode === 'site' ? 'true' : 'false');
+  document.getElementById('groupDate').setAttribute('aria-pressed', mode === 'date' ? 'true' : 'false');
   render();
 }
 
@@ -271,14 +309,78 @@ function render() {
   calendar.hidden = state.view !== 'calendar';
   weekdayGrid.hidden = state.view !== 'calendar';
   siteBoard.hidden = state.view !== 'site';
+  groupSwitch.hidden = state.view !== 'site';
 
   if (state.view === 'calendar') {
     renderCalendar(year, month);
+  } else if (state.groupBy === 'date') {
+    renderDateBoard(datedMonthItems);
   } else {
     renderSiteBoard(datedMonthItems);
   }
   renderUnknown(unknownItems);
   renderSearchSuggestions();
+}
+
+function renderDateBoard(items) {
+  siteBoard.innerHTML = '';
+  siteBoard.classList.add('by-date');
+
+  const dated = items
+    .filter((item) => item.openTime)
+    .sort((a, b) => {
+      const left = `${a.openDate}T${a.openTime || '99:99'}`;
+      const right = `${b.openDate}T${b.openTime || '99:99'}`;
+      return left.localeCompare(right) || a.title.localeCompare(b.title, 'ko');
+    });
+
+  if (!dated.length) {
+    siteBoard.innerHTML = '<p class="empty">이번 달 일정이 없습니다.</p>';
+    return;
+  }
+
+  const byDate = new Map();
+  dated.forEach((item) => {
+    if (!byDate.has(item.openDate)) byDate.set(item.openDate, []);
+    byDate.get(item.openDate).push(item);
+  });
+
+  Array.from(byDate.entries()).forEach(([dateKey, dateItems]) => {
+    const dateGroup = document.createElement('section');
+    dateGroup.className = 'date-group';
+    dateGroup.innerHTML = `
+      <div class="site-date-head">
+        <strong>${formatMonthDay(dateKey)}</strong>
+        <span>${getWeekdayLabel(dateKey)} · ${dateItems.length}건</span>
+      </div>
+      <div class="site-time-list"></div>
+    `;
+
+    const timeList = dateGroup.querySelector('.site-time-list');
+    const byTime = new Map();
+    dateItems.forEach((item) => {
+      const time = item.openTime || '시간 미정';
+      if (!byTime.has(time)) byTime.set(time, []);
+      byTime.get(time).push(item);
+    });
+
+    Array.from(byTime.entries()).forEach(([time, timeItems]) => {
+      const timeGroup = document.createElement('section');
+      timeGroup.className = 'site-time-group';
+      timeGroup.innerHTML = `
+        <div class="site-time-head">
+          <span>${escapeHtml(time)}</span>
+          <small>${timeItems.length}건</small>
+        </div>
+        <div class="site-time-items"></div>
+      `;
+      const timeItemsList = timeGroup.querySelector('.site-time-items');
+      timeItems.forEach((item) => timeItemsList.appendChild(renderSiteBoardCard(item, true)));
+      timeList.appendChild(timeGroup);
+    });
+
+    siteBoard.appendChild(dateGroup);
+  });
 }
 
 function renderCalendar(year, month) {
@@ -339,6 +441,7 @@ function getSiteCounts(items) {
 
 function renderSiteBoard(items) {
   siteBoard.innerHTML = '';
+  siteBoard.classList.remove('by-date');
   SITES.forEach((site) => {
     const siteItems = items
       .filter((item) => item.siteId === site.id)
@@ -413,18 +516,26 @@ function renderSiteBoard(items) {
   });
 }
 
-function renderSiteBoardCard(item) {
+function renderSiteBoardCard(item, showSite = false) {
   const link = document.createElement('a');
   link.className = `site-board-card site-${item.siteId}`;
   link.href = item.url;
   link.target = '_blank';
   link.rel = 'noreferrer';
+  const siteTag = showSite
+    ? `<span class="board-card-site site-${item.siteId}">${escapeHtml(siteShortName(item.siteId))}</span>`
+    : '';
   link.innerHTML = `
     <div class="board-card-title">
+      ${siteTag}
       <strong>${escapeHtml(item.title)}</strong>
     </div>
   `;
   return link;
+}
+
+function siteShortName(siteId) {
+  return SITES.find((site) => site.id === siteId)?.shortName || siteId;
 }
 
 function renderSearchSuggestions() {
@@ -503,6 +614,12 @@ function openDayModal(dateKey, items) {
   modalTitle.textContent = `${dateKey} 오픈 일정`;
   renderModalItems(items, 'all');
   modal.hidden = false;
+  updateScrollLock();
+}
+
+function updateScrollLock() {
+  const open = !modal.hidden || !confirmModal.hidden;
+  document.body.classList.toggle('no-scroll', open);
 }
 
 function renderModalItems(items, siteId) {
@@ -579,6 +696,22 @@ function filterButton(siteId, label, count, active) {
 
 function closeModal() {
   modal.hidden = true;
+  updateScrollLock();
+}
+
+function askNavigate(url, title) {
+  pendingUrl = url;
+  confirmSub.textContent = title || '';
+  confirmSub.hidden = !title;
+  confirmModal.hidden = false;
+  confirmGo.focus();
+  updateScrollLock();
+}
+
+function closeConfirm() {
+  confirmModal.hidden = true;
+  pendingUrl = null;
+  updateScrollLock();
 }
 
 function parseLocalDate(value) {

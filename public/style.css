@@ -1714,3 +1714,21 @@ p {
 .calendar-panel .month-nav {
   margin: 2px 0 6px;
 }
+
+/* 날짜 팝업(모달) 아이템 썸네일 */
+.modal-item.has-thumb {
+  grid-template-columns: 40px 54px minmax(0, 1fr) 72px;
+}
+
+.modal-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+}
+
+.modal-item:not(.has-thumb) .modal-thumb {
+  display: none;
+}

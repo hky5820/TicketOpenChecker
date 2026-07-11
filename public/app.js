@@ -861,11 +861,15 @@ function renderModalItems(items, siteId) {
       list.className = 'time-group-list';
       groupItems.forEach((item) => {
         const link = document.createElement('a');
-        link.className = `modal-item site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
+        link.className = `modal-item site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
         link.href = item.url;
         link.target = '_blank';
         link.rel = 'noreferrer';
+        const mThumb = item.image
+          ? `<img class="modal-thumb" src="${escapeHtml(item.image)}" alt="" onerror="this.closest('.modal-item')?.classList.remove('has-thumb');this.remove();">`
+          : '';
         link.innerHTML = `
+          ${mThumb}
           <span class="meta-badge time-badge">${escapeHtml(item.openTime || '시간 미정')}</span>
           <strong>${isPopular(item) ? '🔥 ' : ''}${escapeHtml(item.title)}</strong>
           <span class="meta-badge site-badge site-${item.siteId}">${escapeHtml(item.site)}</span>

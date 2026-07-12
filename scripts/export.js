@@ -23,6 +23,13 @@ async function main() {
     const items = fillMissingSites(normalizeForExport(loaded.items), previousItems);
     const loadedAt = loaded.loadedAt || new Date().toISOString();
 
+    // 상세 수집 실패가 배포 자체를 막으면 안 된다.
+    try {
+      await enrichDetails(items, previousItems);
+    } catch (error) {
+      console.log(`[detail] skipped: ${error.message}`);
+    }
+
     await fs.writeFile(DATA_PATH, `${JSON.stringify({
       generatedAt: loadedAt,
       itemCount: items.length,
@@ -191,6 +198,74 @@ function fillMissingSites(items, previousItems) {
     }
   }
   return extras.length ? normalizeForExport([...items, ...extras]) : items;
+}
+
+// 예매처 공지 본문을 data.json에 담아 클라이언트 미리보기 모달에서 쓴다.
+// (mapi/interpark 상세는 CORS가 막혀 있어 클라이언트에서 직접 못 불러온다.)
+// 본문은 사실상 불변이라 이전 export의 detail을 url 기준으로 재사용하고, 새 항목만 가져온다.
+// 멜론은 tktapi가 CORS 개방이라 클라이언트가 실시간 조회한다.
+const DETAIL_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
+async function enrichDetails(items, previousItems) {
+  const cache = new Map(previousItems
+    .filter((item) => item.url && Array.isArray(item.detail))
+    .map((item) => [item.url, item.detail]));
+  let fetched = 0;
+  for (const item of items) {
+    if (Array.isArray(item.detail)) continue;
+    if (cache.has(item.url)) { item.detail = cache.get(item.url); continue; }
+    try {
+      let detail;
+      if (item.siteId === 'ticketlink') detail = await fetchTicketlinkDetail(item.url);
+      else if (item.siteId === 'interpark') detail = await fetchInterparkDetail(item.url);
+      else continue;
+      if (detail && detail.length) item.detail = detail;
+      fetched += 1;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    } catch (error) {
+      console.log(`[detail] ${item.siteId} ${item.url}: ${error.message}`);
+    }
+  }
+  console.log(`[detail] fetched ${fetched} new details.`);
+}
+
+async function fetchTicketlinkDetail(url) {
+  const id = /notice\/(\d+)/.exec(url || '')?.[1];
+  if (!id) return null;
+  const res = await fetch(`https://mapi.ticketlink.co.kr/mapi/notice/${id}`, {
+    headers: { 'User-Agent': DETAIL_UA, Accept: 'application/json' },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const notice = (await res.json())?.data?.notice;
+  if (!notice?.content) return null;
+  return [['안내', notice.content]];
+}
+
+async function fetchInterparkDetail(url) {
+  const id = /detail\/(\d+)/.exec(url || '')?.[1];
+  if (!id) return null;
+  const res = await fetch(`https://tickets.interpark.com/contents/notice/detail/${id}`, {
+    headers: { 'User-Agent': DETAIL_UA },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const html = await res.text();
+  const match = html.match(/__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+  const detail = match && JSON.parse(match[1])?.props?.pageProps?.data?.detail;
+  if (!detail) return null;
+  const period = [detail.goodsStartDateStr, detail.goodsEndDateStr]
+    .map((s) => String(s || '').slice(0, 10)).filter(Boolean).join(' ~ ');
+  const info = [
+    period && `관람일정 : ${period}`,
+    detail.venueName && `관람장소 : ${detail.venueName}`,
+    detail.goodsAgeRatingStr && `관람연령 : ${detail.goodsAgeRatingStr}`,
+    detail.goodsInfo && `공연시간 : ${detail.goodsInfo}`,
+  ].filter(Boolean).join('<br>');
+  return [
+    ['공연정보', info],
+    ['공연소개', detail.goodsIntroduce],
+    ['캐스팅', detail.castingInfo],
+    ['기획사 정보', detail.bizInfo],
+  ].filter(([, value]) => value && String(value).trim());
 }
 
 function diffItems(items, previousItems) {

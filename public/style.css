@@ -1155,6 +1155,25 @@ p {
   font-size: 18px;
   font-weight: 850;
   line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-go {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent-deep);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* 아이템 탭 시 하이라이트/방문 색 변화 제거 */
+a.modal-item, a.unknown-card, a.site-board-card {
+  -webkit-tap-highlight-color: transparent;
+}
+a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
+  color: inherit;
 }
 
 .modal-filter {

@@ -30,6 +30,7 @@ const unknownList = document.getElementById('unknownList');
 const unknownCount = document.getElementById('unknownCount');
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
+const modalGo = document.getElementById('modalGo');
 const modalList = document.getElementById('modalList');
 const loadButton = document.getElementById('load');
 const searchInput = document.getElementById('searchInput');
@@ -86,66 +87,19 @@ modal.addEventListener('click', (event) => {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     closeModal();
-    closeConfirm();
   }
 });
 
-const confirmModal = document.getElementById('confirmModal');
-const confirmSub = document.getElementById('confirmSub');
-const confirmGo = document.getElementById('confirmGo');
-confirmModal.addEventListener('click', (event) => {
-  if (event.target.closest('[data-confirm-close]') || !event.target.closest('.confirm-card')) {
-    closeConfirm();
-  }
-});
-
-// 실험(v=q): 자기 자신을 향한 intent 는 브라우저가 무시하므로(지금까지 전부 무반응),
-// 호스트 엔진과 '다른' 브라우저를 package 로 지정해 풀 브라우저 창을 띄운다.
-// 갤럭시엔 크롬+삼성인터넷이 보통 둘 다 있다. 미설치·차단이면 fallback/워치독이 받는다.
-function toAndroidIntentUrl(httpsUrl) {
-  try {
-    const u = new URL(httpsUrl);
-    const pkg = /SamsungBrowser/i.test(navigator.userAgent)
-      ? 'com.android.chrome'
-      : 'com.sec.android.app.sbrowser';
-    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=${pkg};S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
-  } catch {
-    return httpsUrl;
-  }
-}
-
-confirmGo.addEventListener('click', () => {
-  const fallback = confirmGo.dataset.fallback;
-  // intent 가 조용히 죽으면(페이지가 안 숨겨지면) 폴백:
-  // 멜론 = 인앱 상세(커스텀탭에선 멜론 SPA가 빈 화면), 그 외 = 새 탭(커스텀탭).
-  const melonId = confirmGo.dataset.melonId;
-  const mtitle = confirmGo.dataset.mtitle;
-  if ((confirmGo.getAttribute('href') || '').startsWith('intent:') && fallback) {
-    const onHide = () => {
-      if (document.hidden) {
-        clearTimeout(timer);
-        document.removeEventListener('visibilitychange', onHide);
-      }
-    };
-    const timer = setTimeout(() => {
-      document.removeEventListener('visibilitychange', onHide);
-      if (melonId) openMelonDetail(melonId, mtitle);
-      else window.open(fallback, '_blank', 'noopener');
-    }, 1400);
-    document.addEventListener('visibilitychange', onHide);
-  }
-  setTimeout(closeConfirm, 80);
-});
-
-// 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
+// 예매처 아이템 클릭 시 사이트로 보내지 않고 인앱 미리보기 모달을 연다.
+// (삼성인터넷 등 일부 환경에서 예매처 페이지가 제대로 렌더되지 않아서.)
 document.addEventListener('click', (event) => {
   if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
-  if (!link || !link.href) return;
+  if (!link) return;
+  const item = state.items.find((it) => it.url === link.dataset.url);
+  if (!item) return;
   event.preventDefault();
-  const title = link.querySelector('strong')?.textContent?.trim() || '';
-  const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
-  askNavigate(link.href, title, melonId);
+  openPreview(item);
 });
 
 // 스와이프(터치): 캘린더 위 = 달 넘기기, 그 외 영역 = 캘린더↔리스트 전환.
@@ -428,7 +382,12 @@ function loadSchedules() {
 
 function mergeItems(items) {
   const byKey = new Map(state.items.map((item) => [itemKey(item), item]));
-  items.forEach((item) => byKey.set(itemKey(item), item));
+  items.forEach((item) => {
+    // detail(공지 본문)은 data.json에만 있다 — detail 없는 소스(SSE 등)가 덮어써도 유지.
+    const prev = byKey.get(itemKey(item));
+    if (prev?.detail && !item.detail) item.detail = prev.detail;
+    byKey.set(itemKey(item), item);
+  });
   state.items = Array.from(byKey.values()).sort((a, b) => {
     const left = a.openDateTime || `${a.openDate}T99:99:99`;
     const right = b.openDateTime || `${b.openDate}T99:99:99`;
@@ -765,6 +724,7 @@ function renderSiteBoardCard(item, showSite = false, showDate = false) {
   const link = document.createElement('a');
   link.className = `site-board-card site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
   link.href = resolveMelonUrl(item.url);
+  link.dataset.url = item.url;
   link.target = '_blank';
   link.rel = 'noreferrer';
   const siteTag = showSite
@@ -855,6 +815,7 @@ function renderUnknown(items) {
     const link = document.createElement('a');
     link.className = `unknown-card site-${item.siteId}${isPopular(item) ? ' is-popular' : ''}`;
     link.href = resolveMelonUrl(item.url);
+    link.dataset.url = item.url;
     link.target = '_blank';
     link.rel = 'noreferrer';
     link.innerHTML = `
@@ -869,9 +830,46 @@ function renderUnknown(items) {
 
 function openDayModal(dateKey, items) {
   modalTitle.textContent = `${dateKey} 오픈 일정`;
+  modalGo.hidden = true;
   renderModalItems(items, 'all');
   modal.hidden = false;
   updateScrollLock();
+}
+
+// 아이템 미리보기 모달: 모든 예매처 공통. 이동은 헤더의 '예매처 사이트로 이동' 링크로.
+function openPreview(item) {
+  modalTitle.textContent = item.title;
+  modalGo.href = resolveMelonUrl(item.url);
+  modalGo.hidden = false;
+  modal.hidden = false;
+  updateScrollLock();
+  const melonId = item.siteId === 'melon' ? /csoonId=(\d+)/.exec(item.url || '')?.[1] : null;
+  if (melonId) {
+    openMelonDetail(melonId);
+    return;
+  }
+  renderStoredDetail(item);
+}
+
+// 수집 단계에서 긁어온 상세(detail: [label, html][])를 렌더한다. 없으면 안내만.
+function renderStoredDetail(item) {
+  const poster = item.image
+    ? `<img class="melon-detail-poster" src="${escapeHtml(item.image)}" alt="" onerror="this.remove();">`
+    : '';
+  const sections = (Array.isArray(item.detail) ? item.detail : [])
+    .filter(([, html]) => html && String(html).trim())
+    .map(([label, html]) => `
+      <section class="melon-detail-section">
+        <h3>${escapeHtml(label)}</h3>
+        <div class="melon-detail-body">${sanitizeNoticeHtml(html)}</div>
+      </section>
+    `).join('');
+  modalList.innerHTML = `
+    <div class="melon-detail">
+      ${poster}
+      ${sections || '<p class="empty">상세 정보가 아직 수집되지 않았습니다. 상단의 이동 링크를 이용해 주세요.</p>'}
+    </div>
+  `;
 }
 
 // 멜론 공지 HTML에서 위험 요소(script 등)와 인라인 이벤트를 제거한다.
@@ -887,15 +885,9 @@ function sanitizeNoticeHtml(html) {
   return doc.body.innerHTML;
 }
 
-// 멜론 상세를 앱 안에서 렌더한다. tktapi 상세 API가 CORS 개방(ACAO: *)이라 직접 호출 가능.
-// 하단에 OS 공유 시트 버튼을 둔다: PWA에서 intent:// 가 차단돼도 공유 시트는 항상 떠서
-// 기본 브라우저/멜론티켓 앱으로 여는 공식 탈출구가 된다.
-async function openMelonDetail(csoonId, title) {
-  const desktopUrl = `https://ticket.melon.com/csoon/detail.htm?csoonId=${csoonId}`;
-  modalTitle.textContent = title || '멜론 티켓오픈';
+// 멜론 상세는 tktapi 상세 API가 CORS 개방(ACAO: *)이라 클라이언트에서 실시간으로 불러온다.
+async function openMelonDetail(csoonId) {
   modalList.innerHTML = '<p class="empty">멜론 상세 정보를 불러오는 중...</p>';
-  modal.hidden = false;
-  updateScrollLock();
 
   let data = null;
   try {
@@ -906,15 +898,8 @@ async function openMelonDetail(csoonId, title) {
     // 아래 폴백 처리
   }
 
-  const shareBtn = navigator.share
-    ? `<button type="button" class="melon-open-link" data-melon-share="${escapeHtml(desktopUrl)}" data-melon-title="${escapeHtml(title || '')}">브라우저/앱에서 열기</button>`
-    : `<a class="melon-open-link" href="${escapeHtml(resolveMelonUrl(desktopUrl))}" target="_blank" rel="noreferrer">멜론티켓에서 열기 ↗</a>`;
-
   if (!data) {
-    modalList.innerHTML = `
-      <p class="empty">상세 정보를 불러오지 못했습니다.</p>
-      <div class="melon-detail">${shareBtn}</div>
-    `;
+    modalList.innerHTML = '<p class="empty">상세 정보를 불러오지 못했습니다. 상단의 이동 링크를 이용해 주세요.</p>';
     return;
   }
 
@@ -935,22 +920,12 @@ async function openMelonDetail(csoonId, title) {
           <div class="melon-detail-body">${sanitizeNoticeHtml(html)}</div>
         </section>
       `).join('')}
-      ${shareBtn}
     </div>
   `;
 }
 
-// 공유 시트: 기본 브라우저·멜론티켓 앱 등으로 여는 OS 공식 통로 (PWA에서도 동작)
-document.addEventListener('click', (event) => {
-  const btn = event.target.closest('[data-melon-share]');
-  if (!btn) return;
-  navigator.share({ title: btn.dataset.melonTitle || '멜론 티켓오픈', url: btn.dataset.melonShare }).catch(() => {});
-});
-
-
 function updateScrollLock() {
-  const open = !modal.hidden || !confirmModal.hidden;
-  document.body.classList.toggle('no-scroll', open);
+  document.body.classList.toggle('no-scroll', !modal.hidden);
 }
 
 function renderModalItems(items, siteId) {
@@ -1005,6 +980,7 @@ function renderModalItems(items, siteId) {
         const link = document.createElement('a');
         link.className = `modal-item site-${item.siteId}${item.image ? ' has-thumb' : ''}${isPopular(item) ? ' is-popular' : ''}`;
         link.href = resolveMelonUrl(item.url);
+        link.dataset.url = item.url;
         link.target = '_blank';
         link.rel = 'noreferrer';
         const mThumb = item.image
@@ -1035,34 +1011,7 @@ function filterButton(siteId, label, count, active) {
 
 function closeModal() {
   modal.hidden = true;
-  updateScrollLock();
-}
-
-function askNavigate(url, title, melonId) {
-  if (/Android/i.test(navigator.userAgent) && /^https:/.test(url)) {
-    confirmGo.setAttribute('href', toAndroidIntentUrl(url));
-    confirmGo.removeAttribute('target'); // intent 는 같은 컨텍스트에서 실행해야 한다
-    confirmGo.dataset.fallback = url;
-    confirmGo.dataset.melonId = melonId || '';
-    confirmGo.dataset.mtitle = title || '';
-  } else {
-    confirmGo.setAttribute('href', url);
-    confirmGo.setAttribute('target', '_blank');
-    delete confirmGo.dataset.fallback;
-  }
-  confirmSub.textContent = title || '';
-  confirmSub.hidden = !title;
-  confirmModal.hidden = false;
-  confirmGo.focus();
-  updateScrollLock();
-}
-
-function closeConfirm() {
-  confirmModal.hidden = true;
-  confirmGo.setAttribute('href', '#');
-  delete confirmGo.dataset.fallback;
-  delete confirmGo.dataset.melonId;
-  delete confirmGo.dataset.mtitle;
+  modalGo.hidden = true;
   updateScrollLock();
 }
 

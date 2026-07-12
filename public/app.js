@@ -150,7 +150,8 @@ document.addEventListener('touchend', (event) => {
   if (Math.abs(dx) < 45) return;
   suppressNextClick = true;
   setTimeout(() => { suppressNextClick = false; }, 400);
-  setView(state.view === 'calendar' ? 'site' : 'calendar');
+  // 가로 스와이프 = 월 전환만. 캘린더↔리스트 전환은 상단 버튼으로만 한다.
+  moveMonth(dx < 0 ? 1 : -1);
 }, { passive: true });
 
 syncControls();
@@ -787,21 +788,12 @@ function renderSearchSuggestions() {
   searchSuggestions.hidden = false;
 }
 
+// 검색 결과 선택 = 해당 아이템 미리보기 팝업 (뷰 전환/스크롤 점프는 하지 않는다)
 function selectSuggestion(item) {
-  const date = parseLocalDate(item.openDate);
-  state.date = new Date(date.getFullYear(), date.getMonth(), 1);
-  state.view = 'calendar';
-  setView('calendar');
-  highlightedDate = item.openDate;
   searchInput.value = item.title;
   searchSuggestions.hidden = true;
-  render();
-  requestAnimationFrame(() => {
-    document.querySelector(`.day[data-date="${item.openDate}"]`)?.scrollIntoView({
-      block: 'center',
-      behavior: 'smooth',
-    });
-  });
+  searchInput.blur();
+  openPreview(item);
 }
 
 function renderUnknown(items) {

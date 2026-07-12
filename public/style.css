@@ -219,54 +219,51 @@ p {
   to { transform: rotate(360deg); }
 }
 
-/* 월 헤더: 제목 좌측 + 요약(작게) / 화살표 우측. 터치에서 hover/focus 색이 남지 않게
-   hover 스타일은 hover 지원 기기에만 건다. */
+/* 월 헤더: ‹ 2026년 7월 › (고스트 화살표가 제목 양옆에) + 우측 끝 작은 요약.
+   터치에서 hover/focus 색이 남지 않게 hover 스타일은 hover 지원 기기에만 건다. */
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 2px 4px 12px;
+  margin: 0 0 10px;
 }
 
-.month-title {
-  min-width: 0;
-}
-
-.month-title h2 {
-  color: var(--ink);
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-.month-arrows {
+.month-switch {
   display: flex;
   flex: none;
-  gap: 6px;
+  align-items: center;
+  gap: 2px;
+}
+
+.month-switch h2 {
+  padding: 0 4px;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .nav-arrow {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--paper-soft);
-  color: var(--ink-soft);
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s ease, background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+  transition: transform 0.12s ease, background 0.14s ease, color 0.14s ease;
 }
 
 @media (hover: hover) {
   .nav-arrow:hover {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-    color: var(--accent-deep);
+    background: var(--paper-soft);
+    color: var(--ink);
   }
 }
 
@@ -280,21 +277,25 @@ p {
 }
 
 .nav-arrow:active {
-  transform: scale(0.88);
-  background: var(--accent-soft);
+  transform: scale(0.85);
   color: var(--accent-deep);
 }
 
 .nav-arrow svg {
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
 }
 
 .summary-line {
-  margin: 2px 0 0;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
   color: var(--muted);
   font-size: 11px;
   font-weight: 650;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .search-box {
@@ -1465,8 +1466,8 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
     min-height: 38px;
   }
 
-  .month-title h2 {
-    font-size: 18px;
+  .month-switch h2 {
+    font-size: 17px;
   }
 
   .weekday-grid,

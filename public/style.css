@@ -156,9 +156,9 @@ p {
   flex-direction: column;
   gap: 10px;
   padding: max(10px, env(safe-area-inset-top)) 0 10px;
-  background: color-mix(in srgb, var(--canvas) 92%, transparent);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  /* backdrop-filter 금지: 삼성인터넷이 블러 영역을 사각형으로 어긋나게 칠해
+     아래 카드의 둥근 모서리/버튼을 덮는 버그가 있다. 불투명 단색으로 칠한다. */
+  background: var(--canvas);
 }
 
 .toolbar {

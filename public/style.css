@@ -856,40 +856,33 @@ p {
 
 .site-board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
 }
 
+/* 예매처별: 컬럼 카드 없이 날짜순처럼 평평하게, 예매처 헤더로만 구분 */
 .site-column {
   display: grid;
   align-content: start;
   gap: 10px;
   min-width: 0;
-  min-height: 560px;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--site-color) 34%, var(--line));
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--site-color) 13%, var(--surface-solid)) 0, var(--surface-solid) 96px),
-    var(--surface-solid);
-  box-shadow: 0 14px 34px -30px color-mix(in srgb, var(--site-color) 50%, #25231f);
 }
 
 .site-column-head {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 9px;
   align-items: center;
-  padding: 2px 2px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--site-color) 36%, var(--line));
+  padding: 0 0 8px;
+  border-bottom: 2px solid var(--site-color);
 }
 
 .site-mark {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   place-items: center;
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--site-color);
   color: #fff;
   font-size: 11px;
@@ -916,19 +909,21 @@ p {
 .site-column-list {
   display: grid;
   align-content: start;
-  gap: 14px;
+  gap: 0;
   min-width: 0;
 }
 
 .site-date-group {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  padding: 12px 12px 6px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface-solid);
-  box-shadow: 0 1px 3px rgba(31, 46, 84, 0.05);
+  padding: 0;
+}
+
+.site-column-list .site-date-group + .site-date-group {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
 }
 
 .site-date-head,

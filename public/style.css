@@ -1651,28 +1651,33 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   box-shadow: 0 6px 14px -8px var(--accent);
 }
 
-/* 예매처별 상단 예매처 스위치 */
+/* 예매처별 상단 예매처 스위치 (그룹 스위치처럼 컴팩트한 세그먼트) */
 .site-filter {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  display: inline-flex;
+  width: fit-content;
+  gap: 3px;
   margin-bottom: 14px;
+  padding: 3px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 999px;
+  background: var(--glass);
+  box-shadow: var(--shadow-soft);
 }
 
 .site-filter-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 0 8px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--surface-solid);
+  gap: 5px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: var(--ink-soft);
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .site-filter-chip small {
@@ -1683,7 +1688,6 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 }
 
 .site-filter-chip.is-selected {
-  border-color: transparent;
   color: #fff;
 }
 
@@ -1692,7 +1696,7 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 .site-filter-chip.site-ticketlink.is-selected { background: var(--ticketlink); }
 
 .site-filter-chip.is-selected small {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .site-board.by-date {

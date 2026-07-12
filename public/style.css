@@ -1019,7 +1019,7 @@ p {
 }
 
 .site-time-items {
-  gap: 4px;
+  gap: 8px;
 }
 
 .site-board-card {
@@ -1663,19 +1663,6 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   gap: 0;
 }
 
-/* 날짜순 리스트: 카드 속 카드 대신 평평한 행으로 (예매처색은 작은 배지에만) */
-.date-group .site-board-card {
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  box-shadow: none;
-  padding: 7px 6px;
-}
-
-.date-group .site-board-card:hover {
-  background: var(--paper-soft);
-  transform: none;
-}
 
 .date-group {
   --site-color: var(--accent);

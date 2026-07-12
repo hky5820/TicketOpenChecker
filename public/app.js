@@ -99,7 +99,37 @@ confirmModal.addEventListener('click', (event) => {
   }
 });
 
+// 실험(v=q): 자기 자신을 향한 intent 는 브라우저가 무시하므로(지금까지 전부 무반응),
+// 호스트 엔진과 '다른' 브라우저를 package 로 지정해 풀 브라우저 창을 띄운다.
+// 갤럭시엔 크롬+삼성인터넷이 보통 둘 다 있다. 미설치·차단이면 fallback/워치독이 받는다.
+function toAndroidIntentUrl(httpsUrl) {
+  try {
+    const u = new URL(httpsUrl);
+    const pkg = /SamsungBrowser/i.test(navigator.userAgent)
+      ? 'com.android.chrome'
+      : 'com.sec.android.app.sbrowser';
+    return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=${pkg};S.browser_fallback_url=${encodeURIComponent(httpsUrl)};end`;
+  } catch {
+    return httpsUrl;
+  }
+}
+
 confirmGo.addEventListener('click', () => {
+  const fallback = confirmGo.dataset.fallback;
+  // intent 가 조용히 죽으면(페이지가 안 숨겨지면) 새 탭(커스텀탭)으로라도 연다.
+  if ((confirmGo.getAttribute('href') || '').startsWith('intent:') && fallback) {
+    const onHide = () => {
+      if (document.hidden) {
+        clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onHide);
+      }
+    };
+    const timer = setTimeout(() => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.open(fallback, '_blank', 'noopener');
+    }, 1400);
+    document.addEventListener('visibilitychange', onHide);
+  }
   setTimeout(closeConfirm, 80);
 });
 
@@ -1011,8 +1041,15 @@ function closeModal() {
 }
 
 function askNavigate(url, title) {
-  confirmGo.setAttribute('href', url);
-  confirmGo.setAttribute('target', '_blank');
+  if (/Android/i.test(navigator.userAgent) && /^https:/.test(url)) {
+    confirmGo.setAttribute('href', toAndroidIntentUrl(url));
+    confirmGo.removeAttribute('target'); // intent 는 같은 컨텍스트에서 실행해야 한다
+    confirmGo.dataset.fallback = url;
+  } else {
+    confirmGo.setAttribute('href', url);
+    confirmGo.setAttribute('target', '_blank');
+    delete confirmGo.dataset.fallback;
+  }
   confirmSub.textContent = title || '';
   confirmSub.hidden = !title;
   confirmModal.hidden = false;
@@ -1023,6 +1060,7 @@ function askNavigate(url, title) {
 function closeConfirm() {
   confirmModal.hidden = true;
   confirmGo.setAttribute('href', '#');
+  delete confirmGo.dataset.fallback;
   updateScrollLock();
 }
 

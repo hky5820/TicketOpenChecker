@@ -116,7 +116,10 @@ function toAndroidIntentUrl(httpsUrl) {
 
 confirmGo.addEventListener('click', () => {
   const fallback = confirmGo.dataset.fallback;
-  // intent 가 조용히 죽으면(페이지가 안 숨겨지면) 새 탭(커스텀탭)으로라도 연다.
+  // intent 가 조용히 죽으면(페이지가 안 숨겨지면) 폴백:
+  // 멜론 = 인앱 상세(커스텀탭에선 멜론 SPA가 빈 화면), 그 외 = 새 탭(커스텀탭).
+  const melonId = confirmGo.dataset.melonId;
+  const mtitle = confirmGo.dataset.mtitle;
   if ((confirmGo.getAttribute('href') || '').startsWith('intent:') && fallback) {
     const onHide = () => {
       if (document.hidden) {
@@ -126,7 +129,8 @@ confirmGo.addEventListener('click', () => {
     };
     const timer = setTimeout(() => {
       document.removeEventListener('visibilitychange', onHide);
-      window.open(fallback, '_blank', 'noopener');
+      if (melonId) openMelonDetail(melonId, mtitle);
+      else window.open(fallback, '_blank', 'noopener');
     }, 1400);
     document.addEventListener('visibilitychange', onHide);
   }
@@ -134,8 +138,6 @@ confirmGo.addEventListener('click', () => {
 });
 
 // 예매처 링크 클릭 시 바로 열지 않고 이동 여부를 먼저 확인한다.
-// 멜론+안드로이드는 예외: 외부(커스텀탭)에선 멜론 SPA가 빈 화면이라, 확인 없이 즉시
-// 인앱 상세 모달을 연다. (intent:// 로 기본 브라우저 강제 열기는 WebAPK에서 차단됨 — 폐기)
 document.addEventListener('click', (event) => {
   if (suppressNextClick) return;
   const link = event.target.closest('a.modal-item, a.unknown-card, a.site-board-card');
@@ -143,11 +145,7 @@ document.addEventListener('click', (event) => {
   event.preventDefault();
   const title = link.querySelector('strong')?.textContent?.trim() || '';
   const melonId = /melon\.com/.test(link.href) ? /csoonId=(\d+)/.exec(link.href)?.[1] : null;
-  if (melonId && /Android/i.test(navigator.userAgent)) {
-    openMelonDetail(melonId, title);
-    return;
-  }
-  askNavigate(link.href, title);
+  askNavigate(link.href, title, melonId);
 });
 
 // 스와이프(터치): 캘린더 위 = 달 넘기기, 그 외 영역 = 캘린더↔리스트 전환.
@@ -1040,11 +1038,13 @@ function closeModal() {
   updateScrollLock();
 }
 
-function askNavigate(url, title) {
+function askNavigate(url, title, melonId) {
   if (/Android/i.test(navigator.userAgent) && /^https:/.test(url)) {
     confirmGo.setAttribute('href', toAndroidIntentUrl(url));
     confirmGo.removeAttribute('target'); // intent 는 같은 컨텍스트에서 실행해야 한다
     confirmGo.dataset.fallback = url;
+    confirmGo.dataset.melonId = melonId || '';
+    confirmGo.dataset.mtitle = title || '';
   } else {
     confirmGo.setAttribute('href', url);
     confirmGo.setAttribute('target', '_blank');
@@ -1061,6 +1061,8 @@ function closeConfirm() {
   confirmModal.hidden = true;
   confirmGo.setAttribute('href', '#');
   delete confirmGo.dataset.fallback;
+  delete confirmGo.dataset.melonId;
+  delete confirmGo.dataset.mtitle;
   updateScrollLock();
 }
 

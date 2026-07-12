@@ -970,13 +970,27 @@ p {
 }
 
 .site-time-list {
-  gap: 7px;
+  gap: 0;
 }
 
 .site-time-group {
   grid-template-columns: 56px minmax(0, 1fr);
   gap: 8px;
   align-items: start;
+  padding: 12px 0;
+}
+
+.site-time-group:first-child {
+  padding-top: 4px;
+}
+
+.site-time-group:last-child {
+  padding-bottom: 2px;
+}
+
+/* 시간 블록마다 가로 구분선으로 경계를 분명히 */
+.site-time-group + .site-time-group {
+  border-top: 1px dashed color-mix(in srgb, var(--site-color) 32%, var(--line));
 }
 
 .site-time-head {

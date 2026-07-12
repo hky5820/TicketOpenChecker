@@ -924,11 +924,11 @@ p {
   display: grid;
   gap: 8px;
   min-width: 0;
-  padding: 10px;
-  border: 2px solid color-mix(in srgb, var(--site-color) 58%, var(--line));
-  border-radius: 8px;
+  padding: 12px 12px 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
   background: var(--surface-solid);
-  box-shadow: 0 14px 28px -22px color-mix(in srgb, var(--site-color) 50%, #25231f);
+  box-shadow: 0 1px 3px rgba(31, 46, 84, 0.05);
 }
 
 .site-date-head,
@@ -1003,15 +1003,9 @@ p {
 .site-time-head span {
   display: inline-flex;
   width: 52px;
-  min-height: 22px;
   align-items: center;
-  justify-content: center;
-  padding: 0 7px;
-  border: 1px solid color-mix(in srgb, var(--site-color) 62%, var(--line));
-  border-radius: 6px;
-  background: var(--surface-solid);
-  color: var(--site-deep);
-  font-size: 10px;
+  color: var(--ink);
+  font-size: 14px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -1019,10 +1013,9 @@ p {
 
 .site-time-head small {
   width: 52px;
-  color: var(--site-deep);
+  color: var(--muted);
   font-size: 10px;
-  font-weight: 850;
-  text-align: center;
+  font-weight: 800;
 }
 
 .site-time-items {
@@ -1031,22 +1024,22 @@ p {
 
 .site-board-card {
   --chip-bg: var(--surface-solid);
-  --chip-border: color-mix(in srgb, var(--site-color) 36%, var(--line));
+  --chip-border: var(--line);
   display: grid;
   min-width: 0;
   min-height: 30px;
-  padding: 5px 8px 5px 9px;
-  border-left: 4px solid var(--site-color);
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   background: var(--surface-solid);
   color: inherit;
   text-decoration: none;
-  box-shadow: 0 6px 16px -16px color-mix(in srgb, var(--site-color) 54%, #25231f);
+  box-shadow: 0 1px 2px rgba(31, 46, 84, 0.04);
 }
 
 .site-board-card:hover {
-  border-color: color-mix(in srgb, var(--site-color) 58%, var(--line));
-  border-left-color: var(--site-color);
-  background: color-mix(in srgb, var(--site-color) 8%, var(--surface-solid));
+  border-color: var(--line-strong);
+  background: var(--paper-soft);
   transform: translateY(-1px);
 }
 
@@ -1094,22 +1087,16 @@ p {
 
 .unknown-card.site-ticketlink,
 .modal-item.site-ticketlink {
-  --chip-bg: var(--ticketlink-soft);
-  --chip-border: rgba(203, 75, 88, 0.28);
   --chip-color: var(--ticketlink);
 }
 
 .unknown-card.site-interpark,
 .modal-item.site-interpark {
-  --chip-bg: var(--interpark-soft);
-  --chip-border: rgba(47, 126, 151, 0.28);
   --chip-color: var(--interpark);
 }
 
 .unknown-card.site-melon,
 .modal-item.site-melon {
-  --chip-bg: var(--melon-soft);
-  --chip-border: rgba(47, 143, 88, 0.26);
   --chip-color: var(--melon);
 }
 
@@ -1296,7 +1283,7 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 .time-group-head strong {
   padding: 3px 11px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-solid));
   color: var(--accent);
   font-size: 13px;
   letter-spacing: 0.2px;
@@ -1321,18 +1308,19 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 }
 
 .modal-item {
+  --chip-bg: var(--surface-solid);
+  --chip-border: var(--line);
   display: grid;
   grid-template-columns: 56px minmax(0, 1fr) 76px;
   align-items: center;
   gap: 7px;
   padding: 7px 8px;
-  border-left: 4px solid var(--chip-color, var(--line-strong));
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .modal-item:hover {
-  border-color: color-mix(in srgb, var(--chip-color, var(--accent)) 55%, var(--line));
-  box-shadow: var(--shadow-soft);
+  border-color: var(--line-strong);
+  background: var(--paper-soft);
 }
 
 .modal-item strong {
@@ -1365,10 +1353,11 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 .time-badge {
   width: 56px;
   min-height: 22px;
-  border-color: var(--chip-color, var(--ink-soft));
-  color: #fff;
-  background: var(--chip-color, var(--ink-soft));
+  border-color: transparent;
+  color: var(--chip-color, var(--ink-soft));
+  background: color-mix(in srgb, var(--chip-color, var(--ink-soft)) 12%, var(--surface-solid));
   font-size: 11px;
+  font-weight: 900;
 }
 
 .site-badge {
@@ -1672,22 +1661,37 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 
 .site-board.by-date {
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  gap: 0;
+}
+
+/* 날짜순 리스트: 카드 속 카드 대신 평평한 행으로 (예매처색은 작은 배지에만) */
+.date-group .site-board-card {
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  padding: 7px 6px;
+}
+
+.date-group .site-board-card:hover {
+  background: var(--paper-soft);
+  transform: none;
 }
 
 .date-group {
   --site-color: var(--accent);
   --site-deep: var(--accent-deep);
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--glass-bd);
-  border-radius: 8px;
-  background: var(--surface);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  box-shadow: var(--shadow-soft), var(--sheen);
+  padding: 0;
+}
+
+/* 날짜 구획끼리는 여백 + 얇은 선으로만 나눈다(카드 속 카드 방지) */
+.site-board.by-date .date-group + .date-group {
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 
 .board-card-title {
@@ -1706,10 +1710,10 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   display: inline-flex;
   align-items: center;
   min-height: 18px;
-  padding: 0 7px;
+  padding: 0 8px;
   border-radius: 999px;
-  background: var(--site-color);
-  color: #fff;
+  background: var(--site-soft);
+  color: var(--site-deep);
   font-size: 10px;
   font-weight: 900;
 }
@@ -1722,35 +1726,24 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   overflow: hidden;
 }
 
-.site-board-card.is-popular,
-.modal-item.is-popular,
-.unknown-card.is-popular {
-  border-color: #f5a524;
-}
-
+/* 인기공연: 카드 우상단에 조용한 알약 배지 */
 .popular-ribbon {
   position: absolute;
   top: 7px;
-  right: -32px;
-  width: 100px;
-  transform: rotate(40deg);
-  background: linear-gradient(145deg, #ffbe52, #f5a524);
-  color: #fff;
-  font-size: 8.5px;
+  right: 9px;
+  padding: 1px 7px 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #f5a524 15%, var(--surface-solid));
+  color: #c07a0c;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.3px;
-  text-align: center;
-  padding: 3px 0;
-  box-shadow: 0 4px 9px -3px rgba(180, 120, 0, 0.55);
+  letter-spacing: 0.2px;
   pointer-events: none;
   z-index: 2;
 }
 
-/* 세로 리스트 행: 우측 상단 모서리에 작게 */
-.site-board-card .popular-ribbon {
-  top: 5px;
-  right: -36px;
-  width: 92px;
+:root[data-theme="dark"] .popular-ribbon {
+  color: #ffc668;
 }
 
 /* 월 이동 / 캘린더-리스트 전환 시 부드러운 페이드 */

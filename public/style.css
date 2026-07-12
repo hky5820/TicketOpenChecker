@@ -1655,6 +1655,7 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 .site-filter {
   display: inline-flex;
   width: fit-content;
+  justify-self: end;
   gap: 3px;
   margin-bottom: 14px;
   padding: 3px;

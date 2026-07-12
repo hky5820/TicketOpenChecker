@@ -1261,18 +1261,18 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 }
 
 .modal-items {
-  gap: 10px;
+  gap: 18px;
 }
 
 .time-group {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .time-group-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: 0 2px;
   color: var(--muted);
   font-size: 12px;
@@ -1280,8 +1280,25 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 }
 
 .time-group-head strong {
-  color: var(--ink);
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  color: var(--accent);
   font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.time-group-head span {
+  order: 3;
+}
+
+/* 시간 라벨과 건수 사이를 가는 선으로 연결해 블록 시작을 분명히 */
+.time-group-head::after {
+  order: 2;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  content: "";
 }
 
 .time-group-list {

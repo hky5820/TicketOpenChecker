@@ -829,6 +829,7 @@ function renderUnknown(items) {
 }
 
 function openDayModal(dateKey, items) {
+  pushModalHistory();
   modalTitle.textContent = `${dateKey} 오픈 일정`;
   modalGo.hidden = true;
   renderModalItems(items, 'all');
@@ -838,6 +839,7 @@ function openDayModal(dateKey, items) {
 
 // 아이템 미리보기 모달: 모든 예매처 공통. 이동은 헤더의 '예매처 사이트로 이동' 링크로.
 function openPreview(item) {
+  pushModalHistory();
   modalTitle.textContent = item.title;
   modalGo.href = resolveMelonUrl(item.url);
   modalGo.hidden = false;
@@ -1009,7 +1011,32 @@ function filterButton(siteId, label, count, active) {
   </button>`;
 }
 
+// 뒤로가기 = 모달 닫기 (앱 종료 방지): 모달 열 때 히스토리 한 칸을 쌓고,
+// popstate(뒤로가기)에서 닫는다. X/배경 탭 닫기는 history.back()으로 그 칸을 소비한다.
+let modalPushed = false;
+
+function pushModalHistory() {
+  if (modal.hidden && !modalPushed) {
+    history.pushState({ tocModal: 1 }, '');
+    modalPushed = true;
+  }
+}
+
+window.addEventListener('popstate', () => {
+  modalPushed = false;
+  if (!modal.hidden) reallyCloseModal();
+});
+
 function closeModal() {
+  if (modal.hidden) return;
+  if (modalPushed) {
+    history.back(); // popstate 핸들러가 실제로 닫는다
+    return;
+  }
+  reallyCloseModal();
+}
+
+function reallyCloseModal() {
   modal.hidden = true;
   modalGo.hidden = true;
   updateScrollLock();

@@ -219,58 +219,82 @@ p {
   to { transform: rotate(360deg); }
 }
 
+/* 월 헤더: 제목 좌측 + 요약(작게) / 화살표 우측. 터치에서 hover/focus 색이 남지 않게
+   hover 스타일은 hover 지원 기기에만 건다. */
 .month-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin: 6px 0;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 4px 12px;
 }
 
-.month-nav h2 {
-  min-width: 128px;
-  text-align: center;
+.month-title {
+  min-width: 0;
+}
+
+.month-title h2 {
   color: var(--ink);
-  font-size: 18px;
-  font-weight: 850;
-  letter-spacing: -0.01em;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.month-arrows {
+  display: flex;
+  flex: none;
+  gap: 6px;
 }
 
 .nav-arrow {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-solid);
+  border-radius: 11px;
+  background: var(--paper-soft);
   color: var(--ink-soft);
-  box-shadow: var(--shadow-soft);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s ease, background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
 }
 
-.nav-arrow:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent-deep);
+@media (hover: hover) {
+  .nav-arrow:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-deep);
+  }
+}
+
+.nav-arrow:focus {
+  outline: none;
+}
+
+.nav-arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .nav-arrow:active {
-  transform: scale(0.9);
+  transform: scale(0.88);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
 }
 
 .nav-arrow svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
 }
 
 .summary-line {
-  margin: 0 0 12px;
-  text-align: center;
+  margin: 2px 0 0;
   color: var(--muted);
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .search-box {
@@ -1441,8 +1465,8 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
     min-height: 38px;
   }
 
-  .month-nav h2 {
-    font-size: 17px;
+  .month-title h2 {
+    font-size: 18px;
   }
 
   .weekday-grid,
@@ -1746,11 +1770,6 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 
 .site-board-card:not(.has-thumb) .board-thumb {
   display: none;
-}
-
-/* 캘린더 카드 안 월 네비 */
-.calendar-panel .month-nav {
-  margin: 2px 0 6px;
 }
 
 /* 날짜 팝업(모달) 아이템 썸네일 */

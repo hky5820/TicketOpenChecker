@@ -46,8 +46,9 @@ const SITES = [
   { id: 'ticketlink', name: '티켓링크', shortName: '티링' },
 ];
 
-document.getElementById('prevMonth').addEventListener('click', () => moveMonth(-1));
-document.getElementById('nextMonth').addEventListener('click', () => moveMonth(1));
+// blur(): 모바일에서 탭 후 focus 가 남아 버튼 색이 안 돌아오는 것 방지
+document.getElementById('prevMonth').addEventListener('click', (e) => { e.currentTarget.blur(); moveMonth(-1); });
+document.getElementById('nextMonth').addEventListener('click', (e) => { e.currentTarget.blur(); moveMonth(1); });
 document.getElementById('today').addEventListener('click', () => {
   state.date = new Date();
   render();

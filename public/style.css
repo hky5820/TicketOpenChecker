@@ -1159,9 +1159,10 @@ p {
   min-width: 0;
 }
 
+/* 미리보기 모달: 포스터 아래 정중앙 예매처색 이동 뱃지 */
 .modal-go {
-  flex: none;
-  padding: 6px 11px;
+  justify-self: center;
+  padding: 8px 16px;
   border-radius: 999px;
   background: var(--accent);
   color: #fff;
@@ -1173,8 +1174,12 @@ p {
 }
 
 .modal-go:active {
-  background: var(--accent-deep);
+  filter: brightness(0.9);
 }
+
+.modal-go.site-interpark { background: var(--interpark); }
+.modal-go.site-melon { background: var(--melon); }
+.modal-go.site-ticketlink { background: var(--ticketlink); }
 
 /* 아이템 탭 시 하이라이트/방문 색 변화 제거 */
 a.modal-item, a.unknown-card, a.site-board-card {

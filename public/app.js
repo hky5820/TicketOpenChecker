@@ -30,7 +30,6 @@ const unknownList = document.getElementById('unknownList');
 const unknownCount = document.getElementById('unknownCount');
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
-const modalGo = document.getElementById('modalGo');
 const modalList = document.getElementById('modalList');
 const loadButton = document.getElementById('load');
 const searchInput = document.getElementById('searchInput');
@@ -831,26 +830,27 @@ function renderUnknown(items) {
 function openDayModal(dateKey, items) {
   pushModalHistory();
   modalTitle.textContent = `${dateKey} 오픈 일정`;
-  modalGo.hidden = true;
   renderModalItems(items, 'all');
   modal.hidden = false;
   updateScrollLock();
 }
 
-// 아이템 미리보기 모달: 모든 예매처 공통. 이동은 헤더의 '예매처 사이트로 이동' 링크로.
+// 아이템 미리보기 모달: 모든 예매처 공통. 이동은 포스터 아래 예매처색 뱃지 링크로.
 function openPreview(item) {
   pushModalHistory();
   modalTitle.textContent = item.title;
-  modalGo.href = resolveMelonUrl(item.url);
-  modalGo.hidden = false;
   modal.hidden = false;
   updateScrollLock();
   const melonId = item.siteId === 'melon' ? /csoonId=(\d+)/.exec(item.url || '')?.[1] : null;
   if (melonId) {
-    openMelonDetail(melonId);
+    openMelonDetail(melonId, previewGoHtml(item));
     return;
   }
   renderStoredDetail(item);
+}
+
+function previewGoHtml(item) {
+  return `<a class="modal-go site-${item.siteId}" href="${escapeHtml(resolveMelonUrl(item.url))}" target="_blank" rel="noreferrer noopener">예매처 사이트로 이동 ↗</a>`;
 }
 
 // 수집 단계에서 긁어온 상세(detail: [label, html][])를 렌더한다. 없으면 안내만.
@@ -869,7 +869,8 @@ function renderStoredDetail(item) {
   modalList.innerHTML = `
     <div class="melon-detail">
       ${poster}
-      ${sections || '<p class="empty">상세 정보가 아직 수집되지 않았습니다. 상단의 이동 링크를 이용해 주세요.</p>'}
+      ${previewGoHtml(item)}
+      ${sections || '<p class="empty">상세 정보가 아직 수집되지 않았습니다.</p>'}
     </div>
   `;
 }
@@ -888,7 +889,7 @@ function sanitizeNoticeHtml(html) {
 }
 
 // 멜론 상세는 tktapi 상세 API가 CORS 개방(ACAO: *)이라 클라이언트에서 실시간으로 불러온다.
-async function openMelonDetail(csoonId) {
+async function openMelonDetail(csoonId, goHtml) {
   modalList.innerHTML = '<p class="empty">멜론 상세 정보를 불러오는 중...</p>';
 
   let data = null;
@@ -901,7 +902,12 @@ async function openMelonDetail(csoonId) {
   }
 
   if (!data) {
-    modalList.innerHTML = '<p class="empty">상세 정보를 불러오지 못했습니다. 상단의 이동 링크를 이용해 주세요.</p>';
+    modalList.innerHTML = `
+      <div class="melon-detail">
+        ${goHtml || ''}
+        <p class="empty">상세 정보를 불러오지 못했습니다.</p>
+      </div>
+    `;
     return;
   }
 
@@ -916,6 +922,7 @@ async function openMelonDetail(csoonId) {
   modalList.innerHTML = `
     <div class="melon-detail">
       ${poster ? `<img class="melon-detail-poster" src="${escapeHtml(poster)}" alt="" onerror="this.remove();">` : ''}
+      ${goHtml || ''}
       ${sections.map(([label, html]) => `
         <section class="melon-detail-section">
           <h3>${label}</h3>
@@ -1038,7 +1045,6 @@ function closeModal() {
 
 function reallyCloseModal() {
   modal.hidden = true;
-  modalGo.hidden = true;
   updateScrollLock();
 }
 

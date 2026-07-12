@@ -391,18 +391,12 @@ p {
   gap: 8px;
 }
 
+/* 캘린더↔리스트 스위치: 청크로 감싸지 않고 일반 버튼 두 개처럼 보이게 */
 .view-switch {
   display: inline-grid;
-  grid-template-columns: repeat(2, 34px);
-  gap: 3px;
+  grid-template-columns: repeat(2, 42px);
+  gap: 8px;
   height: 42px;
-  padding: 3px;
-  border: 1px solid var(--glass-bd);
-  border-radius: 8px;
-  background: var(--glass);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  box-shadow: var(--shadow-soft), var(--sheen);
 }
 
 .view-button,
@@ -429,7 +423,7 @@ p {
 
 .view-button {
   display: grid;
-  min-height: 34px;
+  min-height: 42px;
   padding: 0;
   place-items: center;
   color: var(--ink-soft);
@@ -1371,7 +1365,6 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 }
 
 @media (max-width: 860px) {
-  /* edge-to-edge: 앱 좌우 여백 제거, 카드는 화면 끝까지 꽉 채움 */
   .app {
     max-width: 100%;
     padding-left: 0;
@@ -1383,12 +1376,9 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
     padding-right: 12px;
   }
 
-  .calendar-panel,
-  .side-panel,
-  .status-strip {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+  /* 캘린더/시간미정 패널은 검색창처럼 좌우 여백 있는 청크(카드)로 보이게 */
+  .workspace {
+    padding: 0 12px;
   }
 
   .search-box input {
@@ -1442,12 +1432,13 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   }
 
   .view-switch {
-    grid-template-columns: repeat(2, 32px);
+    grid-template-columns: repeat(2, 38px);
     height: 38px;
+    gap: 6px;
   }
 
   .view-button {
-    min-height: 30px;
+    min-height: 38px;
   }
 
   .month-nav h2 {
@@ -1839,11 +1830,9 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 
 /* 리스트 뷰: 바깥 패널 카드만 없애 헤더와 리스트가 자연스럽게 이어지게 하고,
    날짜 그룹 카드(테두리)와 좌우 여백은 유지한다. */
+/* 리스트 화면: 월 이동/정렬 스위치/날짜 그룹이 한 카드(청크)로 묶여 보이게 한다. */
 .workspace.is-site-view .calendar-panel {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0 12px;
+  padding: 12px;
 }
 
 

@@ -1367,22 +1367,21 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   font-weight: 800;
 }
 
+.site-badge {
+  border-color: transparent;
+  color: #fff;
+}
+
 .site-badge.site-ticketlink {
-  border-color: rgba(203, 75, 88, 0.28);
-  color: var(--ticketlink-deep);
-  background: var(--ticketlink-soft);
+  background: var(--ticketlink);
 }
 
 .site-badge.site-interpark {
-  border-color: rgba(47, 126, 151, 0.28);
-  color: var(--interpark-deep);
-  background: var(--interpark-soft);
+  background: var(--interpark);
 }
 
 .site-badge.site-melon {
-  border-color: rgba(47, 143, 88, 0.26);
-  color: var(--melon-deep);
-  background: var(--melon-soft);
+  background: var(--melon);
 }
 
 @media (max-width: 1180px) {
@@ -1709,13 +1708,16 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  min-height: 18px;
-  padding: 0 8px;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 20px;
+  padding: 0 9px;
   border-radius: 999px;
-  background: var(--site-soft);
-  color: var(--site-deep);
-  font-size: 10px;
+  background: var(--site-color);
+  color: #fff;
+  font-size: 10.5px;
   font-weight: 900;
+  letter-spacing: 0.2px;
 }
 
 /* 인기공연: TicketManager 양도/취소처럼 카드 모서리에 대각선 띠(리본) */
@@ -1744,6 +1746,11 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 
 :root[data-theme="dark"] .popular-ribbon {
   color: #ffc668;
+}
+
+/* 날짜 상세 모달: 우상단 예매처 배지와 겹치므로 인기 표시는 생략(리스트에만 노출) */
+.modal-item .popular-ribbon {
+  display: none;
 }
 
 /* 월 이동 / 캘린더-리스트 전환 시 부드러운 페이드 */

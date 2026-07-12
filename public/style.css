@@ -974,8 +974,8 @@ p {
 }
 
 .site-time-group {
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 4px;
   align-items: start;
   padding: 12px 0;
 }
@@ -1002,17 +1002,16 @@ p {
 
 .site-time-head span {
   display: inline-flex;
-  width: 52px;
   align-items: center;
   color: var(--ink);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .site-time-head small {
-  width: 52px;
   color: var(--muted);
   font-size: 10px;
   font-weight: 800;

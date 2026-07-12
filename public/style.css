@@ -1745,6 +1745,11 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   touch-action: pan-y;
 }
 
+/* 리스트(월 스와이프 시 옆으로 밀리는 콘텐츠) 클리핑 */
+.board-viewport {
+  overflow: hidden;
+}
+
 .cal-pane {
   position: absolute;
   top: 0;

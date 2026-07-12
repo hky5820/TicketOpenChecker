@@ -47,8 +47,8 @@ const SITES = [
 ];
 
 // blur(): 모바일에서 탭 후 focus 가 남아 버튼 색이 안 돌아오는 것 방지
-document.getElementById('prevMonth').addEventListener('click', (e) => { e.currentTarget.blur(); moveMonth(-1); });
-document.getElementById('nextMonth').addEventListener('click', (e) => { e.currentTarget.blur(); moveMonth(1); });
+document.getElementById('prevMonth').addEventListener('click', (e) => { e.currentTarget.blur(); slideMonth(-1); });
+document.getElementById('nextMonth').addEventListener('click', (e) => { e.currentTarget.blur(); slideMonth(1); });
 document.getElementById('today').addEventListener('click', () => {
   state.date = new Date();
   render();
@@ -125,6 +125,10 @@ document.addEventListener('touchstart', (event) => {
   if (touchEl && touchEl.closest('.cal-viewport')) touchActive = false;
 }, { passive: true });
 
+// 캘린더 그리드 밖(헤더·리스트 등) 가로 스와이프도 손가락을 따라 콘텐츠가 밀리고,
+// 놓으면 월이 슬라이드로 전환된다. 캘린더↔리스트 전환은 상단 버튼으로만 한다.
+let dragEl = null;
+
 document.addEventListener('touchmove', (event) => {
   if (!touchActive || event.touches.length !== 1) return;
   const t = event.touches[0];
@@ -135,23 +139,45 @@ document.addEventListener('touchmove', (event) => {
     touchDecided = true;
     touchHoriz = Math.abs(dx) > Math.abs(dy);
     if (!touchHoriz) { touchActive = false; return; } // 세로 → 스크롤에 양보
-    if (touchEl && (touchEl.closest('.modal') || touchEl.closest('.search-box'))) {
+    if (sliding || (touchEl && (touchEl.closest('.modal') || touchEl.closest('.search-box')))) {
       touchActive = false;
       return;
     }
+    dragEl = state.view === 'calendar' ? calendar : siteBoard;
+    dragEl.style.transition = 'none';
+    suppressNextClick = true;
   }
   if (touchHoriz && event.cancelable) event.preventDefault();
+  if (touchHoriz && dragEl) dragEl.style.transform = `translate3d(${dx}px, 0, 0)`;
 }, { passive: false });
+
+function springBackDrag() {
+  const el = dragEl;
+  dragEl = null;
+  if (!el) return;
+  el.style.transition = 'transform 0.2s ease';
+  el.style.transform = 'translate3d(0, 0, 0)';
+  setTimeout(() => {
+    el.style.transition = '';
+    el.style.transform = '';
+    suppressNextClick = false;
+  }, 220);
+}
 
 document.addEventListener('touchend', (event) => {
   if (!touchActive || !touchDecided || !touchHoriz) { touchActive = false; return; }
   touchActive = false;
   const dx = event.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) < 45) return;
+  if (Math.abs(dx) < 45) { springBackDrag(); return; }
   suppressNextClick = true;
-  setTimeout(() => { suppressNextClick = false; }, 400);
-  // 가로 스와이프 = 월 전환만. 캘린더↔리스트 전환은 상단 버튼으로만 한다.
-  moveMonth(dx < 0 ? 1 : -1);
+  setTimeout(() => { suppressNextClick = false; }, 500);
+  dragEl = null;
+  slideMonth(dx < 0 ? 1 : -1, dx);
+}, { passive: true });
+
+document.addEventListener('touchcancel', () => {
+  touchActive = false;
+  springBackDrag();
 }, { passive: true });
 
 syncControls();
@@ -194,10 +220,32 @@ function toggleTheme() {
   }
 }
 
-function moveMonth(delta) {
-  state.date = new Date(state.date.getFullYear(), state.date.getMonth() + delta, 1);
-  render();
-  playViewAnim();
+// 월 전환 슬라이드: 현재 콘텐츠가 밀려나가고 새 달이 반대편에서 들어온다.
+// fromDx = 드래그로 이미 밀려 있던 위치(이어서 자연스럽게 나간다).
+let sliding = false;
+function slideMonth(dir, fromDx = 0) {
+  if (sliding) return;
+  const el = state.view === 'calendar' ? calendar : siteBoard;
+  const W = el.parentElement?.offsetWidth || el.offsetWidth || 320;
+  sliding = true;
+  if (!fromDx) el.style.transform = 'translate3d(0, 0, 0)';
+  void el.offsetWidth;
+  el.style.transition = 'transform 0.16s ease-in';
+  el.style.transform = `translate3d(${dir > 0 ? -W : W}px, 0, 0)`;
+  setTimeout(() => {
+    state.date = new Date(state.date.getFullYear(), state.date.getMonth() + dir, 1);
+    render();
+    el.style.transition = 'none';
+    el.style.transform = `translate3d(${dir > 0 ? W : -W}px, 0, 0)`;
+    void el.offsetWidth;
+    el.style.transition = 'transform 0.26s cubic-bezier(0.25, 0.1, 0.25, 1)';
+    el.style.transform = 'translate3d(0, 0, 0)';
+    setTimeout(() => {
+      el.style.transition = '';
+      el.style.transform = '';
+      sliding = false;
+    }, 280);
+  }, 170);
 }
 
 function playViewAnim() {

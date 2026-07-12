@@ -28,7 +28,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=20260712z">
+  <link rel="stylesheet" href="style.css?v=20260713a">
 </head>
 <body>
   <main class="app">
@@ -89,7 +89,9 @@
           <button id="groupViews" class="group-button" type="button" data-group="views" aria-pressed="false">조회순</button>
           <button id="groupSite" class="group-button" type="button" data-group="site" aria-pressed="false">예매처별</button>
         </div>
-        <div id="siteBoard" class="site-board" hidden></div>
+        <div class="board-viewport">
+          <div id="siteBoard" class="site-board" hidden></div>
+        </div>
       </section>
 
       <aside class="side-panel">
@@ -115,6 +117,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=20260712z"></script>
+  <script src="app.js?v=20260713a"></script>
 </body>
 </html>

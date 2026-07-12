@@ -1161,11 +1161,19 @@ p {
 
 .modal-go {
   flex: none;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
   font-size: 12px;
   font-weight: 800;
-  color: var(--accent-deep);
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: var(--shadow-soft);
+}
+
+.modal-go:active {
+  background: var(--accent-deep);
 }
 
 /* 아이템 탭 시 하이라이트/방문 색 변화 제거 */

@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'ticket-open-checker:schedules';
 const VIEW_KEY = 'toc:view';
 const GROUP_KEY = 'toc:groupBy';
+const SITE_FILTER_KEY = 'toc:siteFilter';
 // 인기공연 임계값: 최상단 render() 호출보다 먼저 초기화돼야 TDZ 오류가 없다.
 const POPULAR_VIEW_THRESHOLD = 500;
 
@@ -18,6 +19,7 @@ const state = {
   items: [],
   view: readStored(VIEW_KEY, ['calendar', 'site'], 'calendar'),
   groupBy: readStored(GROUP_KEY, ['date', 'site', 'views'], 'date'),
+  siteFilter: readStored(SITE_FILTER_KEY, ['interpark', 'melon', 'ticketlink'], 'interpark'),
 };
 
 const calendar = document.getElementById('calendar');
@@ -695,7 +697,10 @@ function getSiteCounts(items) {
 function renderSiteBoard(items) {
   siteBoard.innerHTML = '';
   siteBoard.classList.remove('by-date');
-  SITES.forEach((site) => {
+  siteBoard.appendChild(renderSiteFilter(items));
+
+  const site = SITES.find((s) => s.id === state.siteFilter) || SITES[0];
+  {
     const siteItems = items
       .filter((item) => item.siteId === site.id)
       .sort((a, b) => {
@@ -706,16 +711,7 @@ function renderSiteBoard(items) {
 
     const column = document.createElement('section');
     column.className = `site-column site-${site.id}`;
-    column.innerHTML = `
-      <div class="site-column-head">
-        <span class="site-mark">${escapeHtml(site.shortName)}</span>
-        <div>
-          <h3>${escapeHtml(site.name)}</h3>
-          <p>${siteItems.length}건</p>
-        </div>
-      </div>
-      <div class="site-column-list"></div>
-    `;
+    column.innerHTML = '<div class="site-column-list"></div>';
 
     const list = column.querySelector('.site-column-list');
     if (!siteItems.length) {
@@ -766,7 +762,31 @@ function renderSiteBoard(items) {
       });
     }
     siteBoard.appendChild(column);
+  }
+}
+
+// 예매처별 뷰 상단 스위치: 한 예매처만 보여줘 티켓링크까지 스크롤하지 않게.
+function renderSiteFilter(items) {
+  const nav = document.createElement('div');
+  nav.className = 'site-filter';
+  nav.setAttribute('role', 'tablist');
+  SITES.forEach((site) => {
+    const count = items.filter((item) => item.siteId === site.id).length;
+    const selected = state.siteFilter === site.id;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `site-filter-chip site-${site.id}${selected ? ' is-selected' : ''}`;
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    button.innerHTML = `${escapeHtml(site.shortName)}<small>${count}</small>`;
+    button.addEventListener('click', () => {
+      if (state.siteFilter === site.id) return;
+      state.siteFilter = site.id;
+      try { localStorage.setItem(SITE_FILTER_KEY, site.id); } catch { /* 저장 실패 무시 */ }
+      render();
+    });
+    nav.appendChild(button);
   });
+  return nav;
 }
 
 function renderSiteBoardCard(item, showSite = false, showDate = false) {

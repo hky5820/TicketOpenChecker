@@ -1651,6 +1651,50 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   box-shadow: 0 6px 14px -8px var(--accent);
 }
 
+/* 예매처별 상단 예매처 스위치 */
+.site-filter {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.site-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-solid);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.site-filter-chip small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.site-filter-chip.is-selected {
+  border-color: transparent;
+  color: #fff;
+}
+
+.site-filter-chip.site-interpark.is-selected { background: var(--interpark); }
+.site-filter-chip.site-melon.is-selected { background: var(--melon); }
+.site-filter-chip.site-ticketlink.is-selected { background: var(--ticketlink); }
+
+.site-filter-chip.is-selected small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .site-board.by-date {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

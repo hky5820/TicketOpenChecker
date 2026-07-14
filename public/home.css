@@ -96,7 +96,8 @@ a{color:inherit;text-decoration:none}
 .sec.on .shd .soon{transform:translateX(15px)}
 .shd .soon i{width:6px;height:6px;border-radius:99px;background:var(--ac);animation:pulse 1.6s ease-out infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(30,215,96,.45)}70%{box-shadow:0 0 0 7px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
-.shd .ended{font-size:12px;font-weight:600;color:var(--fnt)}
+.shd .ended{font-size:12px;font-weight:600;color:var(--fnt);transition:transform .28s cubic-bezier(.3,1.4,.4,1)}
+.sec.on .shd .ended{transform:translateX(15px)}
 .shd .more{margin-left:auto;font-size:12px;font-weight:600;color:var(--mut);cursor:pointer;display:flex;align-items:center;gap:1px;user-select:none}
 .rail{display:flex;gap:10px;padding:0 20px;overflow-x:auto;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;position:relative}
@@ -201,7 +202,10 @@ a{color:inherit;text-decoration:none}
 .crow .cmid{flex:1;min-width:0}
 .crow .ct1{font-size:13px;font-weight:600;letter-spacing:-.2px;line-height:1.35;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.crow .ct2{font-size:11px;font-weight:600;color:var(--mut);margin-top:3px;font-variant-numeric:tabular-nums}
+.crow .ct2{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--mut);margin-top:3px;font-variant-numeric:tabular-nums}
+.v-interpark{--vc:#5b9bff}.v-melon{--vc:#45c98a}.v-ticketlink{--vc:#ff7a63}
+.vn{display:inline-flex;align-items:center;gap:4.5px;color:var(--vc);font-weight:700}
+.vn i{width:6px;height:6px;border-radius:99px;background:var(--vc);flex:none}
 .cempty{padding:26px 20px;text-align:center;color:var(--mut);font-weight:600;font-size:12.5px}
 
 /* ── 알람: 벨 토글 / 배지 / 목록 ── */

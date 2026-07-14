@@ -44,7 +44,10 @@ function setVH() {
   document.documentElement.style.setProperty('--vh', `${Math.round(h)}px`);
 }
 setVH();
-(window.visualViewport || window).addEventListener('resize', setVH);
+(window.visualViewport || window).addEventListener('resize', () => {
+  setVH();
+  requestAnimationFrame(() => { if (typeof measureSecs === 'function' && secEls.length) measureSecs(); });
+});
 window.addEventListener('orientationchange', () => setTimeout(setVH, 250));
 
 const feed = $('#feed'), daysEl = $('#days'), vtabsEl = $('#vtabs'), ov = $('#ov');
@@ -195,10 +198,10 @@ function buildAlarm() {
     const cd = t === UNSET ? `<span class="acd faroff">${UNSET}</span>`
       : past ? '<span class="acd faroff">오픈됨</span>'
         : `<span class="acd cd" data-dk="${dk}" data-t="${t}">${cdText(dk, t)}</span>`;
-    html += `<a class="crow${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
+    html += `<a class="crow v-${it.siteId}${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
       <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
       <div class="cmid"><div class="ct1">${esc(it.title)}</div>
-      <div class="ct2">${t} · ${VN[it.siteId] || it.site}</div></div>
+      <div class="ct2"><span>${t}</span><span class="vn"><i></i>${VN[it.siteId] || it.site}</span></div></div>
       ${cd}
       <button class="bellr on" data-ak="${esc(itemKey(it))}" aria-label="알림 해제">${BELL_SVG_LG}</button></a>`;
   });
@@ -319,6 +322,7 @@ function buildFeed() {
     const last = secEls[secEls.length - 1];
     const hB = last ? Math.max(0, (feed.clientHeight - last.offsetHeight) / 2 - 20) : 0;
     feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${hB}px"></div>`);
+    measureSecs();
     focusIdx = -1;
     let def = curGroups.findIndex((g) => !isPastG(dk, g.t));
     if (def < 0) def = curGroups.length - 1;
@@ -329,10 +333,18 @@ function buildFeed() {
 
 /* ── 쫀득한 스프링 스냅 ── */
 let snapRaf = 0, idleTimer = 0, touching = false, animatingScroll = false;
-const maxScroll = () => feed.scrollHeight - feed.clientHeight;
+/* 스크롤 중 레이아웃 재측정(스래싱) 방지: 섹션 위치는 빌드 때 한 번만 측정해 캐시 */
+let secMeta = [], feedH = 0, maxS = 0;
+function measureSecs() {
+  feedH = feed.clientHeight;
+  secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight }));
+  maxS = feed.scrollHeight - feedH;
+}
+const maxScroll = () => maxS;
 function targetTopOf(i) {
-  const s = secEls[i];
-  return Math.max(0, Math.min(maxScroll(), s.offsetTop - (feed.clientHeight - s.offsetHeight) / 2));
+  const m = secMeta[i];
+  if (!m) return 0;
+  return Math.max(0, Math.min(maxS, m.top - (feedH - m.h) / 2));
 }
 function cancelSnap() {
   cancelAnimationFrame(snapRaf);
@@ -360,31 +372,35 @@ function animateScroll(to, dur = 460) {
   })(t0);
 }
 function snapToNearest() {
-  if (!secEls.length || animatingScroll || touching) return;
+  if (!secMeta.length || animatingScroll || touching) return;
   const st = feed.scrollTop;
   // 맨 위/맨 아래 근처에서는 그대로 둔다 (요약을 읽거나 끝을 보는 중)
-  if (st <= 2 || st >= maxScroll() - 2) return;
-  const c = st + feed.clientHeight / 2;
+  if (st <= 2 || st >= maxS - 2) return;
+  const c = st + feedH / 2;
   let best = 0, bd = Infinity;
-  secEls.forEach((el, i) => {
-    const d = Math.abs(el.offsetTop + el.offsetHeight / 2 - c);
+  secMeta.forEach((m, i) => {
+    const d = Math.abs(m.top + m.h / 2 - c);
     if (d < bd) { bd = d; best = i; }
   });
   animateScroll(targetTopOf(best));
 }
+/* 스냅 시점: 관성 스크롤까지 완전히 끝난 시점(scrollend)에만 — 도중에 끼어들면 튄다 */
+const HAS_SCROLLEND = 'onscrollend' in window;
 feed.addEventListener('touchstart', () => { touching = true; cancelSnap(); }, { passive: true });
 feed.addEventListener('touchend', () => {
   touching = false;
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(snapToNearest, 110);
+  if (!HAS_SCROLLEND) { clearTimeout(idleTimer); idleTimer = setTimeout(snapToNearest, 160); }
 }, { passive: true });
 feed.addEventListener('wheel', () => cancelSnap(), { passive: true });
 feed.addEventListener('scroll', () => {
   requestAnimationFrame(fx);
-  if (animatingScroll) return;
+  if (HAS_SCROLLEND || animatingScroll) return;
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!touching) snapToNearest(); }, 110);
+  idleTimer = setTimeout(() => { if (!touching) snapToNearest(); }, 160);
 }, { passive: true });
+if (HAS_SCROLLEND) feed.addEventListener('scrollend', () => {
+  if (!touching && !animatingScroll) snapToNearest();
+});
 
 function centerOn(i, smooth = true) {
   const s = secEls[i];
@@ -393,13 +409,12 @@ function centerOn(i, smooth = true) {
   else { cancelSnap(); feed.scrollTop = targetTopOf(i); }
 }
 function fx() {
-  if (!secEls.length) return;
-  const c = feed.scrollTop + feed.clientHeight / 2;
+  if (!secMeta.length) return;
+  const c = feed.scrollTop + feedH / 2;
   let best = 0, bd = Infinity;
-  secEls.forEach((s, i) => {
-    const sc = s.offsetTop + s.offsetHeight / 2;
-    const dd = (sc - c) / Math.max(1, s.offsetHeight), ad = Math.abs(dd);
-    const sin = s.firstElementChild;
+  secMeta.forEach((m, i) => {
+    const dd = (m.top + m.h / 2 - c) / Math.max(1, m.h), ad = Math.abs(dd);
+    const sin = secEls[i].firstElementChild;
     sin.style.transform = `scale(${(1 - Math.min(0.04, ad * 0.03)).toFixed(3)})`;
     sin.style.opacity = Math.max(0.4, 1 - ad * 0.4).toFixed(3);
     if (ad < bd) { bd = ad; best = i; }
@@ -440,7 +455,21 @@ setInterval(() => {
     e.textContent = txt;
   });
   checkAlarms();
-  if (crossed && state.view === 'home') buildFeed();
+  if (crossed) {
+    // 전체 리빌드는 스크롤 위치를 튀게 하므로 지난 상태만 제자리 갱신
+    if (state.view === 'home' && secEls.length) {
+      const dk = state.dateKey;
+      secEls.forEach((s, i) => {
+        const g = curGroups[i];
+        if (g && isPastG(dk, g.t) && !s.classList.contains('past')) {
+          s.classList.add('past');
+          const soon = s.querySelector('.soon');
+          if (soon) soon.outerHTML = '<span class="ended">종료</span>';
+        }
+      });
+    }
+    if (state.view === 'alarm') buildAlarm();
+  }
 }, 1000);
 
 /* ── 캘린더 뷰 ── */
@@ -495,10 +524,10 @@ function buildCalDetail() {
     const past = isPastG(dk, g.t);
     html += `<div class="cgh${past ? ' done' : ''}"><b>${g.t}</b><span>${g.items.length}건${past ? ' · 종료' : ''}</span></div>`;
     g.items.forEach((it) => {
-      html += `<a class="crow${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
+      html += `<a class="crow v-${it.siteId}${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
         <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
         <div class="cmid"><div class="ct1">${esc(it.title)}</div>
-        <div class="ct2">${VN[it.siteId] || it.site} · 조회 ${(it.viewCount || 0).toLocaleString()}</div></div>
+        <div class="ct2"><span class="vn"><i></i>${VN[it.siteId] || it.site}</span><span>조회 ${(it.viewCount || 0).toLocaleString()}</span></div></div>
         <button class="bellr${hasAlarm(itemKey(it)) ? ' on' : ''}" data-ak="${esc(itemKey(it))}" aria-label="오픈 알림">${BELL_SVG_LG}</button></a>`;
     });
   });

@@ -24,6 +24,15 @@ function readVendor() {
 }
 
 const $ = (s) => document.querySelector(s);
+
+/* 모바일 주소창/제스처 바 때문에 dvh가 어긋나는 기기 대응: 실제 보이는 높이를 실측 */
+function setVH() {
+  const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  document.documentElement.style.setProperty('--vh', `${Math.round(h)}px`);
+}
+setVH();
+(window.visualViewport || window).addEventListener('resize', setVH);
+window.addEventListener('orientationchange', () => setTimeout(setVH, 250));
 const feed = $('#feed'), daysEl = $('#days'), vtabsEl = $('#vtabs'), ov = $('#ov');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const pad = (n) => String(n).padStart(2, '0');

@@ -354,7 +354,8 @@ function cancelSnap() {
 function animateScroll(to, dur = 460) {
   cancelSnap();
   const from = feed.scrollTop;
-  if (Math.abs(to - from) < 2) { feed.scrollTop = to; return; }
+  // 미세 오차는 그대로 둔다 — 여기서 쓰기를 하면 scrollend가 재발화하며 루프를 만든다
+  if (Math.abs(to - from) < 2) return;
   animatingScroll = true;
   const t0 = performance.now();
   // 경계(맨 위/맨 아래)에서는 오버슈트하면 클램프에 걸려 덜컹거린다 → 순수 감속만
@@ -382,7 +383,9 @@ function snapToNearest() {
     const d = Math.abs(m.top + m.h / 2 - c);
     if (d < bd) { bd = d; best = i; }
   });
-  animateScroll(targetTopOf(best));
+  const target = targetTopOf(best);
+  if (Math.abs(target - st) < 6) return; // 거의 맞아있으면 건드리지 않는다
+  animateScroll(target);
 }
 /* 스냅 시점: 관성 스크롤까지 완전히 끝난 시점(scrollend)에만 — 도중에 끼어들면 튄다 */
 const HAS_SCROLLEND = 'onscrollend' in window;
@@ -666,8 +669,19 @@ function setView(v) {
   if (v === 'alarm') buildAlarm();
   if (v === 'my') refreshMy();
 }
-['home', 'cal', 'alarm', 'my'].forEach((k) => $(`#tab-${k}`).addEventListener('click', () => {
+/* 독 탭: 관성 스크롤을 멈추는 탭은 click이 삼켜진다 → pointerup으로 직접 처리 */
+function bindTap(el, fn) {
+  let sx = 0, sy = 0, armed = false;
+  el.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; armed = true; });
+  el.addEventListener('pointerup', (e) => {
+    if (armed && Math.hypot(e.clientX - sx, e.clientY - sy) < 12) fn();
+    armed = false;
+  });
+  el.addEventListener('click', (e) => e.preventDefault()); // 중복 발화 방지
+}
+['home', 'cal', 'alarm', 'my'].forEach((k) => bindTap($(`#tab-${k}`), () => {
   if (state.view !== k) tickFx();
+  else if (k === 'home') centerOn(focusIdx >= 0 ? focusIdx : 0); // 홈 재탭 = 현재 위치 재정렬
   setView(k);
 }));
 

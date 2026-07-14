@@ -1,6 +1,7 @@
 /* 티켓오픈 홈 — 시간대 포커스 스크롤 (다크+그린) */
 const STORAGE_KEY = 'ticket-open-checker:schedules';
 const VENDOR_KEY = 'toc:homeVendor';
+const ALARM_KEY = 'toc:alarms';
 const VN = { interpark: 'NOL 티켓', melon: '멜론 티켓', ticketlink: '티켓링크' };
 const VTAB = { interpark: 'NOL티켓', melon: '멜론티켓', ticketlink: '티켓링크' };
 const VORDER = ['interpark', 'ticketlink', 'melon'];
@@ -13,7 +14,10 @@ const state = {
   vendor: readVendor(),
   view: 'home',
   calMonth: null,         // Date (1일)
+  calSel: null,           // 캘린더에서 선택한 날짜
   generatedAt: null,
+  popDate: null,          // 직접 탭한 날짜(bpop용)
+  alarms: readAlarms(),   // { itemKey: {f5,f0} }
 };
 
 function readVendor() {
@@ -21,6 +25,15 @@ function readVendor() {
     const v = localStorage.getItem(VENDOR_KEY);
     return ['interpark', 'melon', 'ticketlink'].includes(v) ? v : null;
   } catch { return null; }
+}
+function readAlarms() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ALARM_KEY) || '{}');
+    return a && typeof a === 'object' ? a : {};
+  } catch { return {}; }
+}
+function saveAlarms() {
+  try { localStorage.setItem(ALARM_KEY, JSON.stringify(state.alarms)); } catch { /* 무시 */ }
 }
 
 const $ = (s) => document.querySelector(s);
@@ -33,6 +46,7 @@ function setVH() {
 setVH();
 (window.visualViewport || window).addEventListener('resize', setVH);
 window.addEventListener('orientationchange', () => setTimeout(setVH, 250));
+
 const feed = $('#feed'), daysEl = $('#days'), vtabsEl = $('#vtabs'), ov = $('#ov');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const pad = (n) => String(n).padStart(2, '0');
@@ -42,6 +56,7 @@ const dkeyOf = (it) => (it.openDate || (it.openDateTime || '').slice(0, 10) || '
 const openMs = (dk, t) => new Date(`${dk}T${t}:00+09:00`).getTime();
 const secTo = (dk, t) => Math.floor((openMs(dk, t) - Date.now()) / 1000);
 const isPastG = (dk, t) => t !== UNSET && secTo(dk, t) <= 0;
+const itemKey = (it) => `${it.siteId}|${it.title}|${it.openDateTime || it.openDate || ''}`;
 
 function cdText(dk, t) {
   const s = secTo(dk, t);
@@ -58,9 +73,9 @@ function fmtDate(dk, withYear) {
 
 /* ── 데이터 접근 ── */
 const vendorItems = () => state.items.filter((i) => !state.vendor || i.siteId === state.vendor);
-function dayMap() {
+function dayMap(all) {
   const m = new Map();
-  vendorItems().forEach((i) => {
+  (all ? state.items : vendorItems()).forEach((i) => {
     const k = dkeyOf(i);
     if (!k) return;
     if (!m.has(k)) m.set(k, []);
@@ -68,8 +83,8 @@ function dayMap() {
   });
   return m;
 }
-function groupsOf(dk) {
-  const items = dayMap().get(dk) || [];
+function groupsOf(dk, all) {
+  const items = dayMap(all).get(dk) || [];
   const g = {};
   items.forEach((i) => {
     const t = i.openTime || UNSET;
@@ -83,6 +98,113 @@ function groupsOf(dk) {
 /* ── 틱 피드백 ── */
 function tickFx() {
   try { if (navigator.vibrate) navigator.vibrate(5); } catch { /* 미지원 무시 */ }
+}
+
+/* ── 알람 ── */
+const BELL_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
+const BELL_SVG_LG = BELL_SVG.replace('width="13" height="13"', 'width="17" height="17"');
+const hasAlarm = (k) => Object.prototype.hasOwnProperty.call(state.alarms, k);
+function bellBtn(it) {
+  const k = itemKey(it);
+  return `<button class="bell${hasAlarm(k) ? ' on' : ''}" data-ak="${esc(k)}" aria-label="오픈 알림">${BELL_SVG}</button>`;
+}
+function toggleAlarm(k) {
+  if (hasAlarm(k)) delete state.alarms[k];
+  else {
+    state.alarms[k] = {};
+    try {
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    } catch { /* 무시 */ }
+  }
+  saveAlarms();
+  tickFx();
+  document.querySelectorAll(`[data-ak="${CSS.escape(k)}"]`).forEach((b) => b.classList.toggle('on', hasAlarm(k)));
+  updateAlarmBadge();
+  if (state.view === 'alarm') buildAlarm();
+}
+function bindBells(root) {
+  root.querySelectorAll('[data-ak]').forEach((b) => b.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleAlarm(b.dataset.ak);
+  }));
+}
+function alarmedItems() {
+  const by = new Map(state.items.map((i) => [itemKey(i), i]));
+  // 지난 지 1시간 넘은 알람은 자동 정리
+  let dirty = false;
+  Object.keys(state.alarms).forEach((k) => {
+    const it = by.get(k);
+    if (!it) return; // 데이터 갱신 대기 중일 수 있어 유지
+    const dk = dkeyOf(it), t = it.openTime;
+    if (t && openMs(dk, t) < Date.now() - 3600 * 1000) { delete state.alarms[k]; dirty = true; }
+  });
+  if (dirty) saveAlarms();
+  return Object.keys(state.alarms).map((k) => by.get(k)).filter(Boolean)
+    .sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''));
+}
+function updateAlarmBadge() {
+  const n = Object.keys(state.alarms).length;
+  let b = $('#tab-alarm .badge');
+  if (!n) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('span'); b.className = 'badge'; $('#tab-alarm').appendChild(b); }
+  b.textContent = n;
+}
+function notifyFx(title, body) {
+  try { if (navigator.vibrate) navigator.vibrate([80, 60, 80]); } catch { /* 무시 */ }
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, icon: 'icon-192.png' });
+    }
+  } catch { /* 무시 */ }
+}
+function checkAlarms() {
+  const by = new Map(state.items.map((i) => [itemKey(i), i]));
+  Object.entries(state.alarms).forEach(([k, st]) => {
+    const it = by.get(k);
+    if (!it || !it.openTime) return;
+    const s = secTo(dkeyOf(it), it.openTime);
+    if (s <= 300 && s > 0 && !st.f5) {
+      st.f5 = 1; saveAlarms();
+      notifyFx('곧 티켓 오픈!', `${it.title} — ${it.openTime} 오픈 (5분 전)`);
+    }
+    if (s <= 0 && s > -120 && !st.f0) {
+      st.f0 = 1; saveAlarms();
+      notifyFx('티켓 오픈!', `${it.title} — 지금 오픈했어요`);
+    }
+  });
+}
+function buildAlarm() {
+  const body = $('#alarmBody');
+  const list = alarmedItems();
+  if (!list.length) {
+    body.innerHTML = `<div class="empty">
+      ${BELL_SVG.replace('width="13" height="13"', 'width="34" height="34"').replace('stroke-width="2.2"', 'stroke-width="1.7"')}
+      <b>오픈 알림</b>
+      <p>공연 포스터의 종 아이콘을 누르면<br>오픈 5분 전과 정각에 알려드려요.</p></div>`;
+    return;
+  }
+  let html = '', prevDk = null;
+  list.forEach((it) => {
+    const dk = dkeyOf(it), t = it.openTime || UNSET;
+    if (dk !== prevDk) {
+      html += `<div class="cgh"><b>${fmtDate(dk)}</b></div>`;
+      prevDk = dk;
+    }
+    const past = t !== UNSET && isPastG(dk, t);
+    const cd = t === UNSET ? `<span class="acd faroff">${UNSET}</span>`
+      : past ? '<span class="acd faroff">오픈됨</span>'
+        : `<span class="acd cd" data-dk="${dk}" data-t="${t}">${cdText(dk, t)}</span>`;
+    html += `<a class="crow${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
+      <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
+      <div class="cmid"><div class="ct1">${esc(it.title)}</div>
+      <div class="ct2">${t} · ${VN[it.siteId] || it.site}</div></div>
+      ${cd}
+      <button class="bellr on" data-ak="${esc(itemKey(it))}" aria-label="알림 해제">${BELL_SVG_LG}</button></a>`;
+  });
+  html += '<div class="ahint">알림은 앱이 열려 있는 동안 동작해요. 오픈 5분 전과 정각에 알림·진동으로 알려드립니다.</div>';
+  body.innerHTML = html;
+  bindBells(body);
 }
 
 /* ── 날짜 스트립 ── */
@@ -139,7 +261,7 @@ let secEls = [], focusIdx = -1, curGroups = [];
 
 function card(it) {
   const href = it.url ? ` href="${esc(it.url)}" target="_blank" rel="noopener"` : '';
-  return `<a class="rc"${href}><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
+  return `<a class="rc"${href}><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()">${bellBtn(it)}</span>
     <div class="t">${esc(it.title)}</div><div class="v">${VN[it.siteId] || it.site} · ${(it.viewCount || 0).toLocaleString()}</div></a>`;
 }
 function statTxt(dk, t) {
@@ -149,7 +271,7 @@ function statTxt(dk, t) {
   if (s <= 0) return '<span class="ended">종료</span>';
   return '';
 }
-function dayInfoHTML(h) {
+function dayInfoHTML() {
   const items = dayMap().get(state.dateKey) || [];
   const per = { interpark: 0, melon: 0, ticketlink: 0 };
   items.forEach((i) => { per[i.siteId] = (per[i.siteId] || 0) + 1; });
@@ -163,7 +285,7 @@ function dayInfoHTML(h) {
     const label = g.t === UNSET ? UNSET : `${parseInt(g.t, 10)}시`;
     return `<span class="ti${cls}" data-i="${i}">${label}<em>${g.items.length}</em></span>`;
   }).join('');
-  return `<div class="spc dinfo" style="height:${h}px">
+  return `<div class="dinfo">
     <div class="sl">${dl} 오픈 ${items.length}건</div>
     ${next ? `<div class="nx"><i></i>다음 오픈 ${next.t} · <span class="cd" data-dk="${state.dateKey}" data-t="${next.t}">${cdText(state.dateKey, next.t)}</span>&nbsp;남음</div>` : ''}
     <div class="vsum">${vsum}</div><div class="tms">${tms}</div></div>`;
@@ -173,12 +295,13 @@ function buildFeed() {
   buildTabs();
   curGroups = groupsOf(state.dateKey);
   secEls = []; focusIdx = -1;
+  cancelSnap();
   if (!curGroups.length) {
     feed.innerHTML = `<div class="fempty">${state.dateKey === todayKey() ? '오늘은' : '이 날은'} ${state.vendor ? VN[state.vendor] + ' ' : ''}오픈 일정이 없어요</div>`;
     return;
   }
   const dk = state.dateKey;
-  feed.innerHTML = curGroups.map((g, i) => `<div class="sec${isPastG(dk, g.t) ? ' past' : ''}" data-i="${i}" style="animation-delay:${Math.min(i * 50, 300)}ms"><div class="sin">
+  feed.innerHTML = dayInfoHTML() + curGroups.map((g, i) => `<div class="sec${isPastG(dk, g.t) ? ' past' : ''}" data-i="${i}" style="animation-delay:${Math.min(i * 50, 300)}ms"><div class="sin">
     <div class="amb"><img src="${esc(g.items[0].image || '')}" loading="lazy" onerror="this.remove()"></div>
     <div class="shd"><span class="tm">${g.t}</span><span class="cnt">${g.items.length}건</span>${statTxt(dk, g.t)}
       <span class="more" data-i="${i}">전체보기 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
@@ -190,11 +313,12 @@ function buildFeed() {
     if (ev.target.closest('.more')) return;
     centerOn(+s.dataset.i);
   }));
+  bindBells(feed);
+  feed.querySelectorAll('.ti').forEach((t) => t.addEventListener('click', () => centerOn(+t.dataset.i)));
   requestAnimationFrame(() => {
-    const h = secEls[0] ? Math.max(90, (feed.clientHeight - secEls[0].offsetHeight) / 2) : 0;
-    feed.insertAdjacentHTML('afterbegin', dayInfoHTML(h));
-    feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${Math.max(0, h - 20)}px"></div>`);
-    feed.querySelectorAll('.ti').forEach((t) => t.addEventListener('click', () => centerOn(+t.dataset.i)));
+    const last = secEls[secEls.length - 1];
+    const hB = last ? Math.max(0, (feed.clientHeight - last.offsetHeight) / 2 - 20) : 0;
+    feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${hB}px"></div>`);
     focusIdx = -1;
     let def = curGroups.findIndex((g) => !isPastG(dk, g.t));
     if (def < 0) def = curGroups.length - 1;
@@ -202,7 +326,8 @@ function buildFeed() {
     fx();
   });
 }
-/* ── 쫀득한 스프링 스냅 (네이티브 snap 대체) ── */
+
+/* ── 쫀득한 스프링 스냅 ── */
 let snapRaf = 0, idleTimer = 0, touching = false, animatingScroll = false;
 const maxScroll = () => feed.scrollHeight - feed.clientHeight;
 function targetTopOf(i) {
@@ -220,11 +345,15 @@ function animateScroll(to, dur = 460) {
   if (Math.abs(to - from) < 2) { feed.scrollTop = to; return; }
   animatingScroll = true;
   const t0 = performance.now();
-  const s = 1.25; // 오버슈트 강도
-  const easeOutBack = (x) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  // 경계(맨 위/맨 아래)에서는 오버슈트하면 클램프에 걸려 덜컹거린다 → 순수 감속만
+  const atEdge = to <= 1 || to >= maxScroll() - 1;
+  const s = 1.25;
+  const easeBack = (x) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  const easeCubic = (x) => 1 - Math.pow(1 - x, 3);
+  const ease = atEdge ? easeCubic : easeBack;
   (function step(now) {
     const k = Math.min(1, (now - t0) / dur);
-    feed.scrollTop = from + (to - from) * easeOutBack(k);
+    feed.scrollTop = from + (to - from) * ease(k);
     fx();
     if (k < 1) snapRaf = requestAnimationFrame(step);
     else animatingScroll = false;
@@ -232,7 +361,10 @@ function animateScroll(to, dur = 460) {
 }
 function snapToNearest() {
   if (!secEls.length || animatingScroll || touching) return;
-  const c = feed.scrollTop + feed.clientHeight / 2;
+  const st = feed.scrollTop;
+  // 맨 위/맨 아래 근처에서는 그대로 둔다 (요약을 읽거나 끝을 보는 중)
+  if (st <= 2 || st >= maxScroll() - 2) return;
+  const c = st + feed.clientHeight / 2;
   let best = 0, bd = Infinity;
   secEls.forEach((el, i) => {
     const d = Math.abs(el.offsetTop + el.offsetHeight / 2 - c);
@@ -244,7 +376,14 @@ feed.addEventListener('touchstart', () => { touching = true; cancelSnap(); }, { 
 feed.addEventListener('touchend', () => {
   touching = false;
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(snapToNearest, 90);
+  idleTimer = setTimeout(snapToNearest, 110);
+}, { passive: true });
+feed.addEventListener('wheel', () => cancelSnap(), { passive: true });
+feed.addEventListener('scroll', () => {
+  requestAnimationFrame(fx);
+  if (animatingScroll) return;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => { if (!touching) snapToNearest(); }, 110);
 }, { passive: true });
 
 function centerOn(i, smooth = true) {
@@ -272,12 +411,6 @@ function fx() {
     if (!first) tickFx();
   }
 }
-feed.addEventListener('scroll', () => {
-  requestAnimationFrame(fx);
-  if (animatingScroll) return;
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!touching) snapToNearest(); }, 90);
-}, { passive: true });
 
 /* ── 펼쳐보기 (해당 시간대만) ── */
 function openOv(i) {
@@ -289,22 +422,24 @@ function openOv(i) {
   $('#ovHd').innerHTML = `<span class="ot${past ? ' done' : ''}">${g.t}</span><span class="od">${dl} · ${g.items.length}건${state.vendor ? ` · ${VN[state.vendor]}` : ''}</span>${statTxt(dk, g.t)}`;
   $('#ovGrid').innerHTML = g.items.map((it, j) => {
     const href = it.url ? ` href="${esc(it.url)}" target="_blank" rel="noopener"` : '';
-    return `<a class="gc${past ? ' dim' : ''}"${href} style="animation-delay:${Math.min(j * 35, 280)}ms"><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
+    return `<a class="gc${past ? ' dim' : ''}"${href} style="animation-delay:${Math.min(j * 35, 280)}ms"><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()">${bellBtn(it)}</span>
       <div class="t">${esc(it.title)}</div><div class="v">${VN[it.siteId] || it.site} · ${(it.viewCount || 0).toLocaleString()}</div></a>`;
   }).join('');
+  bindBells($('#ovGrid'));
   ov.querySelector('.obody').scrollTop = 0;
   ov.classList.add('open');
 }
 $('#ovX').addEventListener('click', () => ov.classList.remove('open'));
 
-/* ── 1초 틱: 카운트다운/오픈 전환 ── */
+/* ── 1초 틱: 카운트다운/오픈 전환/알람 ── */
 setInterval(() => {
   let crossed = false;
   document.querySelectorAll('.cd').forEach((e) => {
     const txt = cdText(e.dataset.dk, e.dataset.t);
-    if (txt === '오픈') crossed = true;
+    if (txt === '오픈' && e.textContent !== '오픈') crossed = true;
     e.textContent = txt;
   });
+  checkAlarms();
   if (crossed && state.view === 'home') buildFeed();
 }, 1000);
 
@@ -313,29 +448,76 @@ function buildCal() {
   const base = state.calMonth;
   const y = base.getFullYear(), m = base.getMonth();
   $('#calLabel').textContent = `${y}년 ${m + 1}월`;
-  const map = dayMap();
+  const map = dayMap(true);
   const first = new Date(y, m, 1).getDay();
   const days = new Date(y, m + 1, 0).getDate();
+  // 선택 기본값: 오늘(이 달이면) → 이 달의 첫 일정 날짜
+  if (!state.calSel || !state.calSel.startsWith(`${y}-${pad(m + 1)}`)) {
+    const tk = todayKey();
+    if (tk.startsWith(`${y}-${pad(m + 1)}`) && map.has(tk)) state.calSel = tk;
+    else {
+      state.calSel = null;
+      for (let d = 1; d <= days; d++) {
+        const k = `${y}-${pad(m + 1)}-${pad(d)}`;
+        if (map.has(k)) { state.calSel = k; break; }
+      }
+    }
+  }
   const cells = [];
   for (let i = 0; i < first; i++) cells.push('<div class="ccell out"></div>');
   for (let d = 1; d <= days; d++) {
     const k = `${y}-${pad(m + 1)}-${pad(d)}`;
     const its = map.get(k) || [];
     const top = [...its].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))[0];
-    const cls = ['ccell', its.length ? 'has' : '', k === todayKey() ? 'today' : '', its.length && k < todayKey() ? 'pastd' : ''].filter(Boolean).join(' ');
+    const cls = ['ccell', its.length ? 'has' : '', k === todayKey() ? 'today' : '',
+      k === state.calSel ? 'sel' : '', its.length && k < todayKey() ? 'pastd' : ''].filter(Boolean).join(' ');
     cells.push(`<div class="${cls}" data-k="${k}">${top ? `<img src="${esc(top.image || '')}" loading="lazy" onerror="this.remove()">` : ''}<span class="dn">${d}</span>${its.length ? `<span class="ct">${its.length}</span>` : ''}</div>`);
   }
   $('#calGrid').innerHTML = cells.join('');
   $('#calGrid').querySelectorAll('.ccell.has').forEach((el) => el.addEventListener('click', () => {
+    if (el.dataset.k === state.calSel) return;
     tickFx();
-    state.dateKey = el.dataset.k;
+    state.calSel = el.dataset.k;
+    $('#calGrid').querySelectorAll('.ccell.sel').forEach((c) => c.classList.remove('sel'));
+    el.classList.add('sel');
+    buildCalDetail();
+  }));
+  buildCalDetail();
+}
+function buildCalDetail() {
+  const box = $('#calDetail');
+  const dk = state.calSel;
+  if (!dk) { box.innerHTML = '<div class="cempty">이 달에는 오픈 일정이 없어요</div>'; return; }
+  const gs = groupsOf(dk, true);
+  const total = gs.reduce((s, g) => s + g.items.length, 0);
+  let html = `<div class="cdh"><b>${fmtDate(dk)}</b><span>${total}건</span><span class="gohome" id="calGoHome">홈에서 보기 ›</span></div>`;
+  gs.forEach((g) => {
+    const past = isPastG(dk, g.t);
+    html += `<div class="cgh${past ? ' done' : ''}"><b>${g.t}</b><span>${g.items.length}건${past ? ' · 종료' : ''}</span></div>`;
+    g.items.forEach((it) => {
+      html += `<a class="crow${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
+        <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
+        <div class="cmid"><div class="ct1">${esc(it.title)}</div>
+        <div class="ct2">${VN[it.siteId] || it.site} · 조회 ${(it.viewCount || 0).toLocaleString()}</div></div>
+        <button class="bellr${hasAlarm(itemKey(it)) ? ' on' : ''}" data-ak="${esc(itemKey(it))}" aria-label="오픈 알림">${BELL_SVG_LG}</button></a>`;
+    });
+  });
+  box.innerHTML = html;
+  bindBells(box);
+  const go = $('#calGoHome');
+  if (go) go.addEventListener('click', () => {
+    state.dateKey = dk;
     setView('home');
     buildFeed();
-  }));
+  });
 }
 $('#calPrev').addEventListener('click', () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() - 1, 1); buildCal(); });
 $('#calNext').addEventListener('click', () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + 1, 1); buildCal(); });
-$('#calToday').addEventListener('click', () => { state.calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); buildCal(); });
+$('#calToday').addEventListener('click', () => {
+  state.calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  state.calSel = null;
+  buildCal();
+});
 
 /* ── 마이: 새로고침(SSE) / 상태 ── */
 let loading = false;
@@ -347,7 +529,6 @@ function refreshMy() {
   $('#genAt').textContent = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ko-KR') : '-';
   $('#totCnt').textContent = `${state.items.length}건`;
 }
-function itemKey(it) { return `${it.siteId}|${it.title}|${it.openDateTime || it.openDate || ''}`; }
 function mergeItems(items) {
   const by = new Map(state.items.map((i) => [itemKey(i), i]));
   items.forEach((i) => {
@@ -364,7 +545,9 @@ function rerenderAll() {
   ensureDate();
   if (state.view === 'home') buildFeed();
   if (state.view === 'cal') buildCal();
+  if (state.view === 'alarm') buildAlarm();
   refreshMy();
+  updateAlarmBadge();
 }
 /* 정적 배포(GitHub Pages)에는 수집 서버가 없다 — 버튼 대신 자동 갱신 안내 */
 const IS_STATIC = location.hostname.endsWith('github.io');
@@ -451,6 +634,7 @@ function setView(v) {
   daysEl.hidden = !homeCtl;
   vtabsEl.hidden = !homeCtl;
   if (v === 'cal') buildCal();
+  if (v === 'alarm') buildAlarm();
   if (v === 'my') refreshMy();
 }
 ['home', 'cal', 'alarm', 'my'].forEach((k) => $(`#tab-${k}`).addEventListener('click', () => {
@@ -491,4 +675,5 @@ async function loadStatic() {
   setView('home');
   buildFeed();
   refreshMy();
+  updateAlarmBadge();
 })();

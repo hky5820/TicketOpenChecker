@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-title" content="티켓오픈">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>html,body{background:#121212}</style>
-  <link rel="stylesheet" href="home.css?v=20260714d">
+  <link rel="stylesheet" href="home.css?v=20260714e">
 </head>
 <body>
   <div class="wrap">
@@ -42,17 +42,11 @@
         <button class="tdy" id="calToday" type="button">오늘</button>
       </div>
       <div class="calwk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
-      <div class="calbody"><div class="calgrid" id="calGrid"></div></div>
+      <div class="calbody"><div class="calgrid" id="calGrid"></div><div class="cdet" id="calDetail"></div></div>
     </section>
 
     <section class="view" id="view-alarm" hidden>
-      <div class="pagebody">
-        <div class="empty">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-          <b>오픈 알림</b>
-          <p>관심 공연을 등록하면 오픈 직전에<br>알려주는 기능을 준비하고 있어요.</p>
-        </div>
-      </div>
+      <div class="pagebody" id="alarmBody"></div>
     </section>
 
     <section class="view" id="view-my" hidden>
@@ -106,6 +100,6 @@
     </div>
   </div>
 
-  <script src="home.js?v=20260714d"></script>
+  <script src="home.js?v=20260714e"></script>
 </body>
 </html>

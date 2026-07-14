@@ -61,7 +61,7 @@ a{color:inherit;text-decoration:none}
 .feed{flex:1;overflow-y:auto;scrollbar-width:none;position:relative}
 .feed::-webkit-scrollbar{display:none}
 .spc{flex:none}
-.dinfo{display:flex;flex-direction:column;justify-content:flex-end;padding:0 20px 22px;overflow:hidden}
+.dinfo{padding:8px 20px 20px}
 .dinfo .sl{font-size:21px;font-weight:800;letter-spacing:-.5px}
 .dinfo .nx{font-size:12.5px;font-weight:700;color:var(--ac);margin-top:7px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .dinfo .nx i{width:6px;height:6px;border-radius:99px;background:var(--ac);animation:pulse 1.6s ease-out infinite}
@@ -75,9 +75,10 @@ a{color:inherit;text-decoration:none}
 .sec{padding:14px 0;animation:enter .55s cubic-bezier(.2,.8,.2,1) both}
 @keyframes enter{from{opacity:0;transform:translateY(26px)}}
 .sin{will-change:transform,opacity;transform-origin:50% 50%;position:relative}
-.amb{position:absolute;inset:-24px 0;overflow:hidden;pointer-events:none;
+.amb{position:absolute;inset:-24px 0;overflow:hidden;pointer-events:none;display:none;
   -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);
   mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
+.sec.on .amb{display:block} /* 포커스 섹션만 블러 레이어 생성 — 스크롤 성능 */
 .amb img{width:100%;height:100%;object-fit:cover;transform:scale(1.6);
   filter:blur(52px) saturate(1.6);opacity:0;transition:opacity .5s}
 .sec.on .amb img{opacity:.12}
@@ -97,10 +98,10 @@ a{color:inherit;text-decoration:none}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(30,215,96,.45)}70%{box-shadow:0 0 0 7px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
 .shd .ended{font-size:12px;font-weight:600;color:var(--fnt)}
 .shd .more{margin-left:auto;font-size:12px;font-weight:600;color:var(--mut);cursor:pointer;display:flex;align-items:center;gap:1px;user-select:none}
-.rail{display:flex;gap:10px;padding:0 20px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 20px;
+.rail{display:flex;gap:10px;padding:0 20px;overflow-x:auto;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;position:relative}
 .rail::-webkit-scrollbar{display:none}
-.rc{flex:none;width:112px;scroll-snap-align:start;transition:transform .16s cubic-bezier(.3,1.4,.4,1)}
+.rc{flex:none;width:112px;transition:transform .16s cubic-bezier(.3,1.4,.4,1)}
 .rc:active{transform:scale(.95)}
 .rc .pw{display:block;position:relative;border-radius:6px;overflow:hidden;aspect-ratio:3/4;background:var(--tile);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
@@ -123,7 +124,7 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(255,255,255,.09);border-radius:99px;padding:10px 24px;
   box-shadow:0 18px 40px -14px rgba(0,0,0,.75);z-index:22}
 .dock button{display:flex;flex-direction:column;align-items:center;gap:2.5px;
-  font-size:9.5px;font-weight:700;color:var(--fnt)}
+  font-size:9.5px;font-weight:700;color:var(--fnt);white-space:nowrap;flex:none}
 .dock button.on{color:var(--ac)}
 .dock button:active{transform:scale(.92)}
 
@@ -145,7 +146,7 @@ a{color:inherit;text-decoration:none}
 .ov .obody{flex:1;overflow-y:auto;padding:16px 0 60px;overscroll-behavior:contain}
 .ov .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px;padding:0 20px}
 .ov .gc{animation:enter .5s cubic-bezier(.2,.8,.2,1) both}
-.ov .gc .pw{display:block;border-radius:6px;overflow:hidden;aspect-ratio:3/4;background:var(--tile);
+.ov .gc .pw{display:block;position:relative;border-radius:6px;overflow:hidden;aspect-ratio:3/4;background:var(--tile);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .ov .gc img{width:100%;height:100%;object-fit:cover}
 .ov .gc.dim img{filter:grayscale(1);opacity:.8}
@@ -173,11 +174,51 @@ a{color:inherit;text-decoration:none}
 .ccell.has .dn{background:rgba(0,0,0,.72);border-radius:5px;padding:1.5px 4.5px;color:#fff}
 .ccell .ct{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.78);color:#fff;font-size:9px;
   font-weight:800;border-radius:5px;padding:1.5px 5px;font-variant-numeric:tabular-nums}
-.ccell.today{outline:2px solid var(--ac);outline-offset:1px}
+.ccell.today .dn{background:var(--ac);color:#000}
+.ccell.sel{outline:2px solid var(--ac);outline-offset:1px}
 .ccell.pastd{opacity:.45}
 .ccell.pastd img{filter:grayscale(1)}
 .ccell.out{background:transparent}
 .ccell.out .dn{color:#333}
+
+/* ── 캘린더: 선택 날짜 상세 (가로형 리스트) ── */
+.cdet{padding:18px 0 0}
+.cdh{display:flex;align-items:baseline;gap:8px;padding:0 20px 4px}
+.cdh b{font-size:16px;font-weight:800;letter-spacing:-.4px}
+.cdh span{font-size:12px;font-weight:600;color:var(--mut)}
+.cdh .gohome{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--ac);cursor:pointer;user-select:none}
+.cgh{display:flex;align-items:baseline;gap:7px;padding:14px 20px 4px}
+.cgh b{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.cgh.done b{color:var(--fnt);text-decoration:line-through}
+.cgh span{font-size:11px;font-weight:600;color:var(--mut)}
+.crow{display:flex;align-items:center;gap:12px;padding:7px 20px}
+.crow:active{background:#1a1a1a}
+.crow .cp{width:42px;height:56px;border-radius:6px;overflow:hidden;background:var(--tile);flex:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.crow .cp img{width:100%;height:100%;object-fit:cover}
+.crow.dim .cp img{filter:grayscale(1);opacity:.8}
+.crow.dim{opacity:.6}
+.crow .cmid{flex:1;min-width:0}
+.crow .ct1{font-size:13px;font-weight:600;letter-spacing:-.2px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.crow .ct2{font-size:11px;font-weight:600;color:var(--mut);margin-top:3px;font-variant-numeric:tabular-nums}
+.cempty{padding:26px 20px;text-align:center;color:var(--mut);font-weight:600;font-size:12.5px}
+
+/* ── 알람: 벨 토글 / 배지 / 목록 ── */
+.bell{position:absolute;top:5px;right:5px;width:27px;height:27px;border-radius:99px;display:grid;place-items:center;
+  background:rgba(8,8,10,.6);color:#d5d5d5;z-index:2;border:none;cursor:pointer}
+.bell.on{background:var(--ac);color:#000}
+.bell svg{pointer-events:none}
+.bellr{flex:none;width:34px;height:34px;border-radius:99px;display:grid;place-items:center;
+  color:var(--fnt);background:none;border:none;cursor:pointer}
+.bellr.on{color:var(--ac)}
+.bellr svg{pointer-events:none}
+.dock button{position:relative}
+.dock .badge{position:absolute;top:-3px;right:-7px;min-width:15px;height:15px;border-radius:99px;
+  background:var(--ac);color:#000;font-size:9px;font-weight:800;display:grid;place-items:center;padding:0 4px}
+.acd{flex:none;font-size:11.5px;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;text-align:right}
+.acd.faroff{color:var(--mut);font-weight:700}
+.ahint{padding:10px 20px 0;font-size:11px;font-weight:600;color:var(--fnt);line-height:1.6}
 
 /* ── 알림 / 마이 ── */
 .pagebody{flex:1;overflow-y:auto;padding:8px 20px 130px;scrollbar-width:none}

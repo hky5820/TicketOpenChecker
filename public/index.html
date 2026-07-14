@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" style="color-scheme:dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>티켓 오픈 캘린더</title>
-  <meta id="metaTheme" name="theme-color" content="#eef2fb">
-  <meta name="color-scheme" content="light">
+  <title>티켓 오픈</title>
+  <meta name="theme-color" content="#121212">
+  <meta name="color-scheme" content="dark">
   <meta name="description" content="NOL·멜론·티켓링크 티켓 오픈 일정을 한눈에">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -13,110 +13,99 @@
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="티켓오픈">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <style>html,body{background:#eef2fb}</style>
-  <script>
-    // 앱 자체 라이트/다크 토글. 시스템 다크는 따라가지 않고 기본은 라이트.
-    (function () {
-      try {
-        var dark = localStorage.getItem('toc_theme') === 'dark';
-        var root = document.documentElement;
-        root.setAttribute('data-theme', dark ? 'dark' : 'light');
-        root.style.colorScheme = dark ? 'dark' : 'light';
-        var m = document.getElementById('metaTheme');
-        if (m) m.content = dark ? '#0b0e15' : '#eef2fb';
-      } catch (e) {}
-    })();
-  </script>
-  <link rel="stylesheet" href="style.css?v=20260713l">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>html,body{background:#121212}</style>
+  <link rel="stylesheet" href="home.css?v=20260714b">
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="toolbar">
-        <div class="view-switch" role="group" aria-label="보기 모드">
-          <button id="calendarView" class="view-button is-selected" type="button" title="캘린더 보기" aria-label="캘린더 보기" aria-pressed="true">
-            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>
-          </button>
-          <button id="siteView" class="view-button" type="button" title="리스트 보기" aria-label="리스트 보기" aria-pressed="false">
-            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span>
-          </button>
-        </div>
-        <div class="toolbar-right">
-          <button id="today" class="chip-button" type="button">오늘</button>
-          <button id="themeToggle" class="icon-button" type="button" title="다크/라이트 전환" aria-label="다크/라이트 전환">
-            <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
-          </button>
-          <button id="load" class="icon-button load-button" type="button" title="불러오기" aria-label="불러오기">
-            <span class="button-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
-          </button>
-        </div>
-      </div>
-      <div class="search-box">
-        <input id="searchInput" type="search" autocomplete="off" placeholder="공연명으로 날짜 찾기">
-        <div id="searchSuggestions" class="search-suggestions" hidden></div>
-      </div>
+  <div class="wrap">
+    <header class="hd">
+      <h1>티켓오픈</h1>
+      <span class="mon" id="monLabel"></span>
+      <button class="ic" id="searchBtn" type="button" aria-label="검색">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
     </header>
 
-    <section class="workspace">
-      <aside class="status-strip" aria-live="polite">
-        <div class="status-head">
-          <strong>수집 현황</strong>
-          <span>실시간</span>
-        </div>
-        <div class="status-item" data-site="interpark"><strong>NOL 티켓</strong><span>대기 중</span></div>
-        <div class="status-item" data-site="melon"><strong>멜론 티켓</strong><span>대기 중</span></div>
-        <div class="status-item" data-site="ticketlink"><strong>티켓링크</strong><span>대기 중</span></div>
-      </aside>
+    <div class="days" id="days"></div>
+    <div class="vtabs" id="vtabs"></div>
 
-      <section class="calendar-panel">
-        <nav class="month-nav" aria-label="월 이동">
-          <div class="month-switch">
-            <button id="prevMonth" class="nav-arrow" type="button" title="이전 달" aria-label="이전 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></span></button>
-            <h2 id="monthLabel"></h2>
-            <button id="nextMonth" class="nav-arrow" type="button" title="다음 달" aria-label="다음 달"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span></button>
-          </div>
-          <p id="summary" class="summary-line">불러오기를 누르면 최신 일정이 표시됩니다.</p>
-        </nav>
-        <div id="weekdayGrid" class="weekday-grid" aria-hidden="true">
-          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
-        </div>
-        <div class="cal-viewport">
-          <div id="calendar" class="calendar-grid"></div>
-        </div>
-        <div id="groupSwitch" class="group-switch" role="group" aria-label="정렬/그룹 기준" hidden>
-          <button id="groupDate" class="group-button is-selected" type="button" data-group="date" aria-pressed="true">날짜순</button>
-          <button id="groupViews" class="group-button" type="button" data-group="views" aria-pressed="false">조회순</button>
-          <button id="groupSite" class="group-button" type="button" data-group="site" aria-pressed="false">예매처별</button>
-        </div>
-        <div class="board-viewport">
-          <div id="siteBoard" class="site-board" hidden></div>
-        </div>
-      </section>
-
-      <aside class="side-panel">
-        <div class="panel-head">
-          <h2>시간 미정</h2>
-          <span id="unknownCount">0건</span>
-        </div>
-        <div id="unknownList" class="unknown-list">
-          <p class="empty">시간이 정해지지 않은 공연이 여기에 표시됩니다.</p>
-        </div>
-      </aside>
+    <section class="view" id="view-home">
+      <div class="feed" id="feed"></div>
     </section>
-  </main>
 
-  <div id="modal" class="modal" hidden>
-    <div class="modal-backdrop" data-close></div>
-    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <h2 id="modalTitle"></h2>
-<!-- awesome-design-tools: Feather "x" 아이콘 --><button class="icon-button" type="button" data-close title="닫기" aria-label="닫기"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span></button>
+    <section class="view" id="view-cal" hidden>
+      <div class="calhd">
+        <button class="nav" id="calPrev" type="button" aria-label="이전 달"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <b id="calLabel"></b>
+        <button class="nav" id="calNext" type="button" aria-label="다음 달"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <button class="tdy" id="calToday" type="button">오늘</button>
       </div>
-      <div id="modalList" class="modal-list"></div>
+      <div class="calwk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+      <div class="calbody"><div class="calgrid" id="calGrid"></div></div>
     </section>
+
+    <section class="view" id="view-alarm" hidden>
+      <div class="pagebody">
+        <div class="empty">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <b>오픈 알림</b>
+          <p>관심 공연을 등록하면 오픈 직전에<br>알려주는 기능을 준비하고 있어요.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-my" hidden>
+      <div class="pagebody">
+        <div class="mysec">
+          <h3>데이터</h3>
+          <div class="mycard">
+            <div class="myrow"><span class="rlab">마지막 수집</span><span class="rval" id="genAt">-</span></div>
+            <div class="myrow"><span class="rlab">전체 일정</span><span class="rval" id="totCnt">-</span></div>
+            <div class="myrow" id="rowReload"><span class="rlab">새로 수집하기</span><button class="rbtn" id="reloadBtn" type="button">새로고침</button></div>
+          </div>
+        </div>
+        <div class="mysec" id="secStatus">
+          <h3>수집 현황</h3>
+          <div class="mycard">
+            <div class="myrow strow"><span class="rlab">NOL 티켓</span><span class="rval" id="st-interpark">-</span></div>
+            <div class="myrow strow"><span class="rlab">멜론 티켓</span><span class="rval" id="st-melon">-</span></div>
+            <div class="myrow strow"><span class="rlab">티켓링크</span><span class="rval" id="st-ticketlink">-</span></div>
+          </div>
+        </div>
+        <div class="mysec">
+          <h3>관리</h3>
+          <div class="mycard">
+            <div class="myrow"><span class="rlab">저장된 데이터 초기화</span><button class="rbtn ghost" id="clearBtn" type="button">초기화</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="dock">
+      <button id="tab-home" type="button" class="on"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>홈</button>
+      <button id="tab-cal" type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>캘린더</button>
+      <button id="tab-alarm" type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>알림</button>
+      <button id="tab-my" type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>마이</button>
+    </nav>
+
+    <div class="ov" id="ov">
+      <button class="x" id="ovX" type="button" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      <div class="ohd" id="ovHd"></div>
+      <div class="obody"><div class="grid" id="ovGrid"></div></div>
+    </div>
+
+    <div class="sov" id="sov">
+      <div class="spanel">
+        <div class="shead">
+          <input id="sInput" type="search" autocomplete="off" placeholder="공연명 검색">
+          <button class="x" id="sovX" type="button" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="sbody" id="sRes"></div>
+      </div>
+    </div>
   </div>
 
-  <script src="app.js?v=20260713l"></script>
+  <script src="home.js?v=20260714c"></script>
 </body>
 </html>

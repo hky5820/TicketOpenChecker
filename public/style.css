@@ -936,7 +936,7 @@ p {
 
 .site-date-head {
   padding: 0 0 7px;
-  border-bottom: 1px solid color-mix(in srgb, var(--site-color) 34%, var(--line));
+  border-bottom: 1px solid var(--line);
 }
 
 .site-date-head strong {
@@ -944,17 +944,16 @@ p {
   min-height: 24px;
   align-items: center;
   padding: 0 0 2px;
-  border-bottom: 3px solid var(--site-color);
-  color: var(--site-deep);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
 }
 
 .site-date-head span {
-  color: var(--site-deep);
+  color: var(--muted);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .site-time-list,
@@ -981,9 +980,9 @@ p {
   padding-bottom: 2px;
 }
 
-/* 시간 블록마다 가로 구분선으로 경계를 분명히 */
+/* 시간 블록 사이 얇은 실선 구분 (담백) */
 .site-time-group + .site-time-group {
-  border-top: 1px dashed color-mix(in srgb, var(--site-color) 32%, var(--line));
+  border-top: 1px solid var(--line);
 }
 
 .site-time-head {
@@ -1012,6 +1011,7 @@ p {
 }
 
 .site-time-items {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 8px;
 }
 
@@ -1733,20 +1733,28 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   min-width: 0;
 }
 
+/* 예매처: 채운 색 알약 대신 작은 점 + 옅은 라벨 (담백) */
 .board-card-site {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  min-height: 20px;
-  padding: 0 9px;
+  gap: 5px;
+  padding: 0;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.board-card-site::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
   background: var(--site-color);
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
 }
 
 /* 인기공연: TicketManager 양도/취소처럼 카드 모서리에 대각선 띠(리본) */
@@ -1764,17 +1772,18 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
   right: 9px;
   padding: 1px 7px 2px;
   border-radius: 999px;
-  background: color-mix(in srgb, #f5a524 15%, var(--surface-solid));
-  color: #c07a0c;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  color: var(--muted);
   font-size: 9px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.2px;
   pointer-events: none;
   z-index: 2;
 }
 
 :root[data-theme="dark"] .popular-ribbon {
-  color: #ffc668;
+  color: var(--ink-soft);
 }
 
 /* 날짜 상세 모달: 우상단 예매처 배지와 겹치므로 인기 표시는 생략(리스트에만 노출) */
@@ -1820,15 +1829,15 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 
 /* 리스트 아이템 썸네일 */
 .site-board-card.has-thumb {
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
 }
 
 .board-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 7px;
+  width: 40px;
+  height: 52px;
+  border-radius: 6px;
   object-fit: cover;
   background: var(--paper-soft);
   border: 1px solid var(--line);
@@ -1894,6 +1903,7 @@ a.modal-item:visited, a.unknown-card:visited, a.site-board-card:visited {
 /* 조회순 리스트 */
 .views-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 8px;
 }
 

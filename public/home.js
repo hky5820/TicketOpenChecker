@@ -333,22 +333,17 @@ function buildFeed() {
 let snapRaf = 0, idleTimer = 0, touching = false, animatingScroll = false;
 /* 스크롤 중 레이아웃 재측정(스래싱) 방지: 섹션 위치는 빌드 때 한 번만 측정해 캐시 */
 let secMeta = [], feedH = 0, maxS = 0, anchorY = 0;
-/* 포커스 기준선 = '화면 전체'의 세로 중앙(피드 좌표계).
-   피드는 헤더/날짜/탭 아래에서 시작하므로 피드 중앙보다 그만큼 위다 */
+/* 포커스 기준선(피드 좌표계) = 포커스 섹션 포스터 중앙이 놓이는 y.
+   화면 정중앙이 아니라 '오늘 오픈' 바로 아래로 끌어올린다(사용자: 포커스 시간이 더 위로).
+   단, 시간 헤더가 dinfo ::after 페이드(46px)를 지난 GAP 지점에 오도록 잡아 흐려지진 않게 한다. */
 function measureSecs() {
   feedH = feed.clientHeight;
   if (!feedH) return; // 홈이 숨겨진(display:none) 동안엔 피드가 전부 0으로 측정된다 — 캐시 오염 방지
-  const wr = $('.wrap').getBoundingClientRect();
-  const feedTop = feed.getBoundingClientRect().top;
   secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight, a: posterY(el) }));
-  const screenCenter = wr.top + wr.height / 2 - feedTop;
-  // 상단 고정된 '오늘 오픈' 정보가 시간 헤더를 가리지 않도록 최소 앵커 확보.
-  // 큰 화면에선 screenCenter가 이겨 기존(화면 정중앙) 유지, 작은/빽빽한 화면에선
-  // 포스터를 고정영역 아래로 내려 헤더가 안 잘리게 — max로 절대 안 겹침.
   const dinfoH = feed.querySelector('.dinfo')?.offsetHeight || 0;
-  // 시간 헤더(.shd, 섹션 top+14부터) 상단이 고정영역 아래로 나오는 최소 앵커. -4로 약 10px 여유만 둔다
-  const clr = secMeta[0] ? (secMeta[0].a - secMeta[0].top - 4) : 110;
-  anchorY = Math.max(screenCenter, dinfoH + clr);
+  const d0 = secMeta[0] ? (secMeta[0].a - secMeta[0].top) : 114; // 섹션 top→포스터 중앙 거리(거의 일정)
+  const GAP = 58;              // dinfo 아래~시간 헤더 top 여백: 페이드 46px + 여유 12px
+  anchorY = dinfoH + GAP + d0 - 14; // -14: 섹션 top→.shd(시간 헤더) top 거리
   maxS = feed.scrollHeight - feedH;
 }
 /* 포스터 중앙의 피드 콘텐츠 좌표. fx()가 걸어둔 scale에 오염되지 않게 rect 대신 offsetTop 누적 */

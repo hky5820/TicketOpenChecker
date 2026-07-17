@@ -65,15 +65,24 @@ a{color:inherit;text-decoration:none}
 /* 오늘 오픈 정보 = 항상 상단 고정. 아래로 지나가는 섹션은 불투명 배경에 덮여
    하단 페이드로 스르륵 사라진다(끝단만 살짝 비침). sticky는 흐름상 자리를 유지하므로
    섹션 offsetTop·포스터 중앙 캐시가 그대로라 포커스 스냅 계산은 손댈 필요 없다 */
-.dinfo{padding:8px 20px 20px;position:sticky;top:0;z-index:6;background:var(--bg)}
-.dinfo::after{content:"";position:absolute;left:0;right:0;top:100%;height:22px;
+.dinfo{padding:8px 20px 16px;position:sticky;top:0;z-index:6;background:var(--bg)}
+.dinfo::after{content:"";position:absolute;left:0;right:0;top:100%;height:46px;
   background:linear-gradient(var(--bg),transparent);pointer-events:none}
-.dinfo .sl{font-size:21px;font-weight:800;letter-spacing:-.5px}
-.dinfo .nx{font-size:12.5px;font-weight:700;color:var(--ac);margin-top:7px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.dinfo .sl{font-size:clamp(17px,5.2vw,21px);font-weight:800;letter-spacing:-.5px}
+.dinfo .nx{font-size:12.5px;font-weight:700;color:var(--ac);margin-top:6px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .dinfo .nx i{width:6px;height:6px;border-radius:99px;background:var(--ac);animation:pulse 1.6s ease-out infinite}
-.dinfo .vsum{font-size:12px;font-weight:600;color:var(--mut);margin-top:7px}
-.dinfo .tms{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}
-.ti{font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-variant-numeric:tabular-nums;user-select:none}
+/* 시간대 칩은 한 줄 가로 스크롤 — 개수와 무관하게 높이 고정(작은 화면에서도 안 깨짐) */
+.dinfo .tms{display:flex;gap:14px;margin-top:10px;flex-wrap:nowrap;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  margin-right:-20px;padding-right:20px}
+.dinfo .tms::-webkit-scrollbar{display:none}
+.ti{font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-variant-numeric:tabular-nums;
+  user-select:none;white-space:nowrap;flex:none}
+@media(max-height:700px){
+  .dinfo{padding-top:6px;padding-bottom:12px}
+  .dinfo .nx{margin-top:5px}
+  .dinfo .tms{margin-top:8px}
+}
 .ti em{font-style:normal;color:var(--fnt);margin-left:3px}
 .ti.done{color:var(--fnt);text-decoration:line-through}
 .ti.soon{color:var(--ac);font-weight:700}

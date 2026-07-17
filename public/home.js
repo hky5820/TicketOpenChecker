@@ -277,13 +277,8 @@ function statTxt(dk, t) {
 }
 function dayInfoHTML() {
   const items = dayMap().get(state.dateKey) || [];
-  const per = { interpark: 0, melon: 0, ticketlink: 0 };
-  items.forEach((i) => { per[i.siteId] = (per[i.siteId] || 0) + 1; });
   const dl = state.dateKey === todayKey() ? '오늘' : fmtDate(state.dateKey);
   const next = curGroups.find((g) => g.t !== UNSET && secTo(state.dateKey, g.t) > 0);
-  const vsum = state.vendor
-    ? `${VN[state.vendor]} ${items.length}건`
-    : VORDER.filter((v) => per[v]).map((v) => `${VTAB[v]} ${per[v]}`).join(' · ');
   const tms = curGroups.map((g, i) => {
     const cls = isPastG(state.dateKey, g.t) ? ' done' : next && g.t === next.t ? ' soon' : '';
     const label = g.t === UNSET ? UNSET : `${parseInt(g.t, 10)}시`;
@@ -292,7 +287,7 @@ function dayInfoHTML() {
   return `<div class="dinfo">
     <div class="sl">${dl} 오픈 ${items.length}건</div>
     ${next ? `<div class="nx"><i></i>다음 오픈 ${next.t} · <span class="cd" data-dk="${state.dateKey}" data-t="${next.t}">${cdText(state.dateKey, next.t)}</span>&nbsp;남음</div>` : ''}
-    <div class="vsum">${vsum}</div><div class="tms">${tms}</div></div>`;
+    <div class="tms">${tms}</div></div>`;
 }
 function buildFeed() {
   buildDays();
@@ -344,8 +339,16 @@ function measureSecs() {
   feedH = feed.clientHeight;
   if (!feedH) return; // 홈이 숨겨진(display:none) 동안엔 피드가 전부 0으로 측정된다 — 캐시 오염 방지
   const wr = $('.wrap').getBoundingClientRect();
-  anchorY = wr.top + wr.height / 2 - feed.getBoundingClientRect().top;
+  const feedTop = feed.getBoundingClientRect().top;
   secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight, a: posterY(el) }));
+  const screenCenter = wr.top + wr.height / 2 - feedTop;
+  // 상단 고정된 '오늘 오픈' 정보가 시간 헤더를 가리지 않도록 최소 앵커 확보.
+  // 큰 화면에선 screenCenter가 이겨 기존(화면 정중앙) 유지, 작은/빽빽한 화면에선
+  // 포스터를 고정영역 아래로 내려 헤더가 안 잘리게 — max로 절대 안 겹침.
+  const dinfoH = feed.querySelector('.dinfo')?.offsetHeight || 0;
+  // 시간 헤더(.shd, 섹션 top+14부터) 상단이 고정영역 아래로 나오는 최소 앵커. -4로 약 10px 여유만 둔다
+  const clr = secMeta[0] ? (secMeta[0].a - secMeta[0].top - 4) : 110;
+  anchorY = Math.max(screenCenter, dinfoH + clr);
   maxS = feed.scrollHeight - feedH;
 }
 /* 포스터 중앙의 피드 콘텐츠 좌표. fx()가 걸어둔 scale에 오염되지 않게 rect 대신 offsetTop 누적 */

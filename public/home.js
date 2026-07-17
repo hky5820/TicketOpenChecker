@@ -432,6 +432,7 @@ function centerOn(i, smooth = true) {
 }
 function fx() {
   if (!secMeta.length) return;
+  feed.classList.toggle('attop', feed.scrollTop <= 1); // 맨 위에선 dinfo 페이드 끔(첫 시간 헤더 가림 방지)
   const c = feed.scrollTop + anchorY;
   let best = 0, bd = Infinity;
   secMeta.forEach((m, i) => {

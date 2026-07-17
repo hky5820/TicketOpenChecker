@@ -435,13 +435,17 @@ function fx() {
   const c = feed.scrollTop + anchorY;
   let best = 0, bd = Infinity;
   secMeta.forEach((m, i) => {
-    const dd = (m.a - c) / Math.max(1, m.h), ad = Math.abs(dd);
+    const ad = Math.abs((m.a - c) / Math.max(1, m.h));
+    if (ad < bd) { bd = ad; best = i; }
+  });
+  secMeta.forEach((m, i) => {
+    // 포커스 섹션은 절대 흐려지지 않는다: 첫/단일 항목은 스크롤이 앵커까지 못 올라와 ad>0이 되므로 강제 0
+    const ad = i === best ? 0 : Math.abs((m.a - c) / Math.max(1, m.h));
     const sin = secEls[i].firstElementChild;
     sin.style.transform = `scale(${(1 - Math.min(0.04, ad * 0.03)).toFixed(3)})`;
     sin.style.opacity = Math.max(0.4, 1 - ad * 0.4).toFixed(3);
-    if (ad < bd) { bd = ad; best = i; }
+    secEls[i].classList.toggle('on', i === best);
   });
-  secEls.forEach((s, i) => s.classList.toggle('on', i === best));
   if (best !== focusIdx) {
     const first = focusIdx < 0;
     focusIdx = best;

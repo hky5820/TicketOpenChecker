@@ -212,7 +212,8 @@ function buildAlarm() {
 
 /* ── 날짜 스트립 ── */
 function buildDays() {
-  const map = dayMap();
+  const vMap = dayMap();        // 현재 예매처 건수(0이면 흐리게 표시)
+  const map = dayMap(true);     // 날짜 컬럼은 예매처와 무관하게 전체 고정 — 탭 전환에도 안 흔들림
   const keys = [...new Set([...map.keys(), todayKey()])].sort();
   let html = '', prevMonth = null;
   keys.forEach((k) => {
@@ -220,7 +221,7 @@ function buildDays() {
     if (prevMonth !== null && m !== prevMonth) html += `<span class="mchip">${m}월</span>`;
     prevMonth = m;
     const w = new Date(y, m - 1, d).getDay();
-    const n = (map.get(k) || []).length;
+    const n = (vMap.get(k) || []).length;
     const tdy = k === todayKey();
     html += `<div class="day${k === state.dateKey ? ' on' : ''}${n ? '' : ' zero'}" data-k="${k}">
       <span class="w${w === 0 ? ' sun' : tdy ? ' tdy' : ''}">${tdy ? '오늘' : WD[w]}</span><b>${d}</b><span class="c">${n}</span></div>`;
@@ -319,10 +320,12 @@ function buildFeed() {
   bindBells(feed);
   feed.querySelectorAll('.ti').forEach((t) => t.addEventListener('click', () => centerOn(+t.dataset.i)));
   requestAnimationFrame(() => {
-    const last = secEls[secEls.length - 1];
-    const hB = last ? Math.max(0, (feed.clientHeight - last.offsetHeight) / 2 - 20) : 0;
-    feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${hB}px"></div>`);
     measureSecs();
+    // 마지막 섹션도 기준선까지 올라올 만큼의 여백(끝에서 20px는 일부러 덜 — 기존 감각 유지)
+    const last = secEls[secEls.length - 1], lm = secMeta[secMeta.length - 1];
+    const hB = lm ? Math.max(0, feedH - anchorY - (last.offsetTop + last.offsetHeight - lm.a) - 20) : 0;
+    feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${hB}px"></div>`);
+    measureSecs(); // 스페이서 반영해 maxS 갱신
     focusIdx = -1;
     let def = curGroups.findIndex((g) => !isPastG(dk, g.t));
     if (def < 0) def = curGroups.length - 1;
@@ -334,17 +337,30 @@ function buildFeed() {
 /* ── 쫀득한 스프링 스냅 ── */
 let snapRaf = 0, idleTimer = 0, touching = false, animatingScroll = false;
 /* 스크롤 중 레이아웃 재측정(스래싱) 방지: 섹션 위치는 빌드 때 한 번만 측정해 캐시 */
-let secMeta = [], feedH = 0, maxS = 0;
+let secMeta = [], feedH = 0, maxS = 0, anchorY = 0;
+/* 포커스 기준선 = '화면 전체'의 세로 중앙(피드 좌표계).
+   피드는 헤더/날짜/탭 아래에서 시작하므로 피드 중앙보다 그만큼 위다 */
 function measureSecs() {
   feedH = feed.clientHeight;
-  secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight }));
+  if (!feedH) return; // 홈이 숨겨진(display:none) 동안엔 피드가 전부 0으로 측정된다 — 캐시 오염 방지
+  const wr = $('.wrap').getBoundingClientRect();
+  anchorY = wr.top + wr.height / 2 - feed.getBoundingClientRect().top;
+  secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight, a: posterY(el) }));
   maxS = feed.scrollHeight - feedH;
+}
+/* 포스터 중앙의 피드 콘텐츠 좌표. fx()가 걸어둔 scale에 오염되지 않게 rect 대신 offsetTop 누적 */
+function posterY(el) {
+  const pw = el.querySelector('.pw');
+  if (!pw) return el.offsetTop + el.offsetHeight / 2;
+  let y = pw.offsetHeight / 2;
+  for (let n = pw; n && n !== feed; n = n.offsetParent) y += n.offsetTop;
+  return y;
 }
 const maxScroll = () => maxS;
 function targetTopOf(i) {
   const m = secMeta[i];
   if (!m) return 0;
-  return Math.max(0, Math.min(maxS, m.top - (feedH - m.h) / 2));
+  return Math.max(0, Math.min(maxS, m.a - anchorY));
 }
 function cancelSnap() {
   cancelAnimationFrame(snapRaf);
@@ -377,10 +393,10 @@ function snapToNearest() {
   const st = feed.scrollTop;
   // 맨 위/맨 아래 근처에서는 그대로 둔다 (요약을 읽거나 끝을 보는 중)
   if (st <= 2 || st >= maxS - 2) return;
-  const c = st + feedH / 2;
+  const c = st + anchorY;
   let best = 0, bd = Infinity;
   secMeta.forEach((m, i) => {
-    const d = Math.abs(m.top + m.h / 2 - c);
+    const d = Math.abs(m.a - c);
     if (d < bd) { bd = d; best = i; }
   });
   const target = targetTopOf(best);
@@ -413,10 +429,10 @@ function centerOn(i, smooth = true) {
 }
 function fx() {
   if (!secMeta.length) return;
-  const c = feed.scrollTop + feedH / 2;
+  const c = feed.scrollTop + anchorY;
   let best = 0, bd = Infinity;
   secMeta.forEach((m, i) => {
-    const dd = (m.top + m.h / 2 - c) / Math.max(1, m.h), ad = Math.abs(dd);
+    const dd = (m.a - c) / Math.max(1, m.h), ad = Math.abs(dd);
     const sin = secEls[i].firstElementChild;
     sin.style.transform = `scale(${(1 - Math.min(0.04, ad * 0.03)).toFixed(3)})`;
     sin.style.opacity = Math.max(0.4, 1 - ad * 0.4).toFixed(3);
@@ -668,6 +684,7 @@ function setView(v) {
   if (v === 'cal') buildCal();
   if (v === 'alarm') buildAlarm();
   if (v === 'my') refreshMy();
+  if (v === 'home' && secEls.length) measureSecs(); // 숨어있는 동안 화면 크기가 바뀌었을 수 있다
 }
 /* 독 탭: 관성 스크롤을 멈추는 탭은 click이 삼켜진다 → pointerup으로 직접 처리 */
 function bindTap(el, fn) {
@@ -687,7 +704,7 @@ function bindTap(el, fn) {
 
 /* ── 초기화 ── */
 function ensureDate() {
-  const map = dayMap();
+  const map = dayMap(true); // 예매처와 무관하게 날짜 유효성 판단 — 탭 전환 시 선택 날짜 유지(없으면 빈 상태로)
   const keys = [...new Set([...map.keys(), todayKey()])].sort();
   if (!state.dateKey || !keys.includes(state.dateKey)) state.dateKey = null;
   if (!state.dateKey) {

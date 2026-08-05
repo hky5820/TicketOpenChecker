@@ -17,7 +17,7 @@ const state = {
   calSel: null,           // 캘린더에서 선택한 날짜
   generatedAt: null,
   popDate: null,          // 직접 탭한 날짜(bpop용)
-  alarms: readAlarms(),   // { itemKey: {f5,f0} }
+  alarms: readAlarms(),   // { itemKey: {f10,f5,f3,f1,f0} } — 발화한 오프셋 표시
 };
 
 function readVendor() {
@@ -153,27 +153,40 @@ function updateAlarmBadge() {
   if (!b) { b = document.createElement('span'); b.className = 'badge'; $('#tab-alarm').appendChild(b); }
   b.textContent = n;
 }
-function notifyFx(title, body) {
-  try { if (navigator.vibrate) navigator.vibrate([80, 60, 80]); } catch { /* 무시 */ }
-  try {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, icon: 'icon-192.png' });
-    }
-  } catch { /* 무시 */ }
+function notifyFx(title, body, tag) {
+  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch { /* 무시 */ }
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // 안드로이드 크롬은 페이지의 new Notification()을 막는다 — 서비스워커 showNotification이 정식 경로(단말 알림창에 뜸).
+  // 같은 tag + renotify라 한 공연의 알림은 쌓이지 않고 교체되며 매번 다시 진동한다.
+  (async () => {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg && reg.showNotification) {
+        return reg.showNotification(title, {
+          body, icon: 'icon-192.png', tag: `toc:${tag || 'alarm'}`, renotify: true, vibrate: [200, 100, 200],
+        });
+      }
+    } catch { /* 폴백으로 */ }
+    try { new Notification(title, { body, icon: 'icon-192.png' }); } catch { /* 무시 */ }
+  })();
 }
+const ALARM_OFFSETS = [10, 5, 3, 1]; // 분 전
 function checkAlarms() {
   const by = new Map(state.items.map((i) => [itemKey(i), i]));
   Object.entries(state.alarms).forEach(([k, st]) => {
     const it = by.get(k);
     if (!it || !it.openTime) return;
     const s = secTo(dkeyOf(it), it.openTime);
-    if (s <= 300 && s > 0 && !st.f5) {
-      st.f5 = 1; saveAlarms();
-      notifyFx('곧 티켓 오픈!', `${it.title} — ${it.openTime} 오픈 (5분 전)`);
-    }
+    ALARM_OFFSETS.forEach((m) => {
+      if (s <= m * 60 && !st[`f${m}`]) {
+        st[`f${m}`] = 1; saveAlarms();
+        // 늦게 켠 알람은 이미 지난 시점을 조용히 지나가고, 경계 통과 직후 60초 안에서만 실제 알림
+        if (s > m * 60 - 60) notifyFx('곧 티켓 오픈!', `${it.title} — ${it.openTime} 오픈 (${m}분 전)`, k);
+      }
+    });
     if (s <= 0 && s > -120 && !st.f0) {
       st.f0 = 1; saveAlarms();
-      notifyFx('티켓 오픈!', `${it.title} — 지금 오픈했어요`);
+      notifyFx('티켓 오픈!', `${it.title} — 지금 오픈했어요`, k);
     }
   });
 }
@@ -184,7 +197,7 @@ function buildAlarm() {
     body.innerHTML = `<div class="empty">
       ${BELL_SVG.replace('width="13" height="13"', 'width="34" height="34"').replace('stroke-width="2.2"', 'stroke-width="1.7"')}
       <b>오픈 알림</b>
-      <p>공연 포스터의 종 아이콘을 누르면<br>오픈 5분 전과 정각에 알려드려요.</p></div>`;
+      <p>공연 포스터의 종 아이콘을 누르면<br>오픈 10·5·3·1분 전과 정각에 알려드려요.</p></div>`;
     return;
   }
   let html = '', prevDk = null;
@@ -205,7 +218,7 @@ function buildAlarm() {
       ${cd}
       <button class="bellr on" data-ak="${esc(itemKey(it))}" aria-label="알림 해제">${BELL_SVG_LG}</button></a>`;
   });
-  html += '<div class="ahint">알림은 앱이 열려 있는 동안 동작해요. 오픈 5분 전과 정각에 알림·진동으로 알려드립니다.</div>';
+  html += '<div class="ahint">알림은 앱이 열려 있는 동안 동작해요. 오픈 10·5·3·1분 전과 정각에 단말 알림·진동으로 알려드립니다.</div>';
   body.innerHTML = html;
   bindBells(body);
 }
@@ -727,6 +740,9 @@ async function loadStatic() {
     }
   } catch { /* 정적 데이터 없어도 동작 */ }
 }
+// 단말 알림창(showNotification)에 쓸 서비스워커 — 캐싱 없음, 알림 클릭 처리만
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* 무시 */ });
+
 (async function init() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');

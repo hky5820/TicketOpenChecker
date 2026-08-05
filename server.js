@@ -1,5 +1,7 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
+const webpush = require('web-push');
 const { chromium } = require('playwright');
 
 const START_PORT = Number(process.env.PORT || 3000);
@@ -37,7 +39,120 @@ const SITES = [
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const app = express();
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+/* ── 자체 푸시 채널 ──
+ * 이 서버가 VAPID 키를 소유하고 직접 발송한다. 앱(GitHub Pages여도 무관)은 구독+알람 목록만
+ * /api/push/sync로 보내오고, 여기 스케줄러가 오픈 10·5·3·1분 전과 정각에 web-push를 쏜다.
+ * 앱이 완전히 꺼져 있어도 브라우저 푸시 서비스가 단말 알림창에 띄운다. */
+const VAPID_FILE = path.join(__dirname, '.vapid.json');
+const SUBS_FILE = path.join(__dirname, '.push-subs.json');
+const PUSH_OFFSETS = [10, 5, 3, 1, 0]; // 분 전 (0 = 정각)
+
+let vapid = null;
+let pushReady = false;
+if (fs.existsSync(VAPID_FILE)) {
+  // ★ 파일이 있으면 절대 새로 만들지 않는다. 키를 갈면 기존 구독이 전부 무효가 된다.
+  try { vapid = JSON.parse(fs.readFileSync(VAPID_FILE, 'utf8')); }
+  catch (e) { console.error(`[push] .vapid.json 파싱 실패 — 푸시 비활성(덮어쓰지 않음): ${e.message}`); }
+} else {
+  vapid = webpush.generateVAPIDKeys();
+  fs.writeFileSync(VAPID_FILE, JSON.stringify(vapid), { mode: 0o600 });
+  console.log(`[push] VAPID 키 새로 생성 → ${VAPID_FILE}`);
+}
+if (vapid && vapid.publicKey && vapid.privateKey) {
+  try { webpush.setVapidDetails('mailto:hky130580@gmail.com', vapid.publicKey, vapid.privateKey); pushReady = true; }
+  catch (e) { console.error(`[push] VAPID 설정 실패: ${e.message}`); }
+}
+
+// endpoint → { sub, alarms:[{key,title,open,url}], fired:{'key|분':1} } — 재시작에도 유지
+const subs = new Map();
+try {
+  for (const r of JSON.parse(fs.readFileSync(SUBS_FILE, 'utf8'))) {
+    if (r && r.sub && r.sub.endpoint) subs.set(r.sub.endpoint, { sub: r.sub, alarms: r.alarms || [], fired: r.fired || {} });
+  }
+  if (subs.size) console.log(`[push] 구독 ${subs.size}건 로드`);
+} catch { /* 첫 실행 */ }
+function saveSubs() {
+  try { fs.writeFileSync(SUBS_FILE, JSON.stringify([...subs.values()]), { mode: 0o600 }); }
+  catch (e) { console.error(`[push] 구독 저장 실패: ${e.message}`); }
+}
+
+// 앱이 Pages 오리진에서 호출해도 되도록 개방 (인증정보 없는 공개 API)
+app.use('/api/push', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+app.get('/api/push/key', (req, res) => res.json({ key: pushReady ? vapid.publicKey : null }));
+
+// 구독 + 알람 목록 통째 교체. 클라이언트가 알람을 켜고 끌 때마다 전체를 다시 보낸다.
+app.post('/api/push/sync', (req, res) => {
+  if (!pushReady) return res.status(503).json({ ok: false });
+  const b = req.body || {};
+  if (!b.sub || !b.sub.endpoint) return res.status(400).json({ ok: false });
+  const alarms = (Array.isArray(b.alarms) ? b.alarms : [])
+    .filter((a) => a && a.key && a.open && Number.isFinite(new Date(a.open).getTime()))
+    .map((a) => ({
+      key: String(a.key).slice(0, 200),
+      title: String(a.title || '').slice(0, 80),
+      open: String(a.open),
+      url: String(a.url || '').slice(0, 300),
+    }));
+  // 이미 발화한 오프셋은 유지, 목록에서 빠진 알람의 흔적은 정리
+  const prev = subs.get(b.sub.endpoint);
+  const fired = {};
+  if (prev && prev.fired) {
+    for (const a of alarms) for (const m of PUSH_OFFSETS) {
+      const fk = `${a.key}|${m}`;
+      if (prev.fired[fk]) fired[fk] = 1;
+    }
+  }
+  subs.set(b.sub.endpoint, { sub: b.sub, alarms, fired });
+  saveSubs();
+  res.json({ ok: true, alarms: alarms.length });
+});
+
+function sendPush(ep, rec, p) {
+  const body = JSON.stringify({
+    title: p.title,
+    body: String(p.body || '').slice(0, 160),
+    data: { tag: `toc:${p.tag}`, url: p.url || './' },
+  });
+  webpush.sendNotification(rec.sub, body, { TTL: 300 }).catch((err) => {
+    const sc = err && err.statusCode;
+    if (sc === 404 || sc === 410) { subs.delete(ep); saveSubs(); console.log(`[push] 만료 구독 정리(${sc}) 남은 ${subs.size}건`); }
+    else console.error(`[push] 전송 실패(${sc || '?'}): ${String((err && err.message) || '').slice(0, 120)}`);
+  });
+}
+
+setInterval(() => {
+  if (!pushReady || !subs.size) return;
+  const now = Date.now();
+  let dirty = false;
+  for (const [ep, rec] of subs) {
+    const kept = rec.alarms.filter((a) => new Date(a.open).getTime() > now - 3600 * 1000);
+    if (kept.length !== rec.alarms.length) { rec.alarms = kept; dirty = true; }
+    for (const a of rec.alarms) {
+      const openAt = new Date(a.open).getTime();
+      for (const m of PUSH_OFFSETS) {
+        const at = openAt - m * 60000;
+        const fk = `${a.key}|${m}`;
+        if (rec.fired[fk] || now < at) continue;
+        rec.fired[fk] = 1; dirty = true;
+        if (now >= at + 60000) continue; // 60초 넘게 지난 시점은 조용히 스킵(뒤늦은 구독·재시작 직후 몰아치기 방지)
+        const hhmm = String(a.open).slice(11, 16);
+        sendPush(ep, rec, m === 0
+          ? { title: '티켓 오픈!', body: `${a.title} — 지금 오픈했어요`, tag: a.key, url: a.url }
+          : { title: '곧 티켓 오픈!', body: `${a.title} — ${hhmm} 오픈 (${m}분 전)`, tag: a.key, url: a.url });
+      }
+    }
+  }
+  if (dirty) saveSubs();
+}, 15000);
 
 app.get('/api/load', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');

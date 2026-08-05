@@ -116,10 +116,13 @@ function toggleAlarm(k) {
   else {
     state.alarms[k] = {};
     try {
-      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(() => syncPush());
+      }
     } catch { /* 무시 */ }
   }
   saveAlarms();
+  syncPush();
   tickFx();
   document.querySelectorAll(`[data-ak="${CSS.escape(k)}"]`).forEach((b) => b.classList.toggle('on', hasAlarm(k)));
   updateAlarmBadge();
@@ -170,8 +173,45 @@ function notifyFx(title, body, tag) {
     try { new Notification(title, { body, icon: 'icon-192.png' }); } catch { /* 무시 */ }
   })();
 }
+/* ── 자체 푸시 채널 동기화 ──
+ * 서버(server.js)가 VAPID 키를 소유하고 직접 발송한다. 여기선 구독을 만들어 알람 목록과 함께
+ * 서버로 보내기만 하면, 오픈 10·5·3·1분 전·정각 푸시는 앱이 꺼져 있어도 서버가 쏴 준다.
+ * 서버 주소: 기본은 같은 오리진(서버가 public/을 직접 서빙할 때). Pages에서 쓸 땐
+ * localStorage 'toc:pushApi'에 서버 URL을 넣으면 그쪽으로 붙는다. */
+const PUSH_API = (() => { try { return localStorage.getItem('toc:pushApi') || ''; } catch { return ''; } })();
+let pushOk = false;
+function b64ToU8(s) {
+  const pad = '='.repeat((4 - (s.length % 4)) % 4);
+  const b = atob((s + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(b, (c) => c.charCodeAt(0));
+}
+async function syncPush() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const keyRes = await fetch(`${PUSH_API}/api/push/key`);
+    if (!keyRes.ok) return;
+    const { key } = await keyRes.json();
+    if (!key) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
+    const by = new Map(state.items.map((i) => [itemKey(i), i]));
+    const alarms = Object.keys(state.alarms).map((k) => {
+      const it = by.get(k);
+      return it && it.openDateTime ? { key: k, title: it.title, open: it.openDateTime, url: it.url || '' } : null;
+    }).filter(Boolean);
+    const r = await fetch(`${PUSH_API}/api/push/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sub: sub.toJSON(), alarms }),
+    });
+    pushOk = r.ok;
+  } catch { pushOk = false; }
+}
+
 const ALARM_OFFSETS = [10, 5, 3, 1]; // 분 전
 function checkAlarms() {
+  if (pushOk) return; // 서버 푸시가 살아 있으면 열려 있어도 서버가 단말 알림창에 쏜다 — 이중 진동 방지
   const by = new Map(state.items.map((i) => [itemKey(i), i]));
   Object.entries(state.alarms).forEach(([k, st]) => {
     const it = by.get(k);
@@ -218,7 +258,7 @@ function buildAlarm() {
       ${cd}
       <button class="bellr on" data-ak="${esc(itemKey(it))}" aria-label="알림 해제">${BELL_SVG_LG}</button></a>`;
   });
-  html += '<div class="ahint">알림은 앱이 열려 있는 동안 동작해요. 오픈 10·5·3·1분 전과 정각에 단말 알림·진동으로 알려드립니다.</div>';
+  html += `<div class="ahint">${pushOk ? '알림은 앱이 꺼져 있어도 도착해요.' : '알림은 앱이 열려 있는 동안 동작해요.'} 오픈 10·5·3·1분 전과 정각에 단말 알림·진동으로 알려드립니다.</div>`;
   body.innerHTML = html;
   bindBells(body);
 }
@@ -755,4 +795,6 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
   buildFeed();
   refreshMy();
   updateAlarmBadge();
+  // 데이터 갱신으로 오픈 일시가 바뀌었을 수 있으니 접속 때마다 서버 알람 목록을 최신으로
+  if (Object.keys(state.alarms).length) syncPush();
 })();

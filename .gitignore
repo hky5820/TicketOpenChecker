@@ -6,6 +6,8 @@ output/
 *.log
 *.err.log
 storage-state.json
+.vapid.json
+.push-subs.json
 chrome-profile-desktop/
 
 # Claude Code local config (agents, skills, commands, hooks) — not project code

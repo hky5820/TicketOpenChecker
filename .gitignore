@@ -3,6 +3,7 @@ chrome-profile/
 debug-profile/
 .playwright-mcp/
 output/
+public/calendars/
 *.log
 *.err.log
 storage-state.json

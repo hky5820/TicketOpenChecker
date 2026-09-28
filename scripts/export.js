@@ -2,6 +2,7 @@ const { spawn } = require('child_process');
 const fs = require('fs/promises');
 const path = require('path');
 const { mergeSports } = require('../lib/sports');
+const { loadPreviousCalendarState, writeCalendarFeeds } = require('../lib/calendar-feeds');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -18,6 +19,10 @@ async function main() {
   await fs.mkdir(PUBLIC_DIR, { recursive: true });
   const previousItems = await loadPreviousItems();
   const previousSports = await loadPreviousSports();
+  const calendarsDir = path.join(PUBLIC_DIR, 'calendars');
+  const remoteDataUrl = process.env.PREVIOUS_DATA_URL || (process.env.GITHUB_REPOSITORY
+    ? `https://${process.env.GITHUB_REPOSITORY.split('/')[0]}.github.io/${process.env.GITHUB_REPOSITORY.split('/')[1]}/data.json` : null);
+  const previousCalendars = await loadPreviousCalendarState(calendarsDir, remoteDataUrl);
   const server = await startServer();
 
   try {
@@ -35,13 +40,15 @@ async function main() {
       console.log(`[detail] skipped: ${error.message}`);
     }
 
-    await fs.writeFile(DATA_PATH, `${JSON.stringify({
+    const snapshot = {
       generatedAt: loadedAt,
       itemCount: items.length,
       items,
       siteStatus: loaded.siteStatus,
       sports: mergeSports(loaded.sports, previousSports),
-    }, null, 2)}\n`, 'utf8');
+    };
+    await writeCalendarFeeds(snapshot, previousCalendars, calendarsDir);
+    await fs.writeFile(DATA_PATH, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
     await fs.writeFile(ICS_PATH, buildIcs(items, loadedAt), 'utf8');
 
     const newItems = diffItems(items, previousItems);

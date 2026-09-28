@@ -82,6 +82,30 @@ async function main() {
     }
     check(`sports ${width}px retains opening context without date controls`, (await target.locator('#results .group-heading').last().innerText()).includes('예매 오픈') && await target.locator('.date-browser').isHidden());
   };
+  const checkSubscriptions = async (target, width, audits) => {
+    await target.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await target.locator('#tab-sports').click();
+    await target.locator('[data-source="59"]').click();
+    await target.locator('#subscribeCalendarBtn').click();
+    check(`subscription ${width}px defaults to selected home team`, await target.locator('#calendarFeed').inputValue() === 'sports-59' && (await target.locator('#subscriptionSummary').innerText()).includes('일반 예매 오픈'));
+    const url = await target.locator('#subscriptionUrl').inputValue();
+    await target.locator('#copySubscriptionUrl').click();
+    await target.getByRole('button', { name: '복사됨', exact: true }).waitFor();
+    check(`subscription ${width}px copies public LG feed`, await target.evaluate(() => navigator.clipboard.readText()) === url && url === 'https://hky5820.github.io/TicketOpenChecker/calendars/sports-59.ics');
+    await target.locator('#calendarFeed').selectOption('sports-62');
+    check(`subscription ${width}px switching teams updates both subscription addresses`, (await target.locator('#subscriptionUrl').inputValue()).endsWith('/sports-62.ics') && (await target.locator('#appleSubscribeLink').getAttribute('href')).endsWith('/sports-62.ics') && (await target.locator('#appleSubscribeLink').getAttribute('href')).startsWith('webcal://'));
+    check(`subscription ${width}px explains one-time desktop setup and refresh timing`, (await target.locator('.subscription-guide').innerText()).includes('PC의 구글 캘린더') && (await target.locator('.subscription-cadence').innerText()).includes('갱신 주기') && (await target.locator('#googleSubscribeLink').getAttribute('href')).endsWith('/settings/addbyurl'));
+    check(`subscription ${width}px dialog fits viewport`, await target.locator('#calendarSubscriptionDialog').evaluate(dialog => { const r = dialog.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight && dialog.scrollWidth <= dialog.clientWidth; }));
+    await target.screenshot({ path: path.join(output, `subscription-${width}.png`), scale: 'css' });
+    const audit = await new AxeBuilder({ page: target }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+    audits.push({ view: 'calendar-subscription', width, violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });
+    await target.keyboard.press('Escape');
+    check(`subscription ${width}px closing returns focus and preserves list team`, await target.locator('#subscribeCalendarBtn').evaluate(element => document.activeElement === element) && await target.locator('[data-source="59"]').getAttribute('aria-pressed') === 'true');
+    await target.locator('#tab-home').click(); await target.locator('[data-source="melon"]').click();
+    await target.locator('#subscribeCalendarBtn').click();
+    check(`subscription ${width}px defaults to selected concert provider`, await target.locator('#calendarFeed').inputValue() === 'concert-melon' && (await target.locator('#subscriptionUrl').inputValue()).endsWith('/concert-melon.ics'));
+    await target.locator('[data-close="calendarSubscriptionDialog"]').click();
+  };
   try {
     await page.clock.setFixedTime(fixedNow);
     await page.route('**/data.json*', route => route.fulfill({ json: fixture }));
@@ -156,6 +180,7 @@ async function main() {
     await page.evaluate(() => localStorage.clear()); await page.reload();
     await page.waitForFunction(() => document.querySelector('#resultCount').textContent.length > 0);
     const audits = [];
+    await checkSubscriptions(page, 1440, audits);
     for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: width === 375 ? 844 : 1000 });
       for (const view of ['home', 'sports']) {
@@ -237,6 +262,7 @@ async function main() {
     check('cover settings controls', !await cover.locator('#settingsDialog').isVisible());
 
     await checkScrollDates(cover, 344);
+    await checkSubscriptions(cover, 344, audits);
 
     await cover.unroute('**/data.json*');
     await cover.clock.setFixedTime(new Date());
@@ -275,7 +301,7 @@ async function main() {
     const report = { checkedAt: new Date().toISOString(), functionalData: 'synthetic fixture', visualData: 'real public/data.json export', checks, errors, audits, coverMetrics };
     await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     assert.equal(audits.reduce((n, audit) => n + audit.violations.length, 0), 0, JSON.stringify(audits, null, 2));
-    console.log(JSON.stringify({ checks: checks.length, screenshots: 19, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
+    console.log(JSON.stringify({ checks: checks.length, screenshots: 21, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -4,8 +4,8 @@ References inspected: current Desktop/plm-desk/ui and Desktop/svace-workspace/ex
 
 - Live collection through real Chrome / Pixel 7: 23 home games across LG (5), Hanwha (4), Samsung (6), KT (4), KIA (4). 18 ON_SALE, 5 BEFORE at collection time.
 - Export: 107 concert notices and sports snapshot, with per-provider and per-team collection status.
-- Unit checks: 23 passed (KST, date basis, ownership, sale status, failed/empty collections, alarm keys, current-time boundaries, unknown times and Melon retry handling).
-- Browser checks: 103 passed. Functional checks use synthetic fixtures; twelve list captures use the real exported data, and a calendar capture plus six scrolling captures use fixtures.
+- Unit checks: 31 passed (schedule rules, Melon retries and calendar subscription generation/update/cancellation).
+- Browser checks: 117 passed. Twenty-one screenshots cover lists, scrolling, date selection and desktop/mobile subscription dialogs. Functional checks use synthetic fixtures; list captures use the real exported data.
 - axe WCAG A/AA checks: 0 violations at 375, 768 and 1440 CSS pixels, plus mobile cover widths 344, 360 and 384, concert and sports views and the mobile calendar dialog.
 - Additional mobile emulation: 320px, no document overflow.
 - Evidence: output/ui-qa/report.json, home-{375,768,1440}.png, sports-{375,768,1440}.png.
@@ -74,3 +74,12 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - Previously one failed request ended the entire Melon collection. Transient HTTP 423/429/500/502/503/504 and connection failures now get at most three attempts with 2s/5s waits. `Retry-After` is respected; waits above 20s end collection rather than retry early. Permanent HTTP and malformed API responses remain errors.
 - Retry messages identify the list page or detail notice and attempt count, and are retained in export logs. Exhausted retries still fail the entire provider and preserve the stale-data warning; partial results are never reported as fresh.
 - Validation: 23 unit tests, including recovery on a later page without dropping earlier notices, persistent detail failure, bounded retries, `Retry-After` and permanent errors. Live local collection returns 37 schedules. Remote collection is checked separately after deployment.
+
+## Automatic calendar subscriptions — 2026-09-29
+
+- Ten public ICS feeds: each of the five sports home teams, all five teams, each concert provider and all concert providers. A compact button beside search opens the subscription dialog, preselects the current team/provider and offers URL copy, Google's official add-by-URL settings page and an Apple webcal link. No extra item controls or row height changes.
+- Exports regenerate feeds after every collection. Stable event UIDs omit the opening timestamp; changed content increments SEQUENCE and LAST-MODIFIED, while identical collections preserve them. New games appear automatically, and cancellations/authoritative removals retain tombstones for 30 days. Failed/stale providers keep prior records, including cancelled records, instead of reviving or deleting them. Unknown/passed opening times are omitted.
+- ICS uses UTC timestamps, Korean descriptions, escaped text, CRLF and UTF-8 folding at 75 octets. Sports starts at the general opening time; game time and venue are metadata. Events occupy 30 minutes and are transparent to free/busy.
+- State is loaded from the previous public deployment before collection. A non-404 remote error stops export rather than resetting event revisions. Generated feeds/state are ignored by Git and included in Pages artifacts. Legacy concert calendar.ics remains available.
+- Verified: 31 unit tests and 117 browser checks; 21 screenshots, zero axe violations and browser errors. 344px touch emulation checks source defaults, clipboard contents, feed switching, unchanged list selection, dialog fit, Escape focus return and opening-date labels. Source data produced 10 local subscription files and persisted state.
+- Google requires a computer browser for initial URL subscription; phone display uses account synchronization. Client polling controls propagation timing. Official setup links are in README.md. No authenticated Google/Apple account subscription, physical Galaxy/iPhone calendar synchronization or notification delivery was exercised. Public deployment is checked separately after publishing.

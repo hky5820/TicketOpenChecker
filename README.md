@@ -16,6 +16,24 @@ Ticket opening calendar for NOL Ticket, Melon Ticket, and Ticketlink.
 
 `GET /api/sports`는 스포츠만 수집하고, `GET /api/load`는 공연과 스포츠를 함께 수집합니다. 정적 배포용 `public/data.json`에 `sports.items`, `sports.teamStatus`, `sports.generatedAt`을 포함합니다. 기존 `calendar.ics`는 공연 오픈 구독을 유지합니다.
 
+## 캘린더 자동 구독
+
+검색창 옆 **캘린더 구독**에서 팀 또는 예매처를 고르고, 한 번만 연결하면 새 티켓 오픈 일정과 변경사항이 반영됩니다. 날짜·검색 조건과 관계없이 선택한 팀/예매처의 오픈 일정을 구독합니다. 스포츠는 홈경기의 **일반 예매 오픈 시간** 기준이며, 경기 일시와 경기장은 설명에 표시합니다. 오픈 시간 미정인 일정은 확정 후 추가합니다.
+
+1. 앱에서 팀/예매처 선택 → **캘린더 구독 → 주소 복사**.
+2. 구글: 처음 한 번 PC의 Google Calendar → **다른 캘린더 + → URL로 추가**에 붙여넣습니다. 파일 가져오기가 아닌 URL 구독을 선택해야 계속 갱신됩니다.
+3. 갤럭시: 같은 구글 계정의 캘린더 동기화를 켜고 삼성 캘린더에서 해당 캘린더를 표시합니다. iPhone/Mac은 **구독 열기** 또는 캘린더 앱의 **구독 캘린더 추가**에 주소를 입력합니다.
+
+공식 안내: [Google URL 구독](https://support.google.com/calendar/answer/37100?hl=ko), [삼성 캘린더 동기화](https://www.samsung.com/ca/support/mobile-devices/how-to-sync-your-google-calendar-on-your-samsung-galaxy-device/), [Apple 캘린더 구독](https://support.apple.com/ko-kr/102301).
+
+공개 구독 주소는 배포 주소 아래 `calendars/`에 있습니다. 스포츠는 `sports-all.ics`와 `sports-59.ics`(LG), `sports-63.ics`(한화), `sports-57.ics`(삼성), `sports-62.ics`(KT), `sports-58.ics`(KIA). 공연은 `concert-all.ics`, `concert-interpark.ics`, `concert-melon.ics`, `concert-ticketlink.ics`입니다.
+
+예: LG 트윈스 — `https://hky5820.github.io/TicketOpenChecker/calendars/sports-59.ics`.
+
+하루 5회 자동 수집 후 구독 자료를 갱신합니다. 캘린더 앱의 갱신 주기에 따라 반영이 늦을 수 있으며, 즉시 반영이나 오픈 직전 알림을 보장하지 않습니다. 실제 Google/Apple 계정 구독 및 단말 동기화는 최초 사용자 설정이 필요합니다.
+
+`calendars/state.json`은 공개 일정의 UID·수정 시각·버전을 다음 수집으로 이어 줍니다. 같은 경기의 오픈 시각 변경은 기존 UID를 갱신하고, 취소/삭제는 취소 상태로 30일 유지합니다. 수집 실패는 취소로 처리하지 않습니다. 이전 배포의 상태를 읽을 때 404 외의 오류가 발생하면 내보내기를 중단하여 버전 초기화를 방지합니다. 생성물은 Git에서 제외하며 Pages에는 함께 배포합니다.
+
 ## Verification
 
 ```bash
@@ -49,6 +67,8 @@ This writes:
 
 - `public/data.json`
 - `public/calendar.ics`
+- `public/calendars/*.ics` (10 subscription feeds)
+- `public/calendars/state.json` (public event revisions)
 
 If `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set, new schedules are sent to Telegram.
 

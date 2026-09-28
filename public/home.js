@@ -253,6 +253,29 @@ document.addEventListener('click', event => {
   else if ('close' in button.dataset) document.getElementById(button.dataset.close).close();
   else if (button.id === 'clearBtn') { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(STORAGE_KEY); } catch {} state.items = []; state.sports = { items: [], teamStatus: {} }; state.generatedAt = null; loadStatic().then(() => { render(); renderSettings(); }); }
 });
+function renderSubscription() {
+  const feed = CalendarSubscriptions.feeds.find(feed => feed.id === $('#calendarFeed').value);
+  const base = IS_STATIC ? location.href : 'https://hky5820.github.io/TicketOpenChecker/';
+  const url = CalendarSubscriptions.feedUrl(feed, base);
+  $('#subscriptionUrl').value = url;
+  $('#appleSubscribeLink').href = url.replace(/^https?:/, 'webcal:');
+  $('#subscriptionSummary').textContent = feed.category === 'sports'
+    ? `${feed.name} · 홈경기 일반 예매 오픈 시간 기준`
+    : `${feed.name} · 공연일이 아닌 티켓 오픈 시간 기준`;
+  $('#copySubscriptionUrl').textContent = '주소 복사';
+}
+$('#subscribeCalendarBtn').addEventListener('click', () => {
+  $('#calendarFeed').innerHTML = ['sports', 'home'].map(category => `<optgroup label="${category === 'sports' ? '스포츠 · 홈경기' : '공연·전시'}">${CalendarSubscriptions.feeds.filter(feed => feed.category === category).map(feed => `<option value="${feed.id}">${feed.name}</option>`).join('')}</optgroup>`).join('');
+  $('#calendarFeed').value = state.view === 'sports' ? `sports-${options().team || 'all'}` : `concert-${options().vendor || 'all'}`;
+  renderSubscription(); $('#calendarSubscriptionDialog').showModal();
+});
+$('#calendarFeed').addEventListener('change', renderSubscription);
+$('#subscriptionUrl').addEventListener('click', event => event.target.select());
+$('#copySubscriptionUrl').addEventListener('click', async () => {
+  const input = $('#subscriptionUrl');
+  try { await navigator.clipboard.writeText(input.value); $('#copySubscriptionUrl').textContent = '복사됨'; }
+  catch { input.focus(); input.select(); toast('선택된 주소를 복사해 주세요.'); }
+});
 $('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
 $('#searchInput').addEventListener('input', event => { options().query = event.target.value; render(); });
 $('#dateStrip').addEventListener('scroll', updateStripMonth, { passive: true });

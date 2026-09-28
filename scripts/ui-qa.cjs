@@ -13,13 +13,13 @@ const concert = (siteId, title, date, time) => ({ siteId, title, site: siteId, o
 const fixture = {
   generatedAt: fixedNow.toISOString(),
   items: [concert('melon', '지난날 공지', '2026-09-27', '20:00'), concert('ticketlink', '오늘 지난 오픈', '2026-09-28', '18:00'), concert('melon', '테스트 콘서트', '2026-09-29', '20:00'), concert('interpark', '테스트 연극', '2026-09-29', '14:00'), concert('ticketlink', '테스트 전시', '2026-09-30', '10:00')],
-  sports: { generatedAt: fixedNow.toISOString(), teamStatus: Object.fromEntries(TEAMS.map(team => [team.id, { ok: true, count: 2, checkedAt: fixedNow.toISOString() }])),
-    items: TEAMS.flatMap(team => [0, 1].map(index => ({
+  sports: { generatedAt: fixedNow.toISOString(), teamStatus: Object.fromEntries(TEAMS.map(team => [team.id, { ok: true, count: 3, checkedAt: fixedNow.toISOString() }])),
+    items: TEAMS.flatMap(team => [0, 1, 2].map(index => ({
       id: `sports-${team.id}-${index}`, category: 'sports', siteId: 'ticketlink', site: '티켓링크', teamId: team.id,
       title: `상대 vs ${team.shortName}`, homeTeam: team.name, homeShortName: team.shortName, awayTeam: '상대 구단', awayShortName: '상대', venue: '테스트 야구장',
-      gameDate: `2026-10-0${3 + index}`, gameTime: '14:00', gameDateTime: `2026-10-0${3 + index}T14:00:00+09:00`,
-      openDate: index ? '2026-09-29' : '2026-09-27', openTime: '11:00', openDateTime: `2026-09-${index ? '29' : '27'}T11:00:00+09:00`,
-      saleStatus: index ? 'BEFORE' : 'ON_SALE', url: `https://m.ticketlink.co.kr/sports/137/${team.id}`, checkedAt: fixedNow.toISOString(),
+      gameDate: `2026-10-0${index === 1 ? 6 : 3 + index}`, gameTime: '14:00', gameDateTime: `2026-10-0${index === 1 ? 6 : 3 + index}T14:00:00+09:00`,
+      openDate: index === 2 ? '2026-09-30' : index ? '2026-09-29' : '2026-09-27', openTime: '11:00', openDateTime: `2026-09-${index === 2 ? '30' : index ? '29' : '27'}T11:00:00+09:00`,
+      saleStatus: index === 2 ? 'PRE_ON_SALE' : index ? 'BEFORE' : 'ON_SALE', url: `https://m.ticketlink.co.kr/sports/137/${team.id}`, checkedAt: fixedNow.toISOString(),
     }))) },
 };
 
@@ -73,14 +73,12 @@ async function main() {
       check(`${team.name} isolation`, await page.locator(`.sports-row:not([data-team="${team.id}"])`).count() === 0);
     }
     await page.locator('[data-source="59"]').click();
+    check('sports has no date or basis switching', await page.locator('.date-browser').isHidden() && await page.locator('.date-toolbar').isHidden() && await page.locator('.calendar-panel').isHidden() && await page.locator('[data-basis]').count() === 0);
+    check('sports order uses opening time despite reversed game dates', JSON.stringify(await page.locator('#results .sports-row').evaluateAll(rows => rows.map(row => row.dataset.item))) === JSON.stringify(['sports-59-1', 'sports-59-2']));
+    check('sports groups by opening date', (await page.locator('#results .group-heading').first().innerText()).includes('9월 29일'));
+    check('opening time is primary, game date secondary', await page.locator('.sports-row').first().evaluate(row => parseFloat(getComputedStyle(row.querySelector('.open-info strong')).fontSize) > parseFloat(getComputedStyle(row.querySelector('.game-date')).fontSize)));
     await page.locator('[data-status="scheduled"]').click(); await waitCount('.sports-row', 1);
-    await page.locator('[data-basis="open"]').click();
-    await page.locator('#selectedDate').fill('2026-09-29'); await waitCount('.sports-row', 1);
-    check('opening date filter keeps separate game date', (await page.locator('.sports-row').innerText()).includes('10.4'));
-    await page.locator('[data-basis="game"]').click();
-    await page.getByRole('heading', { name: '선택한 조건의 일정이 없습니다' }).waitFor();
-    check('switching date basis does not silently widen date', await page.locator('#selectedDate').inputValue() === '2026-09-29');
-    await page.locator('#selectedDate').fill('2026-10-04'); await waitCount('.sports-row', 1);
+    check('status filter preserves team and future opening', (await page.locator('.sports-row').innerText()).includes('10.6'));
     await page.locator('.sports-row .bell').click();
     await page.locator('#tab-alarm').click(); await waitCount('.sports-row', 1);
     check('sports reminder uses opening timestamp', (await page.locator('#alarmBody').innerText()).includes('9월 29일'));
@@ -142,14 +140,23 @@ async function main() {
     await cover.route('**/data.json*', route => route.fulfill({ json: fixture }));
     await cover.goto(url);
     await cover.locator('[data-source="melon"]').tap();
-    check('seven dates are immediately visible from next opening', await cover.locator('#dateStrip button').count() === 7 && await cover.locator('#dateStrip').getAttribute('data-start') === '2026-09-29');
+    check('continuous dates focus nearest future opening', await cover.locator('#dateStrip button').count() >= 61 && await cover.locator('#dateStrip').getAttribute('data-focus') === '2026-09-29');
     await cover.locator('#dateStrip [data-date="2026-09-30"]').tap();
     check('direct date choice keeps empty day and vendor', await cover.locator('#selectedDate').inputValue() === '2026-09-30' && await cover.locator('#results .ticket-row').count() === 0 && await cover.locator('[data-source="melon"]').getAttribute('aria-pressed') === 'true');
     await cover.locator('#dateStrip [data-date="2026-09-29"]').tap();
     check('neighboring date takes one tap', await cover.locator('#results .ticket-row').count() === 1);
-    await cover.getByRole('button', { name: '다음 7일', exact: true }).tap();
-    check('week paging crosses month without changing selected date', await cover.locator('#dateStrip').getAttribute('data-start') === '2026-10-06' && await cover.locator('#selectedDate').inputValue() === '2026-09-29');
-    await cover.getByRole('button', { name: '이전 7일', exact: true }).tap();
+    const stripRect = await cover.locator('#dateStrip').boundingBox();
+    const beforeSwipe = await cover.locator('#dateStrip').evaluate(el => el.scrollLeft);
+    const cdp = await mobile.newCDPSession(cover);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: stripRect.x + 280, y: stripRect.y + 30 }] });
+    for (let step = 1; step <= 8; step++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: stripRect.x + 280 - step * 28, y: stripRect.y + 30 }] });
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await cover.waitForFunction(before => document.querySelector('#dateStrip').scrollLeft > before + 100, beforeSwipe);
+    await cdp.detach();
+    check('touch swipe scrolls dates without changing selection', await cover.locator('#selectedDate').inputValue() === '2026-09-29' && await cover.locator('[data-source="melon"]').getAttribute('aria-pressed') === 'true');
+    await cover.locator('#dateStrip [data-date="2026-10-06"]').tap();
+    check('scrolling into next month selects exact date', await cover.locator('#selectedDate').inputValue() === '2026-10-06');
+    await cover.locator('#dateStrip [data-date="2026-09-29"]').tap();
     await cover.locator('#datePickerBtn').tap();
     check('cover calendar focuses selected date', await cover.locator('#calendarGrid [data-date="2026-09-29"]').evaluate(element => document.activeElement === element));
     check('calendar disables past dates', await cover.locator('#calendarGrid [data-date="2026-09-27"]').isDisabled());
@@ -175,9 +182,9 @@ async function main() {
       await cover.getByRole('button', { name: team.name, exact: true }).tap();
       check(`cover touch selects ${team.name}`, await cover.locator('#results .sports-row').count() === 2 && await cover.locator(`#results .sports-row:not([data-team="${team.id}"])`).count() === 0);
     }
-    await cover.locator('[data-basis="open"]').tap();
-    await cover.locator('#dateStrip [data-date="2026-09-29"]').tap();
-    check('cover opening date filter', await cover.locator('#results .sports-row').count() === 1 && (await cover.locator('.sports-row').innerText()).includes('10.4'));
+    check('cover sports hides every date control', await cover.locator('.date-browser').isHidden() && await cover.locator('.date-toolbar').isHidden());
+    await cover.locator('[data-status="scheduled"]').tap();
+    check('cover sports opening date is distinct from game date', await cover.locator('#results .sports-row').count() === 1 && (await cover.locator('.sports-row').innerText()).includes('10.6'));
     await cover.locator('.bell').tap();
     await cover.locator('#tab-alarm').tap();
     check('cover reminder and navigation', await cover.locator('#alarmBody .sports-row').count() === 1);
@@ -211,7 +218,8 @@ async function main() {
         });
         coverMetrics.push({ view, width, height: 748, ...metrics });
         check(`cover ${view} ${width}px fits with one accessible source row`, !metrics.overflow && metrics.singleSourceLine && metrics.sourcesReachable);
-        check(`cover ${view} ${width}px shows seven reachable dates`, await cover.locator('#dateStrip button').evaluateAll(buttons => buttons.length === 7 && buttons.every(button => { const rect = button.getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth && rect.width >= 24; })));
+        if (view === 'home') check(`cover ${width}px has scrollable dates and six visible targets`, await cover.locator('#dateStrip').evaluate(strip => { const bounds = strip.getBoundingClientRect(); return strip.scrollWidth > strip.clientWidth && [...strip.children].filter(button => { const r = button.getBoundingClientRect(); return r.left >= bounds.left && r.right <= bounds.right && r.width >= 44; }).length >= 6; }));
+        else check(`cover sports ${width}px has no date picker`, await cover.locator('.date-browser').isHidden() && await cover.locator('.date-toolbar').isHidden());
         if (view === 'home') check(`cover concert ${width}px consistent item heights`, await cover.locator('#results .ticket-row').evaluateAll(rows => { const heights = rows.map(row => row.getBoundingClientRect().height - parseFloat(getComputedStyle(row).borderBottomWidth)); return heights.length < 2 || Math.max(...heights) - Math.min(...heights) < 1; }));
         const audit = await new AxeBuilder({ page: cover }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
         audits.push({ view: `cover-${view}`, width, violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });

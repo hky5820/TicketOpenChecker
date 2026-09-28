@@ -14,10 +14,10 @@ const CALENDAR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 const BELL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be full or disabled. */ } };
-const defaults = view => ({ date: Model.dateKey(), range: 'upcoming', basis: view === 'sports' ? 'game' : 'open', vendor: '', team: '', status: 'all', query: '', stripStart: null });
+const defaults = () => ({ date: Model.dateKey(), range: 'upcoming', basis: 'open', vendor: '', team: '', status: 'all', query: '' });
 const state = {
   items: [], sports: { items: [], teamStatus: {} }, siteStatus: {}, generatedAt: null, view: 'home',
-  filters: { home: defaults('home'), sports: defaults('sports') }, month: Model.dateKey().slice(0, 7),
+  filters: { home: defaults(), sports: defaults() }, month: Model.dateKey().slice(0, 7),
   alarms: read(ALARM_KEY, {}), alarmItems: read(ALARM_ITEMS_KEY, []), loading: false, statuses: {},
 };
 if (!state.alarms || typeof state.alarms !== 'object' || Array.isArray(state.alarms)) state.alarms = {};
@@ -62,9 +62,8 @@ function sportsRow(item) {
   const status = Model.status(item);
   const uncertain = state.sports.teamStatus?.[item.teamId]?.ok === false;
   return `<article class="sports-row" data-team="${esc(item.teamId)}" data-item="${esc(item.id)}">
-    <div class="game-date">${shortDate(item.gameDate)}<small>${esc(item.gameTime)} 경기</small></div>
-    <div class="match-info"><a class="match-teams" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(item.awayTeam)} 대 ${esc(item.homeTeam)} 경기 페이지">${logo(item.awayLogo)}<span>${esc(item.awayShortName)}</span><span class="versus">vs</span>${logo(item.homeLogo)}<span>${esc(item.homeShortName)}</span><span class="home-label">홈</span></a><div class="venue">${esc(item.venue)}</div></div>
-    <div class="open-info"><small>일반 예매 오픈</small>${timeLabel(item.openDateTime)}${item.preOpenDateTime ? `<span class="preopen">선예매 ${timeLabel(item.preOpenDateTime)}</span>` : ''}</div>
+    <div class="open-info"><strong>${esc(item.openTime || item.openDateTime?.slice(11, 16) || '미정')}</strong><small>예매 오픈</small></div>
+    <div class="match-info"><a class="match-teams" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(item.awayTeam)} 대 ${esc(item.homeTeam)} 경기 페이지">${logo(item.awayLogo)}<span>${esc(item.awayShortName)}</span><span class="versus">vs</span>${logo(item.homeLogo)}<span>${esc(item.homeShortName)}</span><span class="home-label">홈</span></a><div class="game-date">경기 ${shortDate(item.gameDate)} ${esc(item.gameTime)}<span class="venue">${esc(item.venue)}</span></div>${item.preOpenDateTime ? `<span class="preopen">선예매 ${timeLabel(item.preOpenDateTime)}</span>` : ''}</div>
     <div class="row-status">${uncertain ? '<span class="status amber">이전 조회 자료</span>' : statusMarkup(item)}<a class="row-link" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer">${status.id === 'open' && !uncertain ? '예매처 열기' : '경기 확인'} ↗</a></div>${bell(item)}</article>`;
 }
 
@@ -88,20 +87,37 @@ function renderCalendar() {
 }
 
 function renderDateStrip() {
-  const filter = options(), today = Model.dateKey();
+  if (state.view !== 'home') return;
+  const filter = options(), today = Model.dateKey(), strip = $('#dateStrip');
   const items = Model.filter(sourceItems(), { ...filter, range: 'all' });
-  const keyOf = item => filter.basis === 'game' ? item.gameDate : item.openDate;
-  const nearest = keyOf(items[0] || {}) || today;
-  const start = [today, filter.stripStart || (filter.range === 'upcoming' ? nearest : filter.date)].sort().at(-1);
-  $('#dateStrip').dataset.start = start;
-  $('#datePickerLabel').textContent = `${shortDate(start).split(' ')[0]} – ${shortDate(Model.addDays(start, 6)).split(' ')[0]}`;
-  $('#datePagePrev').disabled = start <= today;
-  $('#dateDialogTitle').textContent = filter.basis === 'game' ? '경기 날짜 선택' : '오픈 날짜 선택';
-  $('#dateStrip').innerHTML = Array.from({ length: 7 }, (_, index) => {
-    const key = Model.addDays(start, index), count = items.filter(item => keyOf(item) === key).length;
+  const target = filter.range === 'upcoming' ? items.find(item => item.openDate)?.openDate || today : filter.date;
+  const end = [Model.addDays(today, 60), Model.addDays(target, 14), ...items.map(item => item.openDate).filter(Boolean)].sort().at(-1);
+  const days = Math.round((Date.parse(end) - Date.parse(today)) / 86400000) + 1;
+  const previousTarget = strip.dataset.focus, previousScroll = strip.scrollLeft;
+  strip.dataset.start = today;
+  strip.dataset.focus = target;
+  $('#dateDialogTitle').textContent = '오픈 날짜 선택';
+  strip.innerHTML = Array.from({ length: days }, (_, index) => {
+    const key = Model.addDays(today, index), count = items.filter(item => item.openDate === key).length;
     const selected = filter.range === 'day' && key === filter.date;
-    return `<button data-date="${key}" aria-pressed="${selected}" aria-label="${fullDate(key)} ${count}건"><span>${key === today ? '오늘' : WD[new Date(`${key}T00:00:00Z`).getUTCDay()]}</span><strong>${Number(key.slice(8))}</strong><small>${count ? `${count}건` : '·'}</small></button>`;
+    return `<button data-date="${key}" class="${count ? 'has-events' : ''}" aria-pressed="${selected}" aria-label="${fullDate(key)} ${count}건"><span>${key === today ? '오늘' : WD[new Date(`${key}T00:00:00Z`).getUTCDay()]}</span><strong>${Number(key.slice(8)) === 1 ? `${Number(key.slice(5, 7))}/1` : Number(key.slice(8))}</strong><small>${count ? `${count}건` : '·'}</small></button>`;
   }).join('');
+  strip.scrollLeft = previousScroll;
+  const button = strip.querySelector(`[data-date="${target}"]`);
+  if (button) {
+    const bounds = strip.getBoundingClientRect(), rect = button.getBoundingClientRect();
+    if ((filter.range === 'upcoming' && previousTarget !== target) || rect.left < bounds.left || rect.right > bounds.right) strip.scrollLeft += rect.left - bounds.left;
+  }
+  updateStripMonth();
+}
+
+function updateStripMonth() {
+  const strip = $('#dateStrip'), left = strip.getBoundingClientRect().left;
+  const first = [...strip.children].find(button => button.getBoundingClientRect().right > left + 1);
+  if (first) {
+    strip.dataset.visible = first.dataset.date;
+    $('#datePickerLabel').textContent = `${first.dataset.date.slice(0, 4)}년 ${Number(first.dataset.date.slice(5, 7))}월`;
+  }
 }
 
 function renderSources() {
@@ -116,7 +132,7 @@ function renderSources() {
     return `<button class="source-filter" data-source="${source.id}" aria-pressed="${active === source.id}" aria-label="${source.name}">${symbol(source)}<span class="source-name">${source.name}</span><span class="source-short" aria-hidden="true">${source.shortName || source.name}</span><span class="count">${count}</span></button>`;
   }).join('');
   $('#sourceNote').innerHTML = sports
-    ? `<strong>경기와 오픈을 따로 확인</strong>홈 구단의 티켓링크 판매 일정을 표시합니다. 예매 상태는 마지막 조회 기준이며 잔여 좌석은 예매처에서 확인하세요.${active ? `<br><a href="https://m.ticketlink.co.kr/sports/137/${active}" target="_blank" rel="noopener noreferrer">구단 페이지 열기 ↗</a>` : ''}`
+    ? `<strong>가까운 예매 오픈부터</strong>홈 구단의 티켓 오픈 시간순입니다. 경기 일시는 각 일정 아래에서 확인하세요.${active ? `<br><a href="https://m.ticketlink.co.kr/sports/137/${active}" target="_blank" rel="noopener noreferrer">구단 페이지 열기 ↗</a>` : ''}`
     : '<strong>티켓이 열리는 날 기준</strong>공연일이 아닌 예매 오픈일입니다. 정확한 판매 조건은 예매처의 공지를 확인하세요.';
 }
 
@@ -143,9 +159,9 @@ function emptyMarkup(alarm = false) {
   if (alarm) return `<div class="empty-state"><span class="empty-icon">${BELL_ICON}</span><h3>등록한 오픈 알림이 없습니다</h3><p>일정 옆 종 버튼을 누르면 오픈 10·5·3·1분 전과 정각에 알려드립니다.</p><button class="button" data-view="home">일정 찾아보기</button></div>`;
   const filter = options();
   const next = Model.filter(sourceItems(), { ...filter, range: 'all' }).find(item => (filter.basis === 'game' ? item.gameDate : item.openDate) > filter.date);
-  const nextDate = next && (filter.basis === 'game' ? next.gameDate : next.openDate);
+  const nextDate = state.view === 'home' && next?.openDate;
   const teamFailed = state.view === 'sports' && Model.TEAMS.some(team => (!filter.team || filter.team === team.id) && state.sports.teamStatus?.[team.id]?.ok === false);
-  return `<div class="empty-state"><span class="empty-icon">${CALENDAR_ICON}</span><h3>${teamFailed ? '경기 일정을 확인하지 못했습니다' : '선택한 조건의 일정이 없습니다'}</h3><p>${teamFailed ? '조회 실패한 구단이 있습니다. 새로고침하거나 구단 페이지를 확인하세요.' : `${filter.range === 'day' ? fullDate(filter.date) + ' · ' : ''}${state.view === 'sports' ? '구단·날짜 기준·예매 상태' : '예매처·오픈일'}를 바꿔 확인해 보세요.`}</p>${nextDate ? `<button class="button" data-date="${nextDate}">다음 일정 · ${shortDate(nextDate)} 보기 →</button>` : '<button class="button" data-reset>필터 초기화</button>'}</div>`;
+  return `<div class="empty-state"><span class="empty-icon">${CALENDAR_ICON}</span><h3>${teamFailed ? '경기 일정을 확인하지 못했습니다' : '선택한 조건의 일정이 없습니다'}</h3><p>${teamFailed ? '조회 실패한 구단이 있습니다. 새로고침하거나 구단 페이지를 확인하세요.' : `${filter.range === 'day' ? fullDate(filter.date) + ' · ' : ''}${state.view === 'sports' ? '구단·예매 상태' : '예매처·오픈일'}를 바꿔 확인해 보세요.`}</p>${nextDate ? `<button class="button" data-date="${nextDate}">다음 일정 · ${shortDate(nextDate)} 보기 →</button>` : '<button class="button" data-reset>필터 초기화</button>'}</div>`;
 }
 
 function groupedRows(items, basis) {
@@ -164,15 +180,15 @@ function renderResults() {
   const base = Model.filter(sourceItems(), { ...filter, status: 'all' });
   const list = Model.filter(sourceItems(), filter);
   const availableStatuses = new Set(base.map(item => Model.status(item).id));
-  $('#statusFilters').hidden = !sports && availableStatuses.size <= 1 && (filter.status === 'all' || availableStatuses.has(filter.status));
+  $('#statusFilters').hidden = availableStatuses.size <= 1 && (filter.status === 'all' || availableStatuses.has(filter.status));
   const labels = sports ? [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '예매 중'], ['presale', '선예매'], ['closed', '종료·매진'], ['unknown', '확인 필요']]
     : [['all', '전체'], ['scheduled', '오픈 예정'], ['unknown', '시간 미정']];
   $('#statusFilters').innerHTML = labels.filter(([id]) => !['presale', 'closed', 'unknown'].includes(id) || base.some(item => Model.status(item).id === id) || filter.status === id).map(([id, label]) => `<button data-status="${id}" aria-pressed="${filter.status === id}">${label}<b>${id === 'all' ? base.length : base.filter(item => Model.status(item).id === id).length}</b></button>`).join('');
-  $('#resultTitle').textContent = filter.range === 'upcoming' ? (sports && filter.basis === 'game' ? '다가오는 경기' : '다가오는 오픈') : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
+  $('#resultTitle').textContent = filter.range === 'upcoming' ? '다가오는 오픈' : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
   $('#resultCount').textContent = `${list.length}건`;
   $('#results').innerHTML = list.length ? groupedRows(list, filter.basis) : emptyMarkup();
-  $('#listTotal').textContent = `${sports ? '경기' : '오픈'} ${list.length}건`;
-  $('#listHint').textContent = sports ? `예매 상태: ${stamp(state.sports.generatedAt)} 조회 기준 · KST` : '공연일이 아닌 티켓 오픈일 기준 · KST';
+  $('#listTotal').textContent = `오픈 ${list.length}건`;
+  $('#listHint').textContent = sports ? '일반 예매 오픈순 · 지난 오픈 제외 · KST' : '공연일이 아닌 티켓 오픈일 기준 · KST';
   renderNotices();
 }
 
@@ -185,35 +201,37 @@ function render() {
   });
   $('#pageTitle').textContent = alarm ? '내 오픈 알림' : sports ? '야구 티켓 일정' : '티켓 오픈 일정';
   $('#eyebrow').textContent = alarm ? 'MY REMINDERS' : sports ? 'KBO · TICKET OPENING' : 'TICKET OPENING';
-  $('#pageDescription').textContent = alarm ? '기다리는 티켓의 오픈을 놓치지 않도록.' : sports ? '응원하는 팀의 경기와 티켓 오픈을 한눈에.' : '원하는 날짜, 원하는 예매처의 오픈을 한눈에.';
+  $('#pageDescription').textContent = alarm ? '기다리는 티켓의 오픈을 놓치지 않도록.' : sports ? '응원하는 팀의 티켓, 가까운 오픈부터.' : '원하는 날짜, 원하는 예매처의 오픈을 한눈에.';
   document.title = `티켓 오픈 · ${alarm ? '내 알림' : sports ? '스포츠' : '일정'}`;
   $('#scheduleWorkspace').hidden = alarm;
   $('#alarmWorkspace').hidden = !alarm;
   updateAlarmBadge();
   if (alarm) { renderAlarms(); return; }
   const filter = options();
-  if (filter.date < Model.dateKey()) { filter.date = Model.dateKey(); filter.range = 'upcoming'; filter.stripStart = null; state.month = filter.date.slice(0, 7); }
+  if (filter.date < Model.dateKey()) { filter.date = Model.dateKey(); filter.range = 'upcoming'; state.month = filter.date.slice(0, 7); }
   $('#selectedDate').value = filter.date;
   $('#selectedDate').min = Model.dateKey();
   $('#dateLabel').textContent = filter.basis === 'game' ? '경기일' : '오픈일';
   $('#selectedDate').setAttribute('aria-label', filter.basis === 'game' ? '경기일 선택' : '오픈일 선택');
   $('#searchInput').value = filter.query;
   $('#searchInput').placeholder = sports ? '팀·구장 검색' : '공연명 검색';
-  $('#sportsControls').hidden = !sports;
+  $('.calendar-panel').hidden = sports;
+  $('.date-browser').hidden = sports;
+  $('.date-toolbar').hidden = sports;
   document.querySelectorAll('[data-range]').forEach(button => button.setAttribute('aria-pressed', button.dataset.range === filter.range));
-  document.querySelectorAll('[data-basis]').forEach(button => button.setAttribute('aria-pressed', button.dataset.basis === filter.basis));
   renderCalendar(); renderSources(); renderDateStrip(); renderResults();
 }
 
 function selectDate(date) {
+  if (state.view !== 'home') return;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
   if (date < Model.dateKey()) { render(); return; }
-  const start = $('#dateStrip').dataset.start;
-  options().stripStart = start && date >= start && date <= Model.addDays(start, 6) ? start : date;
+  const fromStrip = $('#dateStrip').contains(document.activeElement);
   options().date = date; options().range = 'day'; state.month = date.slice(0, 7); render();
+  if (fromStrip) $(`#dateStrip [data-date="${date}"]`)?.focus({ preventScroll: true });
   if ($('#dateDialog').open) $('#dateDialog').close();
 }
-function resetFilters() { state.filters[state.view] = defaults(state.view); state.month = Model.dateKey().slice(0, 7); render(); }
+function resetFilters() { state.filters[state.view] = defaults(); state.month = Model.dateKey().slice(0, 7); render(); }
 function setView(view) {
   if (!['home', 'sports', 'alarm'].includes(view)) return;
   state.view = view;
@@ -224,11 +242,9 @@ document.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button) return;
   if ('view' in button.dataset) setView(button.dataset.view);
-  else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; if (options().range === 'upcoming') options().stripStart = null; render(); }
+  else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; render(); }
   else if ('date' in button.dataset) selectDate(button.dataset.date);
-  else if ('datePage' in button.dataset) { options().stripStart = Model.addDays($('#dateStrip').dataset.start, Number(button.dataset.datePage) * 7); renderDateStrip(); }
-  else if ('range' in button.dataset) { options().range = button.dataset.range; if (button.dataset.range === 'upcoming') { options().date = Model.dateKey(); options().stripStart = null; } render(); }
-  else if ('basis' in button.dataset) { options().basis = button.dataset.basis; options().stripStart = null; render(); }
+  else if ('range' in button.dataset) { options().range = button.dataset.range; if (button.dataset.range === 'upcoming') options().date = Model.dateKey(); render(); }
   else if ('status' in button.dataset) { options().status = button.dataset.status; render(); }
   else if ('alarm' in button.dataset) toggleAlarm(button.dataset.alarm);
   else if ('reset' in button.dataset || button.id === 'resetFilters') resetFilters();
@@ -236,13 +252,15 @@ document.addEventListener('click', event => {
   else if (button.id === 'clearBtn') { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(STORAGE_KEY); } catch {} state.items = []; state.sports = { items: [], teamStatus: {} }; state.generatedAt = null; loadStatic().then(() => { render(); renderSettings(); }); }
 });
 $('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
-$('#searchInput').addEventListener('input', event => { options().query = event.target.value; if (options().range === 'upcoming') options().stripStart = null; renderCalendar(); renderSources(); renderDateStrip(); renderResults(); });
+$('#searchInput').addEventListener('input', event => { options().query = event.target.value; renderCalendar(); renderSources(); renderDateStrip(); renderResults(); });
+$('#dateStrip').addEventListener('scroll', updateStripMonth, { passive: true });
 $('#todayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
 $('#datePickerBtn').addEventListener('click', () => {
-  state.month = $('#dateStrip').dataset.start.slice(0, 7);
+  const date = options().range === 'day' ? options().date : $('#dateStrip').dataset.visible || Model.dateKey();
+  state.month = date.slice(0, 7);
   $('#dateDialogBody').append($('.calendar-panel'));
   renderCalendar(); $('#dateDialog').showModal();
-  ($('#calendarGrid .selected:not(:disabled)') || $(`#calendarGrid [data-date="${$('#dateStrip').dataset.start}"]`) || $('#calendarGrid button:not(:disabled)'))?.focus();
+  ($('#calendarGrid .selected:not(:disabled)') || $(`#calendarGrid [data-date="${date}"]`) || $('#calendarGrid button:not(:disabled)'))?.focus();
 });
 $('#dateDialog').addEventListener('close', () => $('.sidebar').prepend($('.calendar-panel')));
 for (const [id, amount] of [['monthPrev', -1], ['monthNext', 1]]) $( `#${id}`).addEventListener('click', () => {

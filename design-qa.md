@@ -108,3 +108,9 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - Retained the approved white/cobalt/periwinkle palette and lifting detail, replacing the abstract loop with a recognizable admission-ticket silhouette. Side notches, two printed-information bars, a short perforation and the lifted tear-off stub explicitly connect the mark to tickets and opening. All app/header/notification/favicon references use `20260929-ticket-icon`.
 - Six PNG assets pass dimensions, corner alpha/opacity, manifest parsing and local HTTP verification. With the existing 6% Android inset, colored artwork reaches 36.83% of image width from the center, within the 40% circular safe zone.
 - Inspected 16–64px light/dark previews and 344px concert/sports views. Layout remains unchanged and has no horizontal overflow. Existing evidence paths now show this revision; public assets are checked after deployment. Physical launcher behavior remains untested.
+
+## Ticket-opening alert icon — 2026-09-29
+
+- Replaced the detached ticket stub and information bars with a large white notification bell inside a compact cobalt ticket. Side notches identify the ticket; the bell communicates the app's opening-alert purpose. White background and a subtle periwinkle folded corner retain the established palette. All references use `20260929-alert-icon`.
+- All six PNGs pass dimensions, alpha/opacity, manifest and HTTP checks. The Android icon's colored artwork fits within 37.47% of image width from the center, inside the 40% circular safe zone.
+- Inspected light/dark previews at 16/28/32/48/64px and concert/sports pages at 344px. The bell remains visible at small sizes; no layout change or overflow. Existing evidence paths now contain this revision. Physical launcher behavior remains untested; public assets and mobile rendering are verified after deployment.

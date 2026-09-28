@@ -36,7 +36,7 @@ const TARGETS = [
           context.roundRect(0, 0, size, size, size * 0.22);
           context.clip();
         }
-        // Android의 원형 마스크에서도 열린 모서리가 잘리지 않도록 여백을 둔다.
+        // Android의 원형 마스크에서도 티켓 모서리가 잘리지 않도록 여백을 둔다.
         context.fillStyle = '#fff';
         context.fillRect(0, 0, size, size);
         context.drawImage(image, size * inset, size * inset, size * (1 - inset * 2), size * (1 - inset * 2));

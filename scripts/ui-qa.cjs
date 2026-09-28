@@ -42,6 +42,46 @@ async function main() {
   page.on('pageerror', error => errors.push(error.message));
   const check = (name, result) => { assert.ok(result, name); checks.push(name); };
   const waitCount = async (selector, count) => page.waitForFunction(({ selector, count }) => [...document.querySelectorAll(selector)].filter(element => element.getClientRects().length).length === count, { selector, count });
+  const checkScrollDates = async (target, width) => {
+    const scrollFixture = {
+      ...fixture,
+      items: ['2026-09-29', '2026-09-30'].flatMap(date => Array.from({ length: 12 }, (_, i) => concert('melon', `스크롤 확인 공연 ${date} ${i + 1}`, date, '20:00'))),
+      sports: { ...fixture.sports, items: fixture.sports.items.filter(item => item.openDate >= '2026-09-29').flatMap(item => Array.from({ length: 3 }, (_, i) => ({ ...item, id: `${item.id}-${i}` }))) },
+    };
+    await target.route('**/data.json*', route => route.fulfill({ json: scrollFixture }));
+    await target.clock.setFixedTime(fixedNow);
+    await target.evaluate(() => localStorage.clear()); await target.reload();
+    await target.waitForFunction(() => document.querySelectorAll('#results .ticket-row').length === 12);
+    await target.evaluate(() => document.fonts.ready);
+    const scrollSection = async index => target.locator('#results > section').nth(index).evaluate(section => scrollTo(0, scrollY + section.getBoundingClientRect().top + 150));
+    const pinned = async (heading, date) => heading.evaluate((element, date) => {
+      const rect = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return Math.abs(rect.top) < 1 && element.contains(hit) && element.textContent.includes(date);
+    }, date);
+    await scrollSection(0);
+    check(`concert ${width}px selected date stays visible above rows`, await pinned(target.locator('.results-heading'), '9월 29일'));
+    await target.screenshot({ path: path.join(output, `pinned-home-${width}.png`), scale: 'css' });
+    await target.locator('#dateStrip [data-date="2026-09-30"]').click();
+    await scrollSection(0);
+    check(`concert ${width}px pinned date follows selection`, await pinned(target.locator('.results-heading'), '9월 30일'));
+    for (const view of ['home', 'sports']) {
+      if (view === 'home') await target.locator('[data-range="upcoming"]').click();
+      else await target.locator('#tab-sports').click();
+      const headings = target.locator('#results .group-heading');
+      for (const index of [0, 1, 0]) {
+        await scrollSection(index);
+        check(`${view} ${width}px scrolling to group ${index} pins its opening date`, await pinned(headings.nth(index), `9월 ${29 + index}일`));
+      }
+      await target.locator('#results > section').nth(1).evaluate(section => scrollTo(0, scrollY + section.getBoundingClientRect().top - 20));
+      const outgoing = await headings.nth(0).boundingBox(), incoming = await headings.nth(1).boundingBox();
+      check(`${view} ${width}px adjacent date headings do not overlap`, Math.abs(incoming.y - 20) < 1 && outgoing.y + outgoing.height <= incoming.y + 1);
+      await scrollSection(1);
+      await target.screenshot({ path: path.join(output, `pinned-${view === 'home' ? 'upcoming' : 'sports'}-${width}.png`), scale: 'css' });
+      check(`${view} ${width}px date bar creates no horizontal overflow`, await target.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    }
+    check(`sports ${width}px retains opening context without date controls`, (await target.locator('#results .group-heading').last().innerText()).includes('예매 오픈') && await target.locator('.date-browser').isHidden());
+  };
   try {
     await page.clock.setFixedTime(fixedNow);
     await page.route('**/data.json*', route => route.fulfill({ json: fixture }));
@@ -107,6 +147,8 @@ async function main() {
     await page.locator('#dateStrip [data-date="2026-09-28"]').click(); await waitCount('.ticket-row', 0);
     await page.clock.setFixedTime(new Date('2026-09-28T15:00:01Z')); await waitCount('.ticket-row', 2);
     check('KST midnight selects next valid date', await page.locator('#selectedDate').inputValue() === '2026-09-29' && await page.locator('#dateStrip [aria-pressed="true"]').getAttribute('data-date') === '2026-09-29');
+
+    await checkScrollDates(page, 1440);
 
     // Visual and axe checks below use the real committed export, not test fixtures.
     await page.unroute('**/data.json*');
@@ -194,6 +236,8 @@ async function main() {
     await cover.locator('[data-close="settingsDialog"]').tap();
     check('cover settings controls', !await cover.locator('#settingsDialog').isVisible());
 
+    await checkScrollDates(cover, 344);
+
     await cover.unroute('**/data.json*');
     await cover.clock.setFixedTime(new Date());
     await cover.evaluate(() => localStorage.clear()); await cover.reload();
@@ -231,7 +275,7 @@ async function main() {
     const report = { checkedAt: new Date().toISOString(), functionalData: 'synthetic fixture', visualData: 'real public/data.json export', checks, errors, audits, coverMetrics };
     await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     assert.equal(audits.reduce((n, audit) => n + audit.violations.length, 0), 0, JSON.stringify(audits, null, 2));
-    console.log(JSON.stringify({ checks: checks.length, screenshots: 13, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
+    console.log(JSON.stringify({ checks: checks.length, screenshots: 19, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

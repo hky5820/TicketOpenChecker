@@ -171,7 +171,7 @@ function groupedRows(items, basis) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(item);
   });
-  return [...groups].map(([key, rows]) => `<section><div class="group-heading"><strong>${fullDate(key)}</strong><span>${basis === 'game' ? '경기' : '오픈'} ${rows.length}건</span></div>${rows.map(item => item.category === 'sports' ? sportsRow(item) : concertRow(item)).join('')}</section>`).join('');
+  return [...groups].map(([key, rows]) => `<section><div class="group-heading"><strong>${fullDate(key)}</strong><span>${basis === 'game' ? '경기' : '예매 오픈'} ${rows.length}건</span></div>${rows.map(item => item.category === 'sports' ? sportsRow(item) : concertRow(item)).join('')}</section>`).join('');
 }
 
 function renderResults() {

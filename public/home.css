@@ -16,7 +16,7 @@ dialog{padding:24px;border:1px solid var(--line);border-radius:14px;width:min(48
 
 .source-short{display:none}
 .source-filter{position:relative}.source-filter:not(:last-child):after{content:'';position:absolute;bottom:-3px;left:8px;right:8px;height:1px;background:#d7deea;pointer-events:none}.source-filter .source-logo{width:28px;height:28px;object-fit:contain;flex-shrink:0}
-.ticket-row,.sports-row{border-bottom-color:#d1d9e6}.ticket-row .poster{width:56px;height:76px}.ticket-row .ticket-title{font-size:15px;font-weight:630;line-height:1.5}
+.ticket-row,.sports-row{border-bottom-color:#d1d9e6}.ticket-row .poster{width:56px;height:76px}.ticket-row .ticket-title{font-size:15px;font-weight:630;line-height:1.5;word-break:keep-all}
 .concert-date-nav{display:none}.date-dialog{width:min(360px,calc(100vw - 24px));padding:16px}.date-dialog .dialog-heading{margin-bottom:0}.date-dialog .calendar-panel{display:block;padding:10px 0 0}.date-dialog .calendar-grid button{height:42px;font-size:14px}.date-dialog .calendar-heading .icon-button{height:36px;width:36px}.date-dialog .calendar-footer .text-button{min-height:36px;font-size:12px}
 @media(max-width:600px){
   .shell{position:relative;padding:0 0 env(safe-area-inset-bottom)}

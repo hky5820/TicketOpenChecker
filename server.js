@@ -4,6 +4,7 @@ const path = require('path');
 const webpush = require('web-push');
 const { chromium } = require('playwright');
 const { collectSports } = require('./lib/sports');
+const { collectMelon } = require('./lib/melon');
 
 const START_PORT = Number(process.env.PORT || 3000);
 const HEADLESS = process.env.HEADLESS === '1' || process.env.CI === 'true';
@@ -178,7 +179,7 @@ app.get('/api/load', async (req, res) => {
   try {
     send('status', { site: 'system', message: '브라우저를 여는 중' });
     context = await launchMobileContext();
-    // 멜론은 PC(데스크톱) 모드로 접속해야 목록·조회수를 쉽게 읽을 수 있어 별도 컨텍스트를 쓴다.
+    // NOL 공지 수집에 사용하는 데스크톱 컨텍스트.
     desktopContext = await launchDesktopContext();
 
     const allItems = [];
@@ -311,7 +312,7 @@ async function launchMobileContext() {
 }
 
 async function launchDesktopContext() {
-  // 멜론 전용 PC(데스크톱) 컨텍스트 — 데스크톱 목록은 조회수/상세링크가 그대로 노출돼 파싱이 쉽다.
+  // NOL 공지 수집용 데스크톱 컨텍스트.
   const context = await chromium.launchPersistentContext(DESKTOP_PROFILE_DIR, {
     ...(HEADLESS ? {} : { channel: 'chrome' }),
     headless: HEADLESS,
@@ -400,74 +401,9 @@ async function scrapeInterpark(page, progress, emit) {
   progress(`${items.length}건`);
 }
 
-async function scrapeMelon(page, progress, emit) {
-  // 멜론 오픈예정 목록 API(csoon/ajax/listTicketOpen.htm, POST)를 페이지 컨텍스트에서 호출한다.
-  // (조회수는 세션 쿠키가 있어야 내려와서, 페이지를 한 번 연 뒤 그 안에서 fetch 한다.)
-  // 응답 HTML 한 항목에 제목/오픈일시/조회수/포스터/상세링크(csoonId)가 모두 들어있다.
-  await page.goto('https://ticket.melon.com/csoon/index.htm#orderType=0&pageIndex=1&schGcode=GENRE_ALL&schText=&schDt=', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForTimeout(2500);
-
-  const collected = new Map();
-  for (let pageIndex = 1; pageIndex <= 10; pageIndex += 1) {
-    const items = await fetchMelonPage(page, pageIndex);
-    if (!items.length) break;
-    items.forEach((item) => { if (!collected.has(item.url)) collected.set(item.url, item); });
-    emit(items);
-    progress(`오픈예정 목록 ${pageIndex}페이지 (${collected.size}건)`);
-    if (items.length < 10) break; // 마지막 페이지
-  }
-  progress(`${collected.size}건`);
-}
-
-async function fetchMelonPage(page, pageIndex) {
-  return page.evaluate(async (idx) => {
-    const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
-    let html = '';
-    try {
-      const body = new URLSearchParams({ orderType: '0', pageIndex: String(idx), schGcode: 'GENRE_ALL', schText: '', schDt: '' }).toString();
-      const res = await fetch('https://ticket.melon.com/csoon/ajax/listTicketOpen.htm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
-        body,
-      });
-      html = await res.text();
-    } catch (e) {
-      return [];
-    }
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const items = [];
-    const seen = new Set();
-    for (const li of Array.from(doc.querySelectorAll('li'))) {
-      const text = clean(li.innerText || li.textContent || '');
-      if (!/티켓오픈일/.test(text)) continue;
-      const dm = text.match(/(20\d{2})\.(\d{1,2})\.(\d{1,2})\s*\([^)]*\)\s*(\d{1,2}):(\d{2})/);
-      if (!dm) continue;
-      const openDate = `${dm[1]}-${dm[2].padStart(2, '0')}-${dm[3].padStart(2, '0')}`;
-      const openTime = `${dm[4].padStart(2, '0')}:${dm[5]}`;
-      const vm = text.match(/조회\s*([\d,]+)/);
-      const viewCount = vm ? Number(vm[1].replace(/,/g, '')) : null;
-      const titEl = li.querySelector('.tit, strong, .title');
-      const title = clean(titEl ? titEl.textContent : '');
-      if (!title) continue;
-      const cLink = li.querySelector('a[href*="csoonId"]');
-      const cid = (cLink ? cLink.getAttribute('href') || '' : '').match(/csoonId=(\d+)/);
-      // 모바일 딥링크를 기본 URL로 사용한다: 모바일에선 그대로 상세 SPA로,
-      // 데스크톱에선 ticket.melon.com/csoon/detail.htm 로 리다이렉트되어 양쪽 다 정상.
-      // (데스크톱 URL을 쓰면 모바일에서 홈으로 튕기는 문제가 있었다.)
-      // 멜론 모바일은 특정 공고 콜드 로드 딥링크를 지원하지 않아, 데스크톱 상세 URL을 쓴다.
-      const url = cid
-        ? `https://ticket.melon.com/csoon/detail.htm?csoonId=${cid[1]}`
-        : 'https://ticket.melon.com/csoon/index.htm';
-      const imgEl = li.querySelector('img');
-      let image = imgEl ? (imgEl.getAttribute('src') || imgEl.getAttribute('data-src') || '') : '';
-      if (image.startsWith('//')) image = `https:${image}`;
-      const key = `${title}|${openDate}|${openTime}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      items.push({ title, openDate, openTime, viewCount, image, url });
-    }
-    return items;
-  }, pageIndex);
+async function scrapeMelon(_page, progress, emit) {
+  // Public mobile API: validated response and complete pagination before emission.
+  emit(await collectMelon(progress));
 }
 
 async function scrapeTicketlink(page, progress, emit) {

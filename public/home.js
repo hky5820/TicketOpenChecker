@@ -14,10 +14,10 @@ const CALENDAR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 const BELL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be full or disabled. */ } };
-const defaults = () => ({ date: Model.dateKey(), range: 'upcoming', basis: 'open', vendor: '', team: '', status: 'all', query: '' });
+const defaults = (view = 'home') => ({ date: Model.dateKey(), range: view === 'sports' ? 'upcoming' : 'day', autoDate: view === 'home', basis: 'open', vendor: '', team: '', status: 'all', query: '' });
 const state = {
   items: [], sports: { items: [], teamStatus: {} }, siteStatus: {}, generatedAt: null, view: 'home',
-  filters: { home: defaults(), sports: defaults() }, month: Model.dateKey().slice(0, 7),
+  filters: { home: defaults(), sports: defaults('sports') }, month: Model.dateKey().slice(0, 7),
   alarms: read(ALARM_KEY, {}), alarmItems: read(ALARM_ITEMS_KEY, []), loading: false, statuses: {},
 };
 if (!state.alarms || typeof state.alarms !== 'object' || Array.isArray(state.alarms)) state.alarms = {};
@@ -91,14 +91,14 @@ function renderDateStrip() {
   const filter = options(), today = Model.dateKey(), strip = $('#dateStrip');
   const items = Model.filter(sourceItems(), { ...filter, range: 'all' });
   const target = filter.range === 'upcoming' ? items.find(item => item.openDate)?.openDate || today : filter.date;
-  const end = [Model.addDays(today, 60), Model.addDays(target, 14), ...items.map(item => item.openDate).filter(Boolean)].sort().at(-1);
-  const days = Math.round((Date.parse(end) - Date.parse(today)) / 86400000) + 1;
+  const start = target > Model.addDays(today, 60) ? Model.addDays(target, -7) : today;
+  const days = 61;
   const previousTarget = strip.dataset.focus, previousScroll = strip.scrollLeft;
-  strip.dataset.start = today;
+  strip.dataset.start = start;
   strip.dataset.focus = target;
   $('#dateDialogTitle').textContent = '오픈 날짜 선택';
   strip.innerHTML = Array.from({ length: days }, (_, index) => {
-    const key = Model.addDays(today, index), count = items.filter(item => item.openDate === key).length;
+    const key = Model.addDays(start, index), count = items.filter(item => item.openDate === key).length;
     const selected = filter.range === 'day' && key === filter.date;
     return `<button data-date="${key}" class="${count ? 'has-events' : ''}" aria-pressed="${selected}" aria-label="${fullDate(key)} ${count}건"><span>${key === today ? '오늘' : WD[new Date(`${key}T00:00:00Z`).getUTCDay()]}</span><strong>${Number(key.slice(8)) === 1 ? `${Number(key.slice(5, 7))}/1` : Number(key.slice(8))}</strong><small>${count ? `${count}건` : '·'}</small></button>`;
   }).join('');
@@ -184,8 +184,9 @@ function renderResults() {
   const labels = sports ? [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '예매 중'], ['presale', '선예매'], ['closed', '종료·매진'], ['unknown', '확인 필요']]
     : [['all', '전체'], ['scheduled', '오픈 예정'], ['unknown', '시간 미정']];
   $('#statusFilters').innerHTML = labels.filter(([id]) => !['presale', 'closed', 'unknown'].includes(id) || base.some(item => Model.status(item).id === id) || filter.status === id).map(([id, label]) => `<button data-status="${id}" aria-pressed="${filter.status === id}">${label}<b>${id === 'all' ? base.length : base.filter(item => Model.status(item).id === id).length}</b></button>`).join('');
-  $('#resultTitle').textContent = filter.range === 'upcoming' ? '다가오는 오픈' : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
+  $('#resultTitle').textContent = filter.range === 'upcoming' ? '다가오는 오픈' : fullDate(filter.date);
   $('#resultCount').textContent = `${list.length}건`;
+  $('#results').dataset.layout = filter.range;
   $('#results').innerHTML = list.length ? groupedRows(list, filter.basis) : emptyMarkup();
   $('#listTotal').textContent = `오픈 ${list.length}건`;
   $('#listHint').textContent = sports ? '일반 예매 오픈순 · 지난 오픈 제외 · KST' : '공연일이 아닌 티켓 오픈일 기준 · KST';
@@ -208,16 +209,17 @@ function render() {
   updateAlarmBadge();
   if (alarm) { renderAlarms(); return; }
   const filter = options();
-  if (filter.date < Model.dateKey()) { filter.date = Model.dateKey(); filter.range = 'upcoming'; state.month = filter.date.slice(0, 7); }
-  $('#selectedDate').value = filter.date;
+  if (filter.date < Model.dateKey()) { filter.date = Model.dateKey(); if (!sports && filter.range === 'day') filter.autoDate = true; }
+  if (!sports && filter.autoDate) {
+    filter.date = Model.filter(sourceItems(), { ...filter, range: 'all' }).find(item => item.openDate)?.openDate || Model.dateKey();
+    state.month = filter.date.slice(0, 7);
+  }
+  $('#selectedDate').value = filter.range === 'upcoming' ? '' : filter.date;
   $('#selectedDate').min = Model.dateKey();
-  $('#dateLabel').textContent = filter.basis === 'game' ? '경기일' : '오픈일';
-  $('#selectedDate').setAttribute('aria-label', filter.basis === 'game' ? '경기일 선택' : '오픈일 선택');
   $('#searchInput').value = filter.query;
   $('#searchInput').placeholder = sports ? '팀·구장 검색' : '공연명 검색';
   $('.calendar-panel').hidden = sports;
   $('.date-browser').hidden = sports;
-  $('.date-toolbar').hidden = sports;
   document.querySelectorAll('[data-range]').forEach(button => button.setAttribute('aria-pressed', button.dataset.range === filter.range));
   renderCalendar(); renderSources(); renderDateStrip(); renderResults();
 }
@@ -227,11 +229,11 @@ function selectDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
   if (date < Model.dateKey()) { render(); return; }
   const fromStrip = $('#dateStrip').contains(document.activeElement);
-  options().date = date; options().range = 'day'; state.month = date.slice(0, 7); render();
+  options().date = date; options().range = 'day'; options().autoDate = false; state.month = date.slice(0, 7); render();
   if (fromStrip) $(`#dateStrip [data-date="${date}"]`)?.focus({ preventScroll: true });
   if ($('#dateDialog').open) $('#dateDialog').close();
 }
-function resetFilters() { state.filters[state.view] = defaults(); state.month = Model.dateKey().slice(0, 7); render(); }
+function resetFilters() { state.filters[state.view] = defaults(state.view); state.month = Model.dateKey().slice(0, 7); render(); }
 function setView(view) {
   if (!['home', 'sports', 'alarm'].includes(view)) return;
   state.view = view;
@@ -244,7 +246,7 @@ document.addEventListener('click', event => {
   if ('view' in button.dataset) setView(button.dataset.view);
   else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; render(); }
   else if ('date' in button.dataset) selectDate(button.dataset.date);
-  else if ('range' in button.dataset) { options().range = button.dataset.range; if (button.dataset.range === 'upcoming') options().date = Model.dateKey(); render(); }
+  else if ('range' in button.dataset) { options().range = button.dataset.range; options().autoDate = false; if (button.dataset.range === 'upcoming') options().date = Model.dateKey(); render(); }
   else if ('status' in button.dataset) { options().status = button.dataset.status; render(); }
   else if ('alarm' in button.dataset) toggleAlarm(button.dataset.alarm);
   else if ('reset' in button.dataset || button.id === 'resetFilters') resetFilters();
@@ -252,7 +254,7 @@ document.addEventListener('click', event => {
   else if (button.id === 'clearBtn') { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(STORAGE_KEY); } catch {} state.items = []; state.sports = { items: [], teamStatus: {} }; state.generatedAt = null; loadStatic().then(() => { render(); renderSettings(); }); }
 });
 $('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
-$('#searchInput').addEventListener('input', event => { options().query = event.target.value; renderCalendar(); renderSources(); renderDateStrip(); renderResults(); });
+$('#searchInput').addEventListener('input', event => { options().query = event.target.value; render(); });
 $('#dateStrip').addEventListener('scroll', updateStripMonth, { passive: true });
 $('#todayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
 $('#datePickerBtn').addEventListener('click', () => {

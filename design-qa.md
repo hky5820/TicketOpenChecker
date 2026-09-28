@@ -4,8 +4,8 @@ References inspected: current Desktop/plm-desk/ui and Desktop/svace-workspace/ex
 
 - Live collection through real Chrome / Pixel 7: 23 home games across LG (5), Hanwha (4), Samsung (6), KT (4), KIA (4). 18 ON_SALE, 5 BEFORE at collection time.
 - Export: 107 concert notices and sports snapshot, with per-provider and per-team collection status.
-- Unit checks: 13 passed (KST, date basis, ownership, sale status, failed/empty collections, alarm keys, current-time boundaries and unknown times).
-- Browser checks: 74 passed. Functional checks use synthetic fixtures; twelve list captures use the real exported data, and a calendar capture uses the fixture.
+- Unit checks: 19 passed (KST, date basis, ownership, sale status, failed/empty collections, alarm keys, current-time boundaries and unknown times).
+- Browser checks: 77 passed. Functional checks use synthetic fixtures; twelve list captures use the real exported data, and a calendar capture uses the fixture.
 - axe WCAG A/AA checks: 0 violations at 375, 768 and 1440 CSS pixels, plus mobile cover widths 344, 360 and 384, concert and sports views and the mobile calendar dialog.
 - Additional mobile emulation: 320px, no document overflow.
 - Evidence: output/ui-qa/report.json, home-{375,768,1440}.png, sports-{375,768,1440}.png.
@@ -40,7 +40,7 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - At 344/360/384 × 748, seven date buttons are fully visible with no horizontal document overflow. Two complete concert/game items fit in the sampled viewport; the date strip makes neighboring dates directly accessible. The redundant concert status bar hides when all available items share one status.
 - Clock-based browser checks cover same-day expiry and KST midnight; unit checks also cover exact timestamps, unknown dates, and retaining already-open tickets only in the future-game view.
 
-## Opening-first sports and scrollable dates (current)
+## Opening-first sports and scrollable dates (previous iteration)
 
 - Sports now always groups and sorts by the general ticket opening timestamp, starting with future openings. All sports date/range/basis controls are removed. Game date, time and venue are secondary metadata beneath the matchup. This supersedes the previous game-first view; already-passed openings are excluded.
 - Mobile concert dates form a continuous horizontal strip, with six full 44px targets and a partly visible next date on the narrowest cover viewport. It starts at the nearest matching opening, supports native touch scrolling, and preserves the chosen date and provider while scrolling. Month labels update with the visible dates; month boundaries include the month in the day label. The full calendar remains available.
@@ -48,3 +48,13 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - At 344/360/384 × 748, the sampled LG first row moved from y=412 to y=263. Sports rows remain compact at about 108px. Two future LG openings exist in the current snapshot and both are visible. Concert rows remain about 162px with two complete items visible.
 - Browser coverage includes actual CDP touch swiping, exact dates across month/year boundaries, provider preservation, sports opening order against reversed game order, absence of sports date controls, reminder persistence, failed collections and live time expiry. 74 checks, 13 captures, zero axe violations and zero uncaught browser errors.
 - Validation uses Chrome mobile emulation, not a physical Fold or Samsung Internet.
+
+## Selected-day consistency and Melon collection (current)
+
+- Home defaults to the nearest remaining opening date. The horizontal strip, full calendar, result heading and list share that exact date. The default follows the next remaining date after expiry and resolves the nearest matching date when changing provider. Manually chosen empty dates remain selected.
+- “전체 예정” is a distinct action with no selected day. Redundant day/week/all controls and duplicate list date headings are removed; the continuous date strip is also available on desktop. Subtle provider selections, a blue selected date number and aligned search/heading spacing reduce visual clutter. Sports keeps its opening-first view without date controls.
+- The strip renders a bounded 61-day window, including when the source contains dates decades in the future. Selecting a distant date in the calendar shifts that window around the selection.
+- Melon diagnosis: deployed `siteStatus.melon` reported `ok:true,count:0,fallback:true`, retaining 9 old entries. The HTML collector swallowed request errors and treated unmatched/error HTML as an empty success. A separate reproduced pagination bug filtered one multi-opening notice out of a ten-notice page, then stopped because only nine parsed items remained. The historical runner response was not logged, so its exact HTTP/response cause cannot be reconstructed.
+- Verified the actual mobile site with Chrome and observed `tktapi.melon.com/poc/ticketOpen/list.json`. Collection now uses that public API in opening order, paginates by raw count, deduplicates overlapping pages, and expands detail schedules for presale/general/lottery rounds. The site's `23:23` unknown-time sentinel is preserved as unknown. HTTP, JSON, schema and partial-detail failures stay errors; successful empty Melon results do not revive stale snapshots.
+- Live local collection read 42 unique notices over five pages and extracted 37 opening schedules. Unit coverage includes pagination, multi-opening expansion, API failures, cancellation, unknown-time markers, duplicate notices and round labels. Remote collection must also be checked after deployment.
+- Validation: 19 unit tests, 77 browser checks, thirteen regular screenshots, zero axe violations and zero uncaught browser errors. Cover emulation at 344/360/384 × 748 shows matching selected day/list and two complete concert rows. Physical Fold/Samsung Internet was not tested.

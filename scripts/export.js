@@ -22,7 +22,7 @@ async function main() {
 
   try {
     const loaded = await collectItems(`http://127.0.0.1:${server.port}/api/load`);
-    const items = fillMissingSites(normalizeForExport(loaded.items), previousItems);
+    const items = fillMissingSites(normalizeForExport(loaded.items), previousItems, loaded.siteStatus);
     for (const id of EXPECTED_SITES) {
       if (loaded.siteStatus?.[id] && !loaded.items.some(item => item.siteId === id) && items.some(item => item.siteId === id)) loaded.siteStatus[id].fallback = true;
     }
@@ -133,6 +133,8 @@ async function collectItems(url) {
       if (event.type === 'fatal') {
         throw new Error(event.data.message || 'Schedule loading failed.');
       }
+      if (event.type === 'siteError') console.log(`[collection] ${event.data.site}: ${event.data.message}`);
+      if (event.type === 'siteDone') console.log(`[collection] ${event.data.site}: ${event.data.count} items`);
       if (event.type === 'done') {
         donePayload = event.data;
       }
@@ -201,7 +203,7 @@ async function loadPreviousItems() {
 
 // 특정 예매처가 이번 수집에서 0건이면 직전(미래 일정) 데이터를 유지한다.
 const EXPECTED_SITES = ['interpark', 'melon', 'ticketlink'];
-function fillMissingSites(items, previousItems) {
+function fillMissingSites(items, previousItems, siteStatus) {
   if (!previousItems.length) return items;
   const present = new Set(items.map((item) => item.siteId));
   const startOfToday = new Date();
@@ -214,6 +216,8 @@ function fillMissingSites(items, previousItems) {
   const extras = [];
   for (const siteId of EXPECTED_SITES) {
     if (present.has(siteId)) continue;
+    // Melon validates its JSON response; a successful empty list is authoritative.
+    if (siteId === 'melon' && siteStatus?.melon?.ok) continue;
     const kept = previousItems.filter((item) => item.siteId === siteId && isFuture(item));
     if (kept.length) {
       extras.push(...kept);

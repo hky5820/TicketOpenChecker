@@ -339,7 +339,7 @@ async function notify(title, body, key) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
     const registration = await navigator.serviceWorker.getRegistration();
-    if (registration) { await registration.showNotification(title, { body, icon: 'icon-192.png?v=20260929-white-icon', tag: `toc:${key}`, renotify: true, vibrate: [200, 100, 200] }); return; }
+    if (registration) { await registration.showNotification(title, { body, icon: 'icon-192.png?v=20260929-open-icon', tag: `toc:${key}`, renotify: true, vibrate: [200, 100, 200] }); return; }
     new Notification(title, { body, tag: `toc:${key}` });
   } catch { /* Notification support depends on browser and permissions. */ }
 }

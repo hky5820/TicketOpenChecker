@@ -10,7 +10,7 @@ const TARGETS = [
   { file: 'icon-192.png', size: 192, rounded: true },
   // iOS와 Android 런처가 직접 모양을 적용하므로 배경을 끝까지 채운다.
   { file: 'icon-180.png', size: 180, rounded: false },
-  { file: 'icon-maskable-512.png', size: 512, rounded: false },
+  { file: 'icon-maskable-512.png', size: 512, rounded: false, inset: 0.06 },
   { file: 'favicon-32.png', size: 32, rounded: true },
   { file: 'favicon-16.png', size: 16, rounded: true },
 ];
@@ -22,7 +22,7 @@ const TARGETS = [
     const page = await browser.newPage();
     await page.setContent('<!doctype html><html><body><canvas></canvas></body></html>');
     for (const target of TARGETS) {
-      const png = await page.evaluate(async ({ source, size, rounded }) => {
+      const png = await page.evaluate(async ({ source, size, rounded, inset = 0 }) => {
         const image = new Image();
         image.src = source;
         await image.decode();
@@ -36,7 +36,10 @@ const TARGETS = [
           context.roundRect(0, 0, size, size, size * 0.22);
           context.clip();
         }
-        context.drawImage(image, 0, 0, size, size);
+        // Android의 원형 마스크에서도 열린 모서리가 잘리지 않도록 여백을 둔다.
+        context.fillStyle = '#fff';
+        context.fillRect(0, 0, size, size);
+        context.drawImage(image, size * inset, size * inset, size * (1 - inset * 2), size * (1 - inset * 2));
         return canvas.toDataURL('image/png').split(',')[1];
       }, { source: `data:image/png;base64,${source.toString('base64')}`, ...target });
       await fs.writeFile(path.join(PUBLIC_DIR, target.file), Buffer.from(png, 'base64'));

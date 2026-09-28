@@ -22,7 +22,7 @@ self.addEventListener('push', (event) => {
   const data = (d.data && typeof d.data === 'object') ? d.data : {};
   event.waitUntil(self.registration.showNotification(d.title || '티켓오픈 체커', {
     body: d.body || '',
-    icon: 'icon-192.png?v=20260929-white-icon',
+    icon: 'icon-192.png?v=20260929-open-icon',
     // 페이지가 띄우는 알림과 tag를 맞춰 둔다 — 같은 tag면 쌓이지 않고 서로 교체된다
     tag: data.tag || d.tag || 'toc-push',
     renotify: true,

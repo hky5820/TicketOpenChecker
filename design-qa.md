@@ -96,3 +96,9 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - Replaced the blue tile and tilted ticket with a warm-white tile, horizontal navy ticket and clear right-angle clock hands. The same source produces all six platform assets; header, notifications, manifest and favicon references use the new `20260929-white-icon` version.
 - Inspected 16/28/32/48/64px previews on light/dark backgrounds and 344px concert/sports pages. No layout changes or horizontal overflow. Manifest parsing, image dimensions, alpha behavior and asset responses passed; navy artwork stays within 38.83% of image width from the center, inside the 40% circular safe zone.
 - Evidence paths above now contain the white revision. Physical launcher behavior remains untested; deployed assets and mobile rendering are checked after publishing.
+
+## Opening-ticket emblem — 2026-09-29
+
+- A new cobalt loop with ticket notches and a lifted periwinkle corner replaces the ticket-and-clock illustration. White background and a large continuous silhouette improve recognition at small sizes; there are no interior clock hands or perforations. Header, notifications and all platform icons share the new source and `20260929-open-icon` asset version.
+- Android maskable output adds 6% white padding per edge to preserve the lifted corner in circular launchers. All colored artwork is within 38.12% of image width from the center. General icons retain the larger emblem. PNG dimensions, opacity/corner transparency, manifest parsing and local asset responses pass.
+- Inspected circle/squircle/safe-zone previews, 16/28/32/48/64px sizes on light/dark backgrounds, and 344px concert/sports pages. No layout changes or horizontal overflow. Existing evidence paths now show this emblem. Physical launcher behavior remains untested; public assets and mobile rendering are verified after deployment.

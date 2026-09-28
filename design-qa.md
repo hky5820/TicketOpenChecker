@@ -90,3 +90,9 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - General icons have transparent rounded corners. Apple touch and Android maskable icons are opaque squares; white artwork reaches only 36.83% of image width from the center, inside the 40% circular safe zone. Circle, rounded-square and safe-zone previews retain the whole ticket. 16/28/32/48/64px previews were inspected on light and dark backgrounds.
 - Chrome verified manifest parsing, all six PNG dimensions, alpha behavior and matching asset responses. Cover emulation at 344px keeps the header on one line, without horizontal overflow. Existing 117 browser checks and 21 captures passed with zero axe violations or browser errors; concert/sports row heights and positions are unchanged. Physical launcher installation/update behavior was not tested.
 - Evidence: output/icon-contact-sheet.png, output/icon-cover-344.png, output/icon-sports-344.png, output/icons-qa.json and output/ui-qa/report.json. Public assets are verified separately after deployment.
+
+## White icon revision — 2026-09-29
+
+- Replaced the blue tile and tilted ticket with a warm-white tile, horizontal navy ticket and clear right-angle clock hands. The same source produces all six platform assets; header, notifications, manifest and favicon references use the new `20260929-white-icon` version.
+- Inspected 16/28/32/48/64px previews on light/dark backgrounds and 344px concert/sports pages. No layout changes or horizontal overflow. Manifest parsing, image dimensions, alpha behavior and asset responses passed; navy artwork stays within 38.83% of image width from the center, inside the 40% circular safe zone.
+- Evidence paths above now contain the white revision. Physical launcher behavior remains untested; deployed assets and mobile rendering are checked after publishing.

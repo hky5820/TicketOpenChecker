@@ -126,6 +126,29 @@ async function main() {
     await cover.clock.setFixedTime(fixedNow);
     await cover.route('**/data.json*', route => route.fulfill({ json: fixture }));
     await cover.goto(url);
+    await cover.locator('[data-source="melon"]').tap();
+    await cover.getByRole('button', { name: '다음 날', exact: true }).tap();
+    check('cover next day keeps vendor filter', await cover.locator('#selectedDate').inputValue() === '2026-09-29' && await cover.locator('#results .ticket-row').count() === 1 && await cover.locator('[data-source="melon"]').getAttribute('aria-pressed') === 'true');
+    await cover.getByRole('button', { name: '이전 날', exact: true }).tap();
+    check('cover previous day keeps empty date', await cover.locator('#selectedDate').inputValue() === '2026-09-28' && await cover.locator('#results .ticket-row').count() === 0);
+    await cover.locator('#datePickerBtn').tap();
+    check('cover calendar focuses selected date', await cover.locator('#calendarGrid [data-date="2026-09-28"]').evaluate(element => document.activeElement === element));
+    const calendarAudit = await new AxeBuilder({ page: cover }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+    audits.push({ view: 'cover-calendar', width: 344, violations: calendarAudit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });
+    await cover.screenshot({ path: path.join(output, 'cover-calendar-344.png'), scale: 'css' });
+    check('calendar marks vendor openings', await cover.locator('#calendarGrid [data-date="2026-09-29"]').getAttribute('class').then(value => value.includes('has-events')));
+    for (let month = 0; month < 3; month++) await cover.locator('#monthNext').tap();
+    await cover.locator('#calendarGrid [data-date="2026-12-31"]').tap();
+    await cover.locator('#dateDialog').waitFor({ state: 'hidden' });
+    check('calendar selects exact day and restores focus', await cover.locator('#selectedDate').inputValue() === '2026-12-31' && await cover.locator('#datePickerBtn').evaluate(element => document.activeElement === element));
+    await cover.getByRole('button', { name: '다음 날', exact: true }).tap();
+    check('date navigation crosses year boundary', await cover.locator('#selectedDate').inputValue() === '2027-01-01');
+    await cover.locator('#quickTodayBtn').tap();
+    check('one tap returns to KST today', await cover.locator('#selectedDate').inputValue() === '2026-09-28');
+    await cover.locator('#datePickerBtn').tap();
+    await cover.locator('#monthNext').tap();
+    await cover.keyboard.press('Escape');
+    check('calendar cancel keeps date and returns single calendar', await cover.locator('#selectedDate').inputValue() === '2026-09-28' && await cover.locator('.sidebar .calendar-panel').count() === 1);
     await cover.locator('#tab-sports').tap();
     for (const team of TEAMS) {
       await cover.getByRole('button', { name: team.name, exact: true }).tap();
@@ -153,6 +176,12 @@ async function main() {
         else await cover.locator('[data-source="59"]').tap();
         await cover.evaluate(() => document.fonts.ready);
         await cover.evaluate(() => scrollTo(0, 0));
+        await cover.locator('.source-logo').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+        check(`cover ${view} ${width}px logos load`, await cover.locator('.source-logo').count() === (view === 'sports' ? 5 : 3));
+        await cover.evaluate(() => Promise.race([
+          Promise.all([...document.images].filter(image => image.getBoundingClientRect().top < innerHeight && image.getBoundingClientRect().bottom > 0).map(image => image.decode().catch(() => {}))),
+          new Promise(resolve => setTimeout(resolve, 3000)),
+        ]));
         await cover.screenshot({ path: path.join(output, `cover-${view}-${width}.png`), scale: 'css', animations: 'disabled' });
         const metrics = await cover.evaluate(() => {
           const rows = [...document.querySelectorAll('#results article')].map(row => row.getBoundingClientRect());
@@ -170,7 +199,7 @@ async function main() {
     const report = { checkedAt: new Date().toISOString(), functionalData: 'synthetic fixture', visualData: 'real public/data.json export', checks, errors, audits, coverMetrics };
     await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     assert.equal(audits.reduce((n, audit) => n + audit.violations.length, 0), 0, JSON.stringify(audits, null, 2));
-    console.log(JSON.stringify({ checks: checks.length, screenshots: 12, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
+    console.log(JSON.stringify({ checks: checks.length, screenshots: 13, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

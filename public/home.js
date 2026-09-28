@@ -91,9 +91,7 @@ function renderSources() {
   const list = Model.filter(sourceItems(), { ...filter, vendor: '', team: '', status: 'all' });
   const sources = sports ? Model.TEAMS : Object.entries(VN).map(([id, name]) => ({ id, name }));
   const active = sports ? filter.team : filter.vendor;
-  const symbol = source => sports
-    ? `<span class="team-symbol" style="--team-color:${source.color}">${source.shortName}</span>`
-    : `<span class="source-symbol ${source.id}">${({ interpark: 'N', melon: 'M', ticketlink: 'T' })[source.id]}</span>`;
+  const symbol = source => `<img class="source-logo" src="assets/logos/${sports ? 'team-' : ''}${source.id}.png" alt="" width="28" height="28">`;
   $('#sourceTitle').textContent = sports ? '홈 구단' : '예매처';
   $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}" aria-label="${sports ? '전체 구단' : '전체 예매처'}"><span class="source-symbol">전체</span><span class="source-name">${sports ? '전체 구단' : '전체 예매처'}</span><span class="source-short" aria-hidden="true">전체</span><span class="count">${list.length}</span></button>` + sources.map(source => {
     const count = list.filter(item => (sports ? item.teamId : item.siteId) === source.id).length;
@@ -177,6 +175,7 @@ function render() {
   $('#selectedDate').value = filter.date;
   $('#dateLabel').textContent = filter.basis === 'game' ? '경기일' : '오픈일';
   $('#selectedDate').setAttribute('aria-label', filter.basis === 'game' ? '경기일 선택' : '오픈일 선택');
+  $('#datePickerLabel').textContent = filter.range === 'upcoming' ? '오늘부터의 오픈' : `${Number(filter.date.slice(5, 7))}월 ${Number(filter.date.slice(8, 10))}일 (${WD[new Date(`${filter.date}T00:00:00Z`).getUTCDay()]})`;
   $('#searchInput').value = filter.query;
   $('#searchInput').placeholder = sports ? '팀·구장 검색' : '공연명 검색';
   $('#sportsControls').hidden = !sports;
@@ -188,6 +187,7 @@ function render() {
 function selectDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
   options().date = date; options().range = 'day'; state.month = date.slice(0, 7); render();
+  if ($('#dateDialog').open) $('#dateDialog').close();
 }
 function resetFilters() { state.filters[state.view] = defaults(state.view); state.month = Model.dateKey().slice(0, 7); render(); }
 function setView(view) {
@@ -202,6 +202,7 @@ document.addEventListener('click', event => {
   if ('view' in button.dataset) setView(button.dataset.view);
   else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; render(); }
   else if ('date' in button.dataset) selectDate(button.dataset.date);
+  else if ('dayStep' in button.dataset) selectDate(Model.addDays(options().range === 'upcoming' ? Model.dateKey() : options().date, Number(button.dataset.dayStep)));
   else if ('range' in button.dataset) { options().range = button.dataset.range; render(); }
   else if ('basis' in button.dataset) { options().basis = button.dataset.basis; render(); }
   else if ('status' in button.dataset) { options().status = button.dataset.status; render(); }
@@ -213,6 +214,14 @@ document.addEventListener('click', event => {
 $('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
 $('#searchInput').addEventListener('input', event => { options().query = event.target.value; renderCalendar(); renderSources(); renderResults(); });
 $('#todayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
+$('#quickTodayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
+$('#datePickerBtn').addEventListener('click', () => {
+  state.month = (options().range === 'upcoming' ? Model.dateKey() : options().date).slice(0, 7);
+  $('#dateDialogBody').append($('.calendar-panel'));
+  renderCalendar(); $('#dateDialog').showModal();
+  ($('#calendarGrid .selected') || $('#calendarGrid .today') || $('#calendarGrid button:not(.outside)'))?.focus();
+});
+$('#dateDialog').addEventListener('close', () => $('.sidebar').prepend($('.calendar-panel')));
 for (const [id, amount] of [['monthPrev', -1], ['monthNext', 1]]) $( `#${id}`).addEventListener('click', () => {
   const [year, month] = state.month.split('-').map(Number);
   state.month = new Date(Date.UTC(year, month - 1 + amount, 1)).toISOString().slice(0, 7); renderCalendar();

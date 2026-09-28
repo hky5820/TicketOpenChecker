@@ -118,11 +118,59 @@ async function main() {
         audits.push({ view, width, violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length, nodes: v.nodes.slice(0, 3).map(n => n.target) })) });
       }
     }
+    // Cover-display CSS widths vary with the Fold generation and Android zoom.
+    // Reserve browser chrome by testing a conservative 748px content height.
+    const mobile = await browser.newContext({ viewport: { width: 344, height: 748 }, deviceScaleFactor: 2.625, isMobile: true, hasTouch: true, timezoneId: 'Asia/Seoul', reducedMotion: 'reduce' });
+    const cover = await mobile.newPage();
+    cover.on('pageerror', error => errors.push(error.message));
+    await cover.clock.setFixedTime(fixedNow);
+    await cover.route('**/data.json*', route => route.fulfill({ json: fixture }));
+    await cover.goto(url);
+    await cover.locator('#tab-sports').tap();
+    for (const team of TEAMS) {
+      await cover.getByRole('button', { name: team.name, exact: true }).tap();
+      check(`cover touch selects ${team.name}`, await cover.locator('#results .sports-row').count() === 2 && await cover.locator(`#results .sports-row:not([data-team="${team.id}"])`).count() === 0);
+    }
+    await cover.locator('[data-basis="open"]').tap();
+    await cover.locator('#selectedDate').fill('2026-09-29');
+    check('cover opening date filter', await cover.locator('#results .sports-row').count() === 1 && (await cover.locator('.sports-row').innerText()).includes('10.4'));
+    await cover.locator('.bell').tap();
+    await cover.locator('#tab-alarm').tap();
+    check('cover reminder and navigation', await cover.locator('#alarmBody .sports-row').count() === 1);
+    await cover.locator('#settingsBtn').tap();
+    await cover.locator('[data-close="settingsDialog"]').tap();
+    check('cover settings controls', !await cover.locator('#settingsDialog').isVisible());
+
+    await cover.unroute('**/data.json*');
+    await cover.clock.setFixedTime(new Date());
+    await cover.evaluate(() => localStorage.clear()); await cover.reload();
+    const coverMetrics = [];
+    for (const width of [344, 360, 384]) {
+      await cover.setViewportSize({ width, height: 748 });
+      for (const view of ['home', 'sports']) {
+        await cover.locator(`#tab-${view}`).tap(); await cover.locator('#resetFilters').tap();
+        if (view === 'home') await cover.locator('[data-range="upcoming"]').tap();
+        else await cover.locator('[data-source="59"]').tap();
+        await cover.evaluate(() => document.fonts.ready);
+        await cover.evaluate(() => scrollTo(0, 0));
+        await cover.screenshot({ path: path.join(output, `cover-${view}-${width}.png`), scale: 'css', animations: 'disabled' });
+        const metrics = await cover.evaluate(() => {
+          const rows = [...document.querySelectorAll('#results article')].map(row => row.getBoundingClientRect());
+          const sources = [...document.querySelectorAll('.source-filter')].map(button => button.getBoundingClientRect());
+          return { overflow: document.documentElement.scrollWidth > innerWidth, firstRowTop: rows[0]?.top, rowHeight: rows[0]?.height, fullyVisibleRows: rows.filter(row => row.top >= 0 && row.bottom <= innerHeight).length, singleSourceLine: new Set(sources.map(rect => rect.top)).size === 1, sourcesReachable: sources.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.width >= 24 && rect.height >= 24) };
+        });
+        coverMetrics.push({ view, width, height: 748, ...metrics });
+        check(`cover ${view} ${width}px fits with one accessible source row`, !metrics.overflow && metrics.singleSourceLine && metrics.sourcesReachable);
+        const audit = await new AxeBuilder({ page: cover }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+        audits.push({ view: `cover-${view}`, width, violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });
+      }
+    }
+    await mobile.close();
     check('no uncaught browser errors', errors.length === 0);
-    const report = { checkedAt: new Date().toISOString(), functionalData: 'synthetic fixture', visualData: 'real public/data.json export', checks, errors, audits };
+    const report = { checkedAt: new Date().toISOString(), functionalData: 'synthetic fixture', visualData: 'real public/data.json export', checks, errors, audits, coverMetrics };
     await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
     assert.equal(audits.reduce((n, audit) => n + audit.violations.length, 0), 0, JSON.stringify(audits, null, 2));
-    console.log(JSON.stringify({ checks: checks.length, screenshots: 6, axeViolations: 0, browserErrors: errors.length, report: path.join(output, 'report.json') }, null, 2));
+    console.log(JSON.stringify({ checks: checks.length, screenshots: 12, axeViolations: 0, browserErrors: errors.length, coverMetrics, report: path.join(output, 'report.json') }, null, 2));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

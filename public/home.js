@@ -95,9 +95,9 @@ function renderSources() {
     ? `<span class="team-symbol" style="--team-color:${source.color}">${source.shortName}</span>`
     : `<span class="source-symbol ${source.id}">${({ interpark: 'N', melon: 'M', ticketlink: 'T' })[source.id]}</span>`;
   $('#sourceTitle').textContent = sports ? '홈 구단' : '예매처';
-  $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}"><span class="source-symbol">전체</span><span>${sports ? '전체 구단' : '전체 예매처'}</span><span class="count">${list.length}</span></button>` + sources.map(source => {
+  $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}" aria-label="${sports ? '전체 구단' : '전체 예매처'}"><span class="source-symbol">전체</span><span class="source-name">${sports ? '전체 구단' : '전체 예매처'}</span><span class="source-short" aria-hidden="true">전체</span><span class="count">${list.length}</span></button>` + sources.map(source => {
     const count = list.filter(item => (sports ? item.teamId : item.siteId) === source.id).length;
-    return `<button class="source-filter" data-source="${source.id}" aria-pressed="${active === source.id}">${symbol(source)}<span>${source.name}</span><span class="count">${count}</span></button>`;
+    return `<button class="source-filter" data-source="${source.id}" aria-pressed="${active === source.id}" aria-label="${source.name}">${symbol(source)}<span class="source-name">${source.name}</span><span class="source-short" aria-hidden="true">${source.shortName || source.name}</span><span class="count">${count}</span></button>`;
   }).join('');
   $('#sourceNote').innerHTML = sports
     ? `<strong>경기와 오픈을 따로 확인</strong>홈 구단의 티켓링크 판매 일정을 표시합니다. 예매 상태는 마지막 조회 기준이며 잔여 좌석은 예매처에서 확인하세요.${active ? `<br><a href="https://m.ticketlink.co.kr/sports/137/${active}" target="_blank" rel="noopener noreferrer">구단 페이지 열기 ↗</a>` : ''}`

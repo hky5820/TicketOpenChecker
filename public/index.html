@@ -12,9 +12,9 @@
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="티켓오픈">
-  <link rel="stylesheet" href="home.css?v=20260928">
+  <link rel="stylesheet" href="home.css?v=20260928-cover">
   <script defer src="schedule-model.js?v=20260928"></script>
-  <script defer src="home.js?v=20260928"></script>
+  <script defer src="home.js?v=20260928-cover"></script>
 </head>
 <body>
   <a class="skip" href="#results">일정 목록으로 이동</a>
@@ -31,7 +31,7 @@
     <main>
       <div class="page-heading">
         <div><p class="eyebrow" id="eyebrow">TICKET OPENING</p><h1 id="pageTitle">티켓 오픈 일정</h1><p id="pageDescription">원하는 날짜, 원하는 예매처의 오픈을 한눈에.</p></div>
-        <div class="heading-actions"><span id="updatedAt" class="updated"></span><button class="button primary" id="reloadBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg><span>새로고침</span></button></div>
+        <div class="heading-actions"><span id="updatedAt" class="updated"></span><button class="button primary" id="reloadBtn" type="button" aria-label="일정 새로고침" title="일정 새로고침"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg><span>새로고침</span></button></div>
       </div>
       <div id="loadStatus" class="load-status" role="status" hidden></div>
       <div class="workspace" id="scheduleWorkspace">

@@ -4,7 +4,7 @@ References inspected: current Desktop/plm-desk/ui and Desktop/svace-workspace/ex
 
 - Live collection through real Chrome / Pixel 7: 23 home games across LG (5), Hanwha (4), Samsung (6), KT (4), KIA (4). 18 ON_SALE, 5 BEFORE at collection time.
 - Export: 107 concert notices and sports snapshot, with per-provider and per-team collection status.
-- Unit checks: 19 passed (KST, date basis, ownership, sale status, failed/empty collections, alarm keys, current-time boundaries and unknown times).
+- Unit checks: 23 passed (KST, date basis, ownership, sale status, failed/empty collections, alarm keys, current-time boundaries, unknown times and Melon retry handling).
 - Browser checks: 103 passed. Functional checks use synthetic fixtures; twelve list captures use the real exported data, and a calendar capture plus six scrolling captures use fixtures.
 - axe WCAG A/AA checks: 0 violations at 375, 768 and 1440 CSS pixels, plus mobile cover widths 344, 360 and 384, concert and sports views and the mobile calendar dialog.
 - Additional mobile emulation: 320px, no document overflow.
@@ -67,3 +67,10 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - Readability follow-up: floating dates share 17px, weight 700 type (mobile concert dates were 14px; grouped dates were 12px). The selected-day bar remains 46px tall; grouped bars grow from 34 to 40px. At 344px, dates stay on one line and two complete concert/sports items remain visible.
 - Regression checks use long synthetic lists at 344px touch and 1440px desktop widths: selected-day changes, both scroll directions, non-overlapping section transitions, visible topmost date text and no horizontal overflow. Six captures: `output/ui-qa/pinned-{home,upcoming,sports}-{344,1440}.png`.
 - Validation: 19 unit tests, 103 browser checks, 19 screenshots, zero axe violations and zero uncaught browser errors. Real export layouts also checked at 344/360/384, 375, 768 and 1440 CSS pixels. Mobile verification uses Chrome emulation, not physical Fold/Samsung Internet.
+
+## Intermittent Melon API failure
+
+- The 2026-09-28 23:35 KST export (`36437072482`) received `멜론 API HTTP 423` and retained 37 previous Melon schedules. The prior 23:01 collection (`36432629638`) returned 37 schedules successfully; the 22:50 scheduled run also returned 423. Live local collection still succeeds. The historical response body was not captured, so the reason for Melon's rejection (including possible runner-network restrictions) is unconfirmed.
+- Previously one failed request ended the entire Melon collection. Transient HTTP 423/429/500/502/503/504 and connection failures now get at most three attempts with 2s/5s waits. `Retry-After` is respected; waits above 20s end collection rather than retry early. Permanent HTTP and malformed API responses remain errors.
+- Retry messages identify the list page or detail notice and attempt count, and are retained in export logs. Exhausted retries still fail the entire provider and preserve the stale-data warning; partial results are never reported as fresh.
+- Validation: 23 unit tests, including recovery on a later page without dropping earlier notices, persistent detail failure, bounded retries, `Retry-After` and permanent errors. Live local collection returns 37 schedules. Remote collection is checked separately after deployment.

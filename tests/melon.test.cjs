@@ -26,7 +26,7 @@ test('Melon expands presale and general opening from the same notice', async () 
 });
 
 test('Melon failures are errors, never successful empty schedules', async () => {
-  await assert.rejects(collectMelon(() => {}, async () => ({ ok: false, status: 503 })), /HTTP 503/);
+  await assert.rejects(collectMelon(() => {}, async () => ({ ok: false, status: 503 }), async () => {}), /HTTP 503/);
   await assert.rejects(collectMelon(() => {}, async () => ({ ok: true, json: async () => { throw new Error('HTML'); } })), /JSON 대신/);
   await assert.rejects(collectMelon(() => {}, async () => ({ ok: true, json: async () => ({ result: -1, data: {} }) })), /result=-1/);
   await assert.rejects(collectMelon(() => {}, async () => response({})), /LIST/);
@@ -54,4 +54,57 @@ test('Melon lottery and multiple opening rounds retain their actual labels', asy
     prodList: [{ title: '공연', detailList: [{ schTypeFlg: 'R', openDt: '2026.10.01 18:00', schTypeFlgCnt: 1 }, { schTypeFlg: 'N', openDt: '2026.10.02 18:00', schTypeFlgCnt: 2, typeGroupRnum: 2 }] }],
   }));
   assert.deepEqual(items.map(item => item.title), ['공연 1 · 추첨식', '공연 1 · 일반예매 2차']);
+});
+
+test('Melon recovers a transient 423 on a later page without losing previous notices', async () => {
+  const messages = [], waits = [];
+  let secondPageCalls = 0;
+  const items = await collectMelon(message => messages.push(message), async url => {
+    if (url.includes('pageNo=1')) return response({ LIST: Array.from({ length: 10 }, (_, i) => notice(i + 1)) });
+    if (++secondPageCalls === 1) return { ok: false, status: 423 };
+    return response({ LIST: [notice(11)] });
+  }, async delay => waits.push(delay));
+  assert.equal(items.length, 11);
+  assert.equal(secondPageCalls, 2);
+  assert.deepEqual(waits, [2000]);
+  assert.ok(messages.some(message => /목록 2페이지 HTTP 423.*2\/3회 재시도/.test(message)));
+});
+
+test('Melon keeps persistent detail failures as errors after three attempts', async () => {
+  let detailCalls = 0;
+  const waits = [];
+  await assert.rejects(collectMelon(() => {}, async url => {
+    if (url.includes('/list.json')) return response({ LIST: [notice(1), notice(2, { prodCnt: 2 })] });
+    detailCalls++;
+    return { ok: false, status: 423 };
+  }, async delay => waits.push(delay)), /HTTP 423 \(공지 2 상세, 3\/3회 시도\)/);
+  assert.equal(detailCalls, 3);
+  assert.deepEqual(waits, [2000, 5000]);
+});
+
+test('Melon respects Retry-After and stops if the requested wait exceeds the collection budget', async () => {
+  let calls = 0;
+  const waits = [];
+  const items = await collectMelon(() => {}, async () => ++calls === 1
+    ? { ok: false, status: 429, headers: new Headers({ 'Retry-After': '8' }) }
+    : response({ LIST: [notice(1)] }), async delay => waits.push(delay));
+  assert.equal(items.length, 1);
+  assert.deepEqual(waits, [8000]);
+  calls = 0;
+  await assert.rejects(collectMelon(() => {}, async () => {
+    calls++;
+    return { ok: false, status: 429, headers: new Headers({ 'Retry-After': '120' }) };
+  }, async () => assert.fail('must not retry before Retry-After')), /HTTP 429/);
+  assert.equal(calls, 1);
+});
+
+test('Melon retries connection failures but does not retry permanent HTTP errors', async () => {
+  let calls = 0;
+  const items = await collectMelon(() => {}, async () => {
+    if (++calls === 1) throw new TypeError('fetch failed');
+    return response({ LIST: [notice(1)] });
+  }, async () => {});
+  assert.equal(calls, 2);
+  assert.equal(items.length, 1);
+  await assert.rejects(collectMelon(() => {}, async () => ({ ok: false, status: 404 }), async () => assert.fail('must not retry permanent errors')), /HTTP 404.*목록 1페이지, 1\/3회/);
 });

@@ -133,6 +133,7 @@ async function collectItems(url) {
       if (event.type === 'fatal') {
         throw new Error(event.data.message || 'Schedule loading failed.');
       }
+      if (event.type === 'status' && event.data.site === 'melon') console.log(`[collection] melon: ${event.data.message}`);
       if (event.type === 'siteError') console.log(`[collection] ${event.data.site}: ${event.data.message}`);
       if (event.type === 'siteDone') console.log(`[collection] ${event.data.site}: ${event.data.count} items`);
       if (event.type === 'done') {

@@ -148,6 +148,7 @@ async function main() {
     await cover.locator('#datePickerBtn').tap();
     await cover.locator('#monthNext').tap();
     await cover.keyboard.press('Escape');
+    await cover.locator('.sidebar .calendar-panel').waitFor({ state: 'attached' });
     check('calendar cancel keeps date and returns single calendar', await cover.locator('#selectedDate').inputValue() === '2026-09-28' && await cover.locator('.sidebar .calendar-panel').count() === 1);
     await cover.locator('#tab-sports').tap();
     for (const team of TEAMS) {

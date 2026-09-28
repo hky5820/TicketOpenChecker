@@ -12,7 +12,7 @@ const fixedNow = new Date('2026-09-28T10:00:00Z');
 const concert = (siteId, title, date, time) => ({ siteId, title, site: siteId, openDate: date, openTime: time, openDateTime: time ? `${date}T${time}:00+09:00` : null, url: 'https://example.com/notice' });
 const fixture = {
   generatedAt: fixedNow.toISOString(),
-  items: [concert('melon', '테스트 콘서트', '2026-09-29', '20:00'), concert('interpark', '테스트 연극', '2026-09-29', '14:00'), concert('ticketlink', '테스트 전시', '2026-09-30', '10:00')],
+  items: [concert('melon', '지난날 공지', '2026-09-27', '20:00'), concert('ticketlink', '오늘 지난 오픈', '2026-09-28', '18:00'), concert('melon', '테스트 콘서트', '2026-09-29', '20:00'), concert('interpark', '테스트 연극', '2026-09-29', '14:00'), concert('ticketlink', '테스트 전시', '2026-09-30', '10:00')],
   sports: { generatedAt: fixedNow.toISOString(), teamStatus: Object.fromEntries(TEAMS.map(team => [team.id, { ok: true, count: 2, checkedAt: fixedNow.toISOString() }])),
     items: TEAMS.flatMap(team => [0, 1].map(index => ({
       id: `sports-${team.id}-${index}`, category: 'sports', siteId: 'ticketlink', site: '티켓링크', teamId: team.id,
@@ -47,6 +47,10 @@ async function main() {
     await page.route('**/data.json*', route => route.fulfill({ json: fixture }));
     await page.route('**/api/push/key', route => route.fulfill({ json: { key: null } }));
     await page.goto(url);
+    await waitCount('.ticket-row', 3);
+    check('initial view begins with nearest future opening', (await page.locator('.ticket-row').first().innerText()).includes('테스트 연극') && !(await page.locator('#results').innerText()).includes('지난'));
+    await page.locator('#selectedDate').fill('2026-09-27');
+    check('past date input cannot restore expired content', await page.locator('#selectedDate').inputValue() === '2026-09-28' && await page.locator('#results .ticket-row').count() === 3);
     await page.locator('#selectedDate').fill('2026-09-29');
     await waitCount('.ticket-row', 2);
     await page.locator('[data-source="melon"]').click();
@@ -81,8 +85,8 @@ async function main() {
     await page.locator('#tab-alarm').click(); await waitCount('.sports-row', 1);
     check('sports reminder uses opening timestamp', (await page.locator('#alarmBody').innerText()).includes('9월 29일'));
     await page.reload(); await page.locator('#tab-alarm').click(); await waitCount('.sports-row', 1);
-    check('reminder persists after reload', await page.locator('.bell').getAttribute('aria-pressed') === 'true');
-    await page.locator('.bell').click();
+    check('reminder persists after reload', await page.locator('#alarmBody .bell').getAttribute('aria-pressed') === 'true');
+    await page.locator('#alarmBody .bell').click();
     await page.getByRole('heading', { name: '등록한 오픈 알림이 없습니다' }).waitFor();
     check('reminder removal', await page.locator('#alarmCount').isHidden());
 
@@ -93,6 +97,17 @@ async function main() {
     await page.locator('#reloadBtn').click(); await waitCount('.sports-row', 2);
     check('failed team retains snapshot, successful empty clears it', (await page.locator('#dataNotice').innerText()).includes('LG 트윈스 조회 실패'));
     check('stale status does not claim current availability', await page.getByText('이전 조회 자료', { exact: true }).count() === 2);
+
+    await page.route('**/data.json*', route => route.fulfill({ json: { ...fixture, items: [...fixture.items, concert('melon', '곧 지나는 오픈', '2026-09-28', '19:01')] } }));
+    await page.evaluate(() => localStorage.clear()); await page.reload();
+    await waitCount('.ticket-row', 4);
+    check('next opening is first before deadline', (await page.locator('.ticket-row').first().innerText()).includes('곧 지나는 오픈'));
+    await page.clock.setFixedTime(new Date('2026-09-28T10:01:01Z'));
+    await waitCount('.ticket-row', 3);
+    check('expired opening disappears without reload', !(await page.locator('#results').innerText()).includes('곧 지나는 오픈') && (await page.locator('.ticket-row').first().innerText()).includes('테스트 연극'));
+    await page.locator('#selectedDate').fill('2026-09-28'); await waitCount('.ticket-row', 0);
+    await page.clock.setFixedTime(new Date('2026-09-28T15:00:01Z')); await waitCount('.ticket-row', 3);
+    check('KST midnight returns stale date selection to upcoming', await page.locator('#selectedDate').inputValue() === '2026-09-29' && await page.locator('[data-range="upcoming"]').getAttribute('aria-pressed') === 'true');
 
     // Visual and axe checks below use the real committed export, not test fixtures.
     await page.unroute('**/data.json*');
@@ -127,12 +142,17 @@ async function main() {
     await cover.route('**/data.json*', route => route.fulfill({ json: fixture }));
     await cover.goto(url);
     await cover.locator('[data-source="melon"]').tap();
-    await cover.getByRole('button', { name: '다음 날', exact: true }).tap();
-    check('cover next day keeps vendor filter', await cover.locator('#selectedDate').inputValue() === '2026-09-29' && await cover.locator('#results .ticket-row').count() === 1 && await cover.locator('[data-source="melon"]').getAttribute('aria-pressed') === 'true');
-    await cover.getByRole('button', { name: '이전 날', exact: true }).tap();
-    check('cover previous day keeps empty date', await cover.locator('#selectedDate').inputValue() === '2026-09-28' && await cover.locator('#results .ticket-row').count() === 0);
+    check('seven dates are immediately visible from next opening', await cover.locator('#dateStrip button').count() === 7 && await cover.locator('#dateStrip').getAttribute('data-start') === '2026-09-29');
+    await cover.locator('#dateStrip [data-date="2026-09-30"]').tap();
+    check('direct date choice keeps empty day and vendor', await cover.locator('#selectedDate').inputValue() === '2026-09-30' && await cover.locator('#results .ticket-row').count() === 0 && await cover.locator('[data-source="melon"]').getAttribute('aria-pressed') === 'true');
+    await cover.locator('#dateStrip [data-date="2026-09-29"]').tap();
+    check('neighboring date takes one tap', await cover.locator('#results .ticket-row').count() === 1);
+    await cover.getByRole('button', { name: '다음 7일', exact: true }).tap();
+    check('week paging crosses month without changing selected date', await cover.locator('#dateStrip').getAttribute('data-start') === '2026-10-06' && await cover.locator('#selectedDate').inputValue() === '2026-09-29');
+    await cover.getByRole('button', { name: '이전 7일', exact: true }).tap();
     await cover.locator('#datePickerBtn').tap();
-    check('cover calendar focuses selected date', await cover.locator('#calendarGrid [data-date="2026-09-28"]').evaluate(element => document.activeElement === element));
+    check('cover calendar focuses selected date', await cover.locator('#calendarGrid [data-date="2026-09-29"]').evaluate(element => document.activeElement === element));
+    check('calendar disables past dates', await cover.locator('#calendarGrid [data-date="2026-09-27"]').isDisabled());
     const calendarAudit = await new AxeBuilder({ page: cover }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
     audits.push({ view: 'cover-calendar', width: 344, violations: calendarAudit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });
     await cover.screenshot({ path: path.join(output, 'cover-calendar-344.png'), scale: 'css' });
@@ -141,10 +161,10 @@ async function main() {
     await cover.locator('#calendarGrid [data-date="2026-12-31"]').tap();
     await cover.locator('#dateDialog').waitFor({ state: 'hidden' });
     check('calendar selects exact day and restores focus', await cover.locator('#selectedDate').inputValue() === '2026-12-31' && await cover.locator('#datePickerBtn').evaluate(element => document.activeElement === element));
-    await cover.getByRole('button', { name: '다음 날', exact: true }).tap();
+    await cover.locator('#dateStrip [data-date="2027-01-01"]').tap();
     check('date navigation crosses year boundary', await cover.locator('#selectedDate').inputValue() === '2027-01-01');
-    await cover.locator('#quickTodayBtn').tap();
-    check('one tap returns to KST today', await cover.locator('#selectedDate').inputValue() === '2026-09-28');
+    await cover.locator('[data-range="upcoming"]').tap();
+    check('one tap returns to upcoming from KST today', await cover.locator('#selectedDate').inputValue() === '2026-09-28');
     await cover.locator('#datePickerBtn').tap();
     await cover.locator('#monthNext').tap();
     await cover.keyboard.press('Escape');
@@ -156,7 +176,7 @@ async function main() {
       check(`cover touch selects ${team.name}`, await cover.locator('#results .sports-row').count() === 2 && await cover.locator(`#results .sports-row:not([data-team="${team.id}"])`).count() === 0);
     }
     await cover.locator('[data-basis="open"]').tap();
-    await cover.locator('#selectedDate').fill('2026-09-29');
+    await cover.locator('#dateStrip [data-date="2026-09-29"]').tap();
     check('cover opening date filter', await cover.locator('#results .sports-row').count() === 1 && (await cover.locator('.sports-row').innerText()).includes('10.4'));
     await cover.locator('.bell').tap();
     await cover.locator('#tab-alarm').tap();
@@ -191,6 +211,8 @@ async function main() {
         });
         coverMetrics.push({ view, width, height: 748, ...metrics });
         check(`cover ${view} ${width}px fits with one accessible source row`, !metrics.overflow && metrics.singleSourceLine && metrics.sourcesReachable);
+        check(`cover ${view} ${width}px shows seven reachable dates`, await cover.locator('#dateStrip button').evaluateAll(buttons => buttons.length === 7 && buttons.every(button => { const rect = button.getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth && rect.width >= 24; })));
+        if (view === 'home') check(`cover concert ${width}px consistent item heights`, await cover.locator('#results .ticket-row').evaluateAll(rows => { const heights = rows.map(row => row.getBoundingClientRect().height - parseFloat(getComputedStyle(row).borderBottomWidth)); return heights.length < 2 || Math.max(...heights) - Math.min(...heights) < 1; }));
         const audit = await new AxeBuilder({ page: cover }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
         audits.push({ view: `cover-${view}`, width, violations: audit.violations.map(v => ({ id: v.id, impact: v.impact, count: v.nodes.length })) });
       }

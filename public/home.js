@@ -14,7 +14,7 @@ const CALENDAR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 const BELL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be full or disabled. */ } };
-const defaults = view => ({ date: Model.dateKey(), range: view === 'sports' ? 'upcoming' : 'day', basis: view === 'sports' ? 'game' : 'open', vendor: '', team: '', status: 'all', query: '' });
+const defaults = view => ({ date: Model.dateKey(), range: 'upcoming', basis: view === 'sports' ? 'game' : 'open', vendor: '', team: '', status: 'all', query: '', stripStart: null });
 const state = {
   items: [], sports: { items: [], teamStatus: {} }, siteStatus: {}, generatedAt: null, view: 'home',
   filters: { home: defaults('home'), sports: defaults('sports') }, month: Model.dateKey().slice(0, 7),
@@ -54,7 +54,7 @@ function concertRow(item) {
   const url = safeUrl(item.url), image = safeUrl(item.image);
   return `<article class="ticket-row" data-item="${esc(itemKey(item))}">
     <div class="row-time">${esc(item.openTime || '미정')}<small>티켓 오픈</small></div>
-    <div class="ticket-info">${image ? `<img class="poster" src="${image}" alt="" loading="lazy">` : '<span class="poster"></span>'}<div class="ticket-copy"><a class="ticket-title" href="${url || '#'}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a><div class="ticket-meta">${vendorMarkup(item, 'mobile-vendor')}<a class="row-link" href="${url || '#'}" target="_blank" rel="noopener noreferrer">오픈 공지 ↗</a></div></div></div>
+    <div class="ticket-info">${image ? `<img class="poster" src="${image}" alt="" loading="lazy">` : '<span class="poster"></span>'}<div class="ticket-copy"><a class="ticket-title" title="${esc(item.title)}" href="${url || '#'}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a><div class="ticket-meta">${vendorMarkup(item, 'mobile-vendor')}<a class="row-link" href="${url || '#'}" target="_blank" rel="noopener noreferrer">오픈 공지 ↗</a></div></div></div>
     ${vendorMarkup(item)}<div class="row-status">${statusMarkup(item)}</div>${bell(item)}</article>`;
 }
 function sportsRow(item) {
@@ -78,11 +78,29 @@ function renderCalendar() {
     counts.set(key, (counts.get(key) || 0) + 1);
   });
   $('#calendarMonth').textContent = `${state.month.slice(0, 4)}년 ${Number(state.month.slice(5))}월`;
+  $('#monthPrev').disabled = state.month <= Model.dateKey().slice(0, 7);
   $('#calendarGrid').innerHTML = Array.from({ length: 42 }, (_, index) => {
     const key = Model.addDays(first, index - offset), count = counts.get(key) || 0;
     const selected = filter.range === 'day' && key === filter.date;
     const classes = [key.slice(0, 7) !== state.month ? 'outside' : '', key === Model.dateKey() ? 'today' : '', selected ? 'selected' : '', count ? 'has-events' : ''].join(' ');
-    return `<button class="${classes}" data-date="${key}" aria-pressed="${selected}" aria-label="${key} ${count}건">${Number(key.slice(8))}</button>`;
+    return `<button class="${classes}" data-date="${key}" ${key < Model.dateKey() ? 'disabled' : ''} aria-pressed="${selected}" aria-label="${key} ${count}건">${Number(key.slice(8))}</button>`;
+  }).join('');
+}
+
+function renderDateStrip() {
+  const filter = options(), today = Model.dateKey();
+  const items = Model.filter(sourceItems(), { ...filter, range: 'all' });
+  const keyOf = item => filter.basis === 'game' ? item.gameDate : item.openDate;
+  const nearest = keyOf(items[0] || {}) || today;
+  const start = [today, filter.stripStart || (filter.range === 'upcoming' ? nearest : filter.date)].sort().at(-1);
+  $('#dateStrip').dataset.start = start;
+  $('#datePickerLabel').textContent = `${shortDate(start).split(' ')[0]} – ${shortDate(Model.addDays(start, 6)).split(' ')[0]}`;
+  $('#datePagePrev').disabled = start <= today;
+  $('#dateDialogTitle').textContent = filter.basis === 'game' ? '경기 날짜 선택' : '오픈 날짜 선택';
+  $('#dateStrip').innerHTML = Array.from({ length: 7 }, (_, index) => {
+    const key = Model.addDays(start, index), count = items.filter(item => keyOf(item) === key).length;
+    const selected = filter.range === 'day' && key === filter.date;
+    return `<button data-date="${key}" aria-pressed="${selected}" aria-label="${fullDate(key)} ${count}건"><span>${key === today ? '오늘' : WD[new Date(`${key}T00:00:00Z`).getUTCDay()]}</span><strong>${Number(key.slice(8))}</strong><small>${count ? `${count}건` : '·'}</small></button>`;
   }).join('');
 }
 
@@ -93,7 +111,7 @@ function renderSources() {
   const active = sports ? filter.team : filter.vendor;
   const symbol = source => `<img class="source-logo" src="assets/logos/${sports ? 'team-' : ''}${source.id}.png" alt="" width="28" height="28">`;
   $('#sourceTitle').textContent = sports ? '홈 구단' : '예매처';
-  $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}" aria-label="${sports ? '전체 구단' : '전체 예매처'}"><span class="source-symbol">전체</span><span class="source-name">${sports ? '전체 구단' : '전체 예매처'}</span><span class="source-short" aria-hidden="true">전체</span><span class="count">${list.length}</span></button>` + sources.map(source => {
+  $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}" aria-label="${sports ? '전체 구단' : '전체 예매처'}"><span class="source-all" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="source-name">${sports ? '전체 구단' : '전체 예매처'}</span><span class="source-short" aria-hidden="true">전체</span><span class="count">${list.length}</span></button>` + sources.map(source => {
     const count = list.filter(item => (sports ? item.teamId : item.siteId) === source.id).length;
     return `<button class="source-filter" data-source="${source.id}" aria-pressed="${active === source.id}" aria-label="${source.name}">${symbol(source)}<span class="source-name">${source.name}</span><span class="source-short" aria-hidden="true">${source.shortName || source.name}</span><span class="count">${count}</span></button>`;
   }).join('');
@@ -145,10 +163,12 @@ function renderResults() {
   const filter = options(), sports = state.view === 'sports';
   const base = Model.filter(sourceItems(), { ...filter, status: 'all' });
   const list = Model.filter(sourceItems(), filter);
+  const availableStatuses = new Set(base.map(item => Model.status(item).id));
+  $('#statusFilters').hidden = !sports && availableStatuses.size <= 1 && (filter.status === 'all' || availableStatuses.has(filter.status));
   const labels = sports ? [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '예매 중'], ['presale', '선예매'], ['closed', '종료·매진'], ['unknown', '확인 필요']]
-    : [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '오픈 시각 지남'], ['unknown', '시간 미정']];
+    : [['all', '전체'], ['scheduled', '오픈 예정'], ['unknown', '시간 미정']];
   $('#statusFilters').innerHTML = labels.filter(([id]) => !['presale', 'closed', 'unknown'].includes(id) || base.some(item => Model.status(item).id === id) || filter.status === id).map(([id, label]) => `<button data-status="${id}" aria-pressed="${filter.status === id}">${label}<b>${id === 'all' ? base.length : base.filter(item => Model.status(item).id === id).length}</b></button>`).join('');
-  $('#resultTitle').textContent = filter.range === 'upcoming' ? (sports ? '앞으로의 경기' : '오늘부터의 오픈') : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
+  $('#resultTitle').textContent = filter.range === 'upcoming' ? (sports && filter.basis === 'game' ? '다가오는 경기' : '다가오는 오픈') : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
   $('#resultCount').textContent = `${list.length}건`;
   $('#results').innerHTML = list.length ? groupedRows(list, filter.basis) : emptyMarkup();
   $('#listTotal').textContent = `${sports ? '경기' : '오픈'} ${list.length}건`;
@@ -172,20 +192,24 @@ function render() {
   updateAlarmBadge();
   if (alarm) { renderAlarms(); return; }
   const filter = options();
+  if (filter.date < Model.dateKey()) { filter.date = Model.dateKey(); filter.range = 'upcoming'; filter.stripStart = null; state.month = filter.date.slice(0, 7); }
   $('#selectedDate').value = filter.date;
+  $('#selectedDate').min = Model.dateKey();
   $('#dateLabel').textContent = filter.basis === 'game' ? '경기일' : '오픈일';
   $('#selectedDate').setAttribute('aria-label', filter.basis === 'game' ? '경기일 선택' : '오픈일 선택');
-  $('#datePickerLabel').textContent = filter.range === 'upcoming' ? '오늘부터의 오픈' : `${Number(filter.date.slice(5, 7))}월 ${Number(filter.date.slice(8, 10))}일 (${WD[new Date(`${filter.date}T00:00:00Z`).getUTCDay()]})`;
   $('#searchInput').value = filter.query;
   $('#searchInput').placeholder = sports ? '팀·구장 검색' : '공연명 검색';
   $('#sportsControls').hidden = !sports;
   document.querySelectorAll('[data-range]').forEach(button => button.setAttribute('aria-pressed', button.dataset.range === filter.range));
   document.querySelectorAll('[data-basis]').forEach(button => button.setAttribute('aria-pressed', button.dataset.basis === filter.basis));
-  renderCalendar(); renderSources(); renderResults();
+  renderCalendar(); renderSources(); renderDateStrip(); renderResults();
 }
 
 function selectDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+  if (date < Model.dateKey()) { render(); return; }
+  const start = $('#dateStrip').dataset.start;
+  options().stripStart = start && date >= start && date <= Model.addDays(start, 6) ? start : date;
   options().date = date; options().range = 'day'; state.month = date.slice(0, 7); render();
   if ($('#dateDialog').open) $('#dateDialog').close();
 }
@@ -200,11 +224,11 @@ document.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button) return;
   if ('view' in button.dataset) setView(button.dataset.view);
-  else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; render(); }
+  else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; if (options().range === 'upcoming') options().stripStart = null; render(); }
   else if ('date' in button.dataset) selectDate(button.dataset.date);
-  else if ('dayStep' in button.dataset) selectDate(Model.addDays(options().range === 'upcoming' ? Model.dateKey() : options().date, Number(button.dataset.dayStep)));
-  else if ('range' in button.dataset) { options().range = button.dataset.range; render(); }
-  else if ('basis' in button.dataset) { options().basis = button.dataset.basis; render(); }
+  else if ('datePage' in button.dataset) { options().stripStart = Model.addDays($('#dateStrip').dataset.start, Number(button.dataset.datePage) * 7); renderDateStrip(); }
+  else if ('range' in button.dataset) { options().range = button.dataset.range; if (button.dataset.range === 'upcoming') { options().date = Model.dateKey(); options().stripStart = null; } render(); }
+  else if ('basis' in button.dataset) { options().basis = button.dataset.basis; options().stripStart = null; render(); }
   else if ('status' in button.dataset) { options().status = button.dataset.status; render(); }
   else if ('alarm' in button.dataset) toggleAlarm(button.dataset.alarm);
   else if ('reset' in button.dataset || button.id === 'resetFilters') resetFilters();
@@ -212,14 +236,13 @@ document.addEventListener('click', event => {
   else if (button.id === 'clearBtn') { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(STORAGE_KEY); } catch {} state.items = []; state.sports = { items: [], teamStatus: {} }; state.generatedAt = null; loadStatic().then(() => { render(); renderSettings(); }); }
 });
 $('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
-$('#searchInput').addEventListener('input', event => { options().query = event.target.value; renderCalendar(); renderSources(); renderResults(); });
+$('#searchInput').addEventListener('input', event => { options().query = event.target.value; if (options().range === 'upcoming') options().stripStart = null; renderCalendar(); renderSources(); renderDateStrip(); renderResults(); });
 $('#todayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
-$('#quickTodayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
 $('#datePickerBtn').addEventListener('click', () => {
-  state.month = (options().range === 'upcoming' ? Model.dateKey() : options().date).slice(0, 7);
+  state.month = $('#dateStrip').dataset.start.slice(0, 7);
   $('#dateDialogBody').append($('.calendar-panel'));
   renderCalendar(); $('#dateDialog').showModal();
-  ($('#calendarGrid .selected') || $('#calendarGrid .today') || $('#calendarGrid button:not(.outside)'))?.focus();
+  ($('#calendarGrid .selected:not(:disabled)') || $(`#calendarGrid [data-date="${$('#dateStrip').dataset.start}"]`) || $('#calendarGrid button:not(:disabled)'))?.focus();
 });
 $('#dateDialog').addEventListener('close', () => $('.sidebar').prepend($('.calendar-panel')));
 for (const [id, amount] of [['monthPrev', -1], ['monthNext', 1]]) $( `#${id}`).addEventListener('click', () => {
@@ -230,7 +253,7 @@ $('#results').addEventListener('error', event => { if (event.target.tagName === 
 
 let toastTimer;
 function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
-function updateAlarmBadge() { const count = Object.keys(state.alarms).length; $('#alarmCount').textContent = count; $('#alarmCount').hidden = !count; }
+function updateAlarmBadge() { const count = allItems().filter(item => hasAlarm(itemKey(item)) && Model.isUpcoming(item)).length; $('#alarmCount').textContent = count; $('#alarmCount').hidden = !count; }
 function saveAlarms() {
   state.alarmItems = allItems().filter(item => hasAlarm(itemKey(item)));
   write(ALARM_KEY, state.alarms); write(ALARM_ITEMS_KEY, state.alarmItems);
@@ -245,7 +268,7 @@ function toggleAlarm(key) {
   saveAlarms(); syncPush(); updateAlarmBadge(); renderResults();
 }
 function renderAlarms() {
-  const items = allItems().filter(item => hasAlarm(itemKey(item))).sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''));
+  const items = allItems().filter(item => hasAlarm(itemKey(item)) && Model.isUpcoming(item)).sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''));
   $('#alarmHint').textContent = pushOk ? '오픈 10·5·3·1분 전과 정각에 알림 · 앱을 닫아도 서버에서 전달합니다.' : '오픈 10·5·3·1분 전과 정각에 알림 · 푸시 서버 연결 전에는 이 화면을 열어 두세요.';
   $('#alarmBody').innerHTML = items.length ? groupedRows(items, 'open') : emptyMarkup(true);
 }
@@ -380,17 +403,16 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
   if (saved && Array.isArray(saved.items)) { state.items = saved.items; state.generatedAt = saved.generatedAt; state.siteStatus = saved.siteStatus || {}; if (saved.sports) state.sports = saved.sports; }
   else if (Array.isArray(legacy)) state.items = legacy;
   saveAlarms();
-  await loadStatic(); render();
+  await loadStatic(); render(); lastStatusSignature = visibilitySignature();
   if (Object.keys(state.alarms).length) syncPush();
 })();
 let lastStatusSignature = '';
+function visibilitySignature() { return Model.dateKey() + allItems().map(item => `${Model.status(item).id}:${Model.isUpcoming(item)}:${Model.isUpcoming(item, 'game')}`).join('|'); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); lastStatusSignature = visibilitySignature(); } });
 setInterval(() => {
   document.querySelectorAll('[data-countdown]').forEach(element => { element.textContent = countdown(element.dataset.countdown); });
   checkAlarms();
-  const signature = allItems().map(item => Model.status(item).id).join('|');
-  if (lastStatusSignature && signature !== lastStatusSignature) {
-    if (state.view !== 'alarm') { renderCalendar(); renderSources(); }
-    renderResults();
-  }
+  const signature = visibilitySignature();
+  if (signature !== lastStatusSignature) render();
   lastStatusSignature = signature;
 }, 1000);

@@ -26,10 +26,16 @@
       ? { id: 'scheduled', label: '오픈 예정', tone: 'blue' }
       : { id: 'open', label: '오픈 시각 지남', tone: 'green' };
   }
+  function isUpcoming(item, basis = 'open', now = Date.now()) {
+    const pending = (timestamp, day) => timestamp ? Date.parse(timestamp) >= now : !day || day >= dateKey(now);
+    if (item.category === 'sports' && !pending(item.gameDateTime, item.gameDate)) return false;
+    return basis === 'game' ? pending(item.gameDateTime, item.gameDate) : pending(item.openDateTime, item.openDate);
+  }
   function filter(items, options, now = Date.now()) {
     const { vendor, team, query = '', range = 'day', date, basis = 'open', status: selectedStatus = 'all' } = options;
     const words = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
     return items.filter(item => {
+      if (!isUpcoming(item, basis, now)) return false;
       if (vendor && item.siteId !== vendor) return false;
       if (team && item.teamId !== team) return false;
       const text = `${item.title} ${item.homeTeam || ''} ${item.awayTeam || ''} ${item.venue || ''}`.toLocaleLowerCase();
@@ -37,15 +43,17 @@
       const key = basis === 'game' ? item.gameDate : item.openDate;
       if (range === 'day' && key !== date) return false;
       if (range === 'week' && (!key || key < date || key > addDays(date, 6))) return false;
-      if (range === 'upcoming' && (item.category === 'sports' ? item.gameDate : item.openDate) < dateKey(now)) return false;
       return selectedStatus === 'all' || status(item, now).id === selectedStatus;
     }).sort((a, b) => {
+      const aTime = basis === 'game' ? a.gameDateTime : a.openDateTime;
+      const bTime = basis === 'game' ? b.gameDateTime : b.openDateTime;
+      if (!!aTime !== !!bTime) return aTime ? -1 : 1;
       const left = (basis === 'game' ? a.gameDateTime : a.openDateTime || a.openDate) || '9999';
       const right = (basis === 'game' ? b.gameDateTime : b.openDateTime || b.openDate) || '9999';
       return left.localeCompare(right) || (a.gameDateTime || '').localeCompare(b.gameDateTime || '') || a.title.localeCompare(b.title, 'ko');
     });
   }
-  const api = { TEAMS, dateKey, addDays, itemKey, status, filter };
+  const api = { TEAMS, dateKey, addDays, itemKey, status, isUpcoming, filter };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ScheduleModel = api;
 })(typeof window === 'undefined' ? globalThis : window);

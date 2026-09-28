@@ -37,8 +37,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify schedule rules
+        run: npm test
+
       - name: Install Playwright browser
-        run: npx playwright install chromium --with-deps
+        run: npx playwright install chromium chrome --with-deps
 
       - name: Export schedules
         run: npm run export
@@ -46,6 +49,9 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PAGE_URL: ${{ vars.PAGE_URL }}
+
+      - name: Verify schedule workspace
+        run: npm run test:ui
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

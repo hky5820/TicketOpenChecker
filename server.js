@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const webpush = require('web-push');
 const { chromium } = require('playwright');
+const { collectSports } = require('./lib/sports');
 
 const START_PORT = Number(process.env.PORT || 3000);
 const HEADLESS = process.env.HEADLESS === '1' || process.env.CI === 'true';
@@ -154,7 +155,14 @@ setInterval(() => {
   if (dirty) saveSubs();
 }, 15000);
 
+app.get('/api/sports', async (req, res) => {
+  res.json(await collectSports());
+});
+
+let loadingSchedules = false;
 app.get('/api/load', async (req, res) => {
+  if (loadingSchedules) return res.status(409).json({ message: '이미 수집 중입니다. 잠시 후 다시 시도해 주세요.' });
+  loadingSchedules = true;
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
@@ -174,6 +182,7 @@ app.get('/api/load', async (req, res) => {
     desktopContext = await launchDesktopContext();
 
     const allItems = [];
+    const siteStatus = {};
     const seenIndex = new Map();
     const streamItems = (site, rawItems) => {
       const toSend = [];
@@ -201,7 +210,11 @@ app.get('/api/load', async (req, res) => {
       return toSend;
     };
 
-    await Promise.all(SITES.map(async (site) => {
+    let sports;
+    await Promise.all([collectSports(message => send('status', { site: 'sports', message })).then(result => {
+      sports = result;
+      send('sports', result);
+    }), ...SITES.map(async (site) => {
       const page = await (site.desktop ? desktopContext : context).newPage();
       try {
         send('status', { site: site.id, message: `${site.name} 접속 중` });
@@ -211,13 +224,15 @@ app.get('/api/load', async (req, res) => {
           (items) => streamItems(site, items)
         );
         const count = allItems.filter((item) => item.siteId === site.id).length;
+        siteStatus[site.id] = { ok: true, count, checkedAt: new Date().toISOString() };
         send('siteDone', { site: site.id, count });
       } catch (error) {
+        siteStatus[site.id] = { ok: false, error: error.message, checkedAt: new Date().toISOString() };
         send('siteError', { site: site.id, message: error.message });
       } finally {
         await page.close().catch(() => {});
       }
-    }));
+    })]);
 
     allItems.sort((a, b) => {
       const at = a.openDateTime ? new Date(a.openDateTime).getTime() : Number.MAX_SAFE_INTEGER;
@@ -225,12 +240,13 @@ app.get('/api/load', async (req, res) => {
       return at - bt || a.title.localeCompare(b.title, 'ko');
     });
 
-    send('done', { items: dedupeItems(allItems), loadedAt: new Date().toISOString() });
+    send('done', { items: dedupeItems(allItems), sports, siteStatus, loadedAt: new Date().toISOString() });
   } catch (error) {
     send('fatal', { message: error.message });
   } finally {
     await context?.close().catch(() => {});
     await desktopContext?.close().catch(() => {});
+    loadingSchedules = false;
     res.end();
   }
 });
@@ -683,8 +699,7 @@ function normalizeItems(items, site) {
     })
     .filter((item) => item.title && item.openDate)
     .filter((item) => {
-      if (!item.openDateTime) return new Date(`${item.openDate}T23:59:59+09:00`) >= now;
-      return new Date(item.openDateTime) >= now;
+      return new Date(`${item.openDate}T23:59:59+09:00`) >= now;
     });
 }
 

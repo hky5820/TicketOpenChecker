@@ -1,6 +1,7 @@
 const { spawn } = require('child_process');
 const fs = require('fs/promises');
 const path = require('path');
+const { mergeSports } = require('../lib/sports');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -16,11 +17,15 @@ main().catch((error) => {
 async function main() {
   await fs.mkdir(PUBLIC_DIR, { recursive: true });
   const previousItems = await loadPreviousItems();
+  const previousSports = await loadPreviousSports();
   const server = await startServer();
 
   try {
     const loaded = await collectItems(`http://127.0.0.1:${server.port}/api/load`);
     const items = fillMissingSites(normalizeForExport(loaded.items), previousItems);
+    for (const id of EXPECTED_SITES) {
+      if (loaded.siteStatus?.[id] && !loaded.items.some(item => item.siteId === id) && items.some(item => item.siteId === id)) loaded.siteStatus[id].fallback = true;
+    }
     const loadedAt = loaded.loadedAt || new Date().toISOString();
 
     // 상세 수집 실패가 배포 자체를 막으면 안 된다.
@@ -34,6 +39,8 @@ async function main() {
       generatedAt: loadedAt,
       itemCount: items.length,
       items,
+      siteStatus: loaded.siteStatus,
+      sports: mergeSports(loaded.sports, previousSports),
     }, null, 2)}\n`, 'utf8');
     await fs.writeFile(ICS_PATH, buildIcs(items, loadedAt), 'utf8');
 
@@ -43,6 +50,22 @@ async function main() {
   } finally {
     server.child.kill();
   }
+}
+
+async function loadPreviousSports() {
+  const remote = process.env.PREVIOUS_DATA_URL || (process.env.GITHUB_REPOSITORY
+    ? `https://${process.env.GITHUB_REPOSITORY.split('/')[0]}.github.io/${process.env.GITHUB_REPOSITORY.split('/')[1]}/data.json` : null);
+  if (remote) {
+    try {
+      const response = await fetch(remote, { signal: AbortSignal.timeout(15000) });
+      if (response.ok) {
+        const payload = await response.json();
+        if (payload.sports) return payload.sports;
+      }
+    } catch { /* Local snapshot remains available. */ }
+  }
+  try { return JSON.parse(await fs.readFile(DATA_PATH, 'utf8')).sports || null; }
+  catch { return null; }
 }
 
 function startServer() {

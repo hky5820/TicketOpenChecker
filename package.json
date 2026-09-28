@@ -6,6 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "test": "node --test tests/*.test.cjs",
+    "test:ui": "node scripts/ui-qa.cjs",
     "export": "node scripts/export.js",
     "install-browser": "npx playwright install chromium"
   },
@@ -13,5 +15,8 @@
     "express": "^4.21.2",
     "playwright": "^1.58.2",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0"
   }
 }

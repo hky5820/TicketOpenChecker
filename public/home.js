@@ -1,800 +1,387 @@
-/* 티켓오픈 홈 — 시간대 포커스 스크롤 (다크+그린) */
-const STORAGE_KEY = 'ticket-open-checker:schedules';
-const VENDOR_KEY = 'toc:homeVendor';
-const ALARM_KEY = 'toc:alarms';
+const Model = window.ScheduleModel;
+const $ = selector => document.querySelector(selector);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const safeUrl = value => { try { const url = new URL(value); return /^https?:$/.test(url.protocol) ? esc(url.href) : ''; } catch { return ''; } };
 const VN = { interpark: 'NOL 티켓', melon: '멜론 티켓', ticketlink: '티켓링크' };
-const VTAB = { interpark: 'NOL티켓', melon: '멜론티켓', ticketlink: '티켓링크' };
-const VORDER = ['interpark', 'ticketlink', 'melon'];
+const STORAGE_KEY = 'ticket-open-checker:schedules';
+const DATA_KEY = 'toc:workspaceData';
+const ALARM_KEY = 'toc:alarms';
+const ALARM_ITEMS_KEY = 'toc:alarmItems';
+const IS_STATIC = location.hostname.endsWith('github.io');
 const WD = ['일', '월', '화', '수', '목', '금', '토'];
-const UNSET = '미정';
-
+const itemKey = Model.itemKey;
+const CALENDAR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 5h4"/></svg>';
+const BELL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
+const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be full or disabled. */ } };
+const defaults = view => ({ date: Model.dateKey(), range: view === 'sports' ? 'upcoming' : 'day', basis: view === 'sports' ? 'game' : 'open', vendor: '', team: '', status: 'all', query: '' });
 const state = {
-  items: [],
-  dateKey: null,          // 'YYYY-MM-DD'
-  vendor: readVendor(),
-  view: 'home',
-  calMonth: null,         // Date (1일)
-  calSel: null,           // 캘린더에서 선택한 날짜
-  generatedAt: null,
-  popDate: null,          // 직접 탭한 날짜(bpop용)
-  alarms: readAlarms(),   // { itemKey: {f10,f5,f3,f1,f0} } — 발화한 오프셋 표시
+  items: [], sports: { items: [], teamStatus: {} }, siteStatus: {}, generatedAt: null, view: 'home',
+  filters: { home: defaults('home'), sports: defaults('sports') }, month: Model.dateKey().slice(0, 7),
+  alarms: read(ALARM_KEY, {}), alarmItems: read(ALARM_ITEMS_KEY, []), loading: false, statuses: {},
 };
+if (!state.alarms || typeof state.alarms !== 'object' || Array.isArray(state.alarms)) state.alarms = {};
+if (!Array.isArray(state.alarmItems)) state.alarmItems = [];
+const options = () => state.filters[state.view === 'sports' ? 'sports' : 'home'];
+const sourceItems = () => state.view === 'sports' ? state.sports.items || [] : state.items;
+const allItems = () => [...new Map([...state.alarmItems, ...state.items, ...(state.sports.items || [])].map(item => [itemKey(item), item])).values()];
+const shortDate = key => key ? `${Number(key.slice(5, 7))}.${Number(key.slice(8, 10))} (${WD[new Date(`${key}T00:00:00Z`).getUTCDay()]})` : '미정';
+const fullDate = key => key ? `${Number(key.slice(5, 7))}월 ${Number(key.slice(8, 10))}일 ${WD[new Date(`${key}T00:00:00Z`).getUTCDay()]}요일` : '오픈일 미정';
+const stamp = value => value ? new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '아직 수집 전';
+const timeLabel = value => value ? `${shortDate(value.slice(0, 10))} ${value.slice(11, 16)}` : '미정';
 
-function readVendor() {
-  try {
-    const v = localStorage.getItem(VENDOR_KEY);
-    return ['interpark', 'melon', 'ticketlink'].includes(v) ? v : null;
-  } catch { return null; }
+function countdown(value) {
+  const seconds = Math.floor((Date.parse(value) - Date.now()) / 1000);
+  if (!(seconds > 0)) return '오픈 시각 도래';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${String(seconds % 60).padStart(2, '0')}초 후`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}시간 ${Math.floor(seconds % 3600 / 60)}분 후`;
+  return `${Math.floor(seconds / 86400)}일 ${Math.floor(seconds % 86400 / 3600)}시간 후`;
 }
-function readAlarms() {
-  try {
-    const a = JSON.parse(localStorage.getItem(ALARM_KEY) || '{}');
-    return a && typeof a === 'object' ? a : {};
-  } catch { return {}; }
+function hasAlarm(key) { return Object.prototype.hasOwnProperty.call(state.alarms, key); }
+function bell(item) {
+  const key = itemKey(item), on = hasAlarm(key);
+  if (!on && (!item.openDateTime || Date.parse(item.openDateTime) <= Date.now())) return '<span class="alarm-spacer"></span>';
+  return `<button class="bell${on ? ' on' : ''}" data-alarm="${esc(key)}" aria-pressed="${on}" aria-label="${esc(item.title)} 오픈 알림 ${on ? '해제' : '설정'}" title="오픈 알림 ${on ? '해제' : '설정'}">${BELL_ICON}</button>`;
 }
-function saveAlarms() {
-  try { localStorage.setItem(ALARM_KEY, JSON.stringify(state.alarms)); } catch { /* 무시 */ }
+function statusMarkup(item) {
+  const status = Model.status(item);
+  return `<span class="status ${status.tone}">${status.label}</span>${status.id === 'scheduled' ? `<span class="countdown" data-countdown="${esc(item.openDateTime)}">${countdown(item.openDateTime)}</span>` : ''}`;
 }
-
-const $ = (s) => document.querySelector(s);
-
-/* 모바일 주소창/제스처 바 때문에 dvh가 어긋나는 기기 대응: 실제 보이는 높이를 실측 */
-function setVH() {
-  const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
-  document.documentElement.style.setProperty('--vh', `${Math.round(h)}px`);
+function vendorMarkup(item, extra = '') {
+  return `<span class="vendor-label ${esc(item.siteId)} ${extra}"><i></i>${esc(VN[item.siteId] || item.site)}</span>`;
 }
-setVH();
-(window.visualViewport || window).addEventListener('resize', () => {
-  setVH();
-  requestAnimationFrame(() => { if (typeof measureSecs === 'function' && secEls.length) measureSecs(); });
-});
-window.addEventListener('orientationchange', () => setTimeout(setVH, 250));
-
-const feed = $('#feed'), daysEl = $('#days'), vtabsEl = $('#vtabs'), ov = $('#ov');
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const pad = (n) => String(n).padStart(2, '0');
-const localKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const todayKey = () => localKey(new Date());
-const dkeyOf = (it) => (it.openDate || (it.openDateTime || '').slice(0, 10) || '');
-const openMs = (dk, t) => new Date(`${dk}T${t}:00+09:00`).getTime();
-const secTo = (dk, t) => Math.floor((openMs(dk, t) - Date.now()) / 1000);
-const isPastG = (dk, t) => t !== UNSET && secTo(dk, t) <= 0;
-const itemKey = (it) => `${it.siteId}|${it.title}|${it.openDateTime || it.openDate || ''}`;
-
-function cdText(dk, t) {
-  const s = secTo(dk, t);
-  if (s <= 0) return '오픈';
-  if (s < 3600) return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
-  if (s < 86400) return `${Math.floor(s / 3600)}시간 ${Math.floor((s % 3600) / 60)}분`;
-  return `${Math.floor(s / 86400)}일 ${Math.floor((s % 86400) / 3600)}시간`;
+function concertRow(item) {
+  const url = safeUrl(item.url), image = safeUrl(item.image);
+  return `<article class="ticket-row" data-item="${esc(itemKey(item))}">
+    <div class="row-time">${esc(item.openTime || '미정')}<small>티켓 오픈</small></div>
+    <div class="ticket-info">${image ? `<img class="poster" src="${image}" alt="" loading="lazy">` : '<span class="poster"></span>'}<div class="ticket-copy"><a class="ticket-title" href="${url || '#'}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a><div class="ticket-meta">${vendorMarkup(item, 'mobile-vendor')}<a class="row-link" href="${url || '#'}" target="_blank" rel="noopener noreferrer">오픈 공지 ↗</a></div></div></div>
+    ${vendorMarkup(item)}<div class="row-status">${statusMarkup(item)}</div>${bell(item)}</article>`;
 }
-function fmtDate(dk, withYear) {
-  const [y, m, d] = dk.split('-').map(Number);
-  const w = WD[new Date(y, m - 1, d).getDay()];
-  return `${withYear ? y + '년 ' : ''}${m}월 ${d}일 ${w}요일`;
+function sportsRow(item) {
+  const logo = (url) => safeUrl(url) ? `<img src="${safeUrl(url)}" alt="" loading="lazy">` : '';
+  const status = Model.status(item);
+  const uncertain = state.sports.teamStatus?.[item.teamId]?.ok === false;
+  return `<article class="sports-row" data-team="${esc(item.teamId)}" data-item="${esc(item.id)}">
+    <div class="game-date">${shortDate(item.gameDate)}<small>${esc(item.gameTime)} 경기</small></div>
+    <div class="match-info"><a class="match-teams" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(item.awayTeam)} 대 ${esc(item.homeTeam)} 경기 페이지">${logo(item.awayLogo)}<span>${esc(item.awayShortName)}</span><span class="versus">vs</span>${logo(item.homeLogo)}<span>${esc(item.homeShortName)}</span><span class="home-label">홈</span></a><div class="venue">${esc(item.venue)}</div></div>
+    <div class="open-info"><small>일반 예매 오픈</small>${timeLabel(item.openDateTime)}${item.preOpenDateTime ? `<span class="preopen">선예매 ${timeLabel(item.preOpenDateTime)}</span>` : ''}</div>
+    <div class="row-status">${uncertain ? '<span class="status amber">이전 조회 자료</span>' : statusMarkup(item)}<a class="row-link" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer">${status.id === 'open' && !uncertain ? '예매처 열기' : '경기 확인'} ↗</a></div>${bell(item)}</article>`;
 }
 
-/* ── 데이터 접근 ── */
-const vendorItems = () => state.items.filter((i) => !state.vendor || i.siteId === state.vendor);
-function dayMap(all) {
-  const m = new Map();
-  (all ? state.items : vendorItems()).forEach((i) => {
-    const k = dkeyOf(i);
-    if (!k) return;
-    if (!m.has(k)) m.set(k, []);
-    m.get(k).push(i);
+function renderCalendar() {
+  const filter = options();
+  const first = `${state.month}-01`;
+  const offset = new Date(`${first}T00:00:00Z`).getUTCDay();
+  const counts = new Map();
+  Model.filter(sourceItems(), { ...filter, range: 'all' }).forEach(item => {
+    const key = filter.basis === 'game' ? item.gameDate : item.openDate;
+    counts.set(key, (counts.get(key) || 0) + 1);
   });
-  return m;
-}
-function groupsOf(dk, all) {
-  const items = dayMap(all).get(dk) || [];
-  const g = {};
-  items.forEach((i) => {
-    const t = i.openTime || UNSET;
-    (g[t] = g[t] || []).push(i);
-  });
-  return Object.entries(g)
-    .sort((a, b) => (a[0] === UNSET ? 1 : b[0] === UNSET ? -1 : a[0].localeCompare(b[0])))
-    .map(([t, its]) => ({ t, items: [...its].sort((x, y) => (y.viewCount || 0) - (x.viewCount || 0)) }));
+  $('#calendarMonth').textContent = `${state.month.slice(0, 4)}년 ${Number(state.month.slice(5))}월`;
+  $('#calendarGrid').innerHTML = Array.from({ length: 42 }, (_, index) => {
+    const key = Model.addDays(first, index - offset), count = counts.get(key) || 0;
+    const selected = filter.range === 'day' && key === filter.date;
+    const classes = [key.slice(0, 7) !== state.month ? 'outside' : '', key === Model.dateKey() ? 'today' : '', selected ? 'selected' : '', count ? 'has-events' : ''].join(' ');
+    return `<button class="${classes}" data-date="${key}" aria-pressed="${selected}" aria-label="${key} ${count}건">${Number(key.slice(8))}</button>`;
+  }).join('');
 }
 
-/* ── 틱 피드백 ── */
-function tickFx() {
-  try { if (navigator.vibrate) navigator.vibrate(5); } catch { /* 미지원 무시 */ }
+function renderSources() {
+  const sports = state.view === 'sports', filter = options();
+  const list = Model.filter(sourceItems(), { ...filter, vendor: '', team: '', status: 'all' });
+  const sources = sports ? Model.TEAMS : Object.entries(VN).map(([id, name]) => ({ id, name }));
+  const active = sports ? filter.team : filter.vendor;
+  const symbol = source => sports
+    ? `<span class="team-symbol" style="--team-color:${source.color}">${source.shortName}</span>`
+    : `<span class="source-symbol ${source.id}">${({ interpark: 'N', melon: 'M', ticketlink: 'T' })[source.id]}</span>`;
+  $('#sourceTitle').textContent = sports ? '홈 구단' : '예매처';
+  $('#sourceFilters').innerHTML = `<button class="source-filter" data-source="" aria-pressed="${!active}"><span class="source-symbol">전체</span><span>${sports ? '전체 구단' : '전체 예매처'}</span><span class="count">${list.length}</span></button>` + sources.map(source => {
+    const count = list.filter(item => (sports ? item.teamId : item.siteId) === source.id).length;
+    return `<button class="source-filter" data-source="${source.id}" aria-pressed="${active === source.id}">${symbol(source)}<span>${source.name}</span><span class="count">${count}</span></button>`;
+  }).join('');
+  $('#sourceNote').innerHTML = sports
+    ? `<strong>경기와 오픈을 따로 확인</strong>홈 구단의 티켓링크 판매 일정을 표시합니다. 예매 상태는 마지막 조회 기준이며 잔여 좌석은 예매처에서 확인하세요.${active ? `<br><a href="https://m.ticketlink.co.kr/sports/137/${active}" target="_blank" rel="noopener noreferrer">구단 페이지 열기 ↗</a>` : ''}`
+    : '<strong>티켓이 열리는 날 기준</strong>공연일이 아닌 예매 오픈일입니다. 정확한 판매 조건은 예매처의 공지를 확인하세요.';
 }
 
-/* ── 알람 ── */
-const BELL_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
-const BELL_SVG_LG = BELL_SVG.replace('width="13" height="13"', 'width="17" height="17"');
-const hasAlarm = (k) => Object.prototype.hasOwnProperty.call(state.alarms, k);
-function bellBtn(it) {
-  const k = itemKey(it);
-  return `<button class="bell${hasAlarm(k) ? ' on' : ''}" data-ak="${esc(k)}" aria-label="오픈 알림">${BELL_SVG}</button>`;
-}
-function toggleAlarm(k) {
-  if (hasAlarm(k)) delete state.alarms[k];
-  else {
-    state.alarms[k] = {};
-    try {
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission().then(() => syncPush());
-      }
-    } catch { /* 무시 */ }
+function renderNotices() {
+  const notices = [];
+  const sports = state.view === 'sports';
+  const generatedAt = sports ? state.sports.generatedAt : state.generatedAt;
+  if (!generatedAt) notices.push(sports ? '스포츠 일정을 아직 수집하지 않았습니다.' : '수집된 일정이 없습니다. 새로고침으로 일정을 가져오세요.');
+  else if (Date.now() - Date.parse(generatedAt) > 12 * 3600000) notices.push(`마지막 수집 ${stamp(generatedAt)}. 최신 일정과 다를 수 있습니다.`);
+  if (sports) {
+    const failures = Model.TEAMS.filter(team => (!options().team || options().team === team.id) && state.sports.teamStatus?.[team.id]?.ok === false);
+    if (failures.length) notices.push(`${failures.map(team => team.name).join(', ')} 조회 실패. 이전 자료가 있으면 유지하며, 경기 없음으로 처리하지 않습니다.`);
+  } else {
+    const failures = Object.entries(state.siteStatus).filter(([id, value]) => (!options().vendor || options().vendor === id) && (!value.ok || value.fallback));
+    if (failures.length) notices.push(`${failures.map(([id]) => VN[id] || id).join(', ')} 최신 조회를 확인하지 못해 이전 자료를 표시합니다.`);
   }
-  saveAlarms();
-  syncPush();
-  tickFx();
-  document.querySelectorAll(`[data-ak="${CSS.escape(k)}"]`).forEach((b) => b.classList.toggle('on', hasAlarm(k)));
-  updateAlarmBadge();
-  if (state.view === 'alarm') buildAlarm();
+  $('#dataNotice').hidden = !notices.length;
+  $('#dataNotice').textContent = notices.join(' ');
+  $('#updatedAt').textContent = `${stamp(generatedAt)} 수집`;
+  $('#updatedAt').title = generatedAt ? `${new Date(generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} KST` : '';
 }
-function bindBells(root) {
-  root.querySelectorAll('[data-ak]').forEach((b) => b.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleAlarm(b.dataset.ak);
-  }));
+
+function emptyMarkup(alarm = false) {
+  if (alarm) return `<div class="empty-state"><span class="empty-icon">${BELL_ICON}</span><h3>등록한 오픈 알림이 없습니다</h3><p>일정 옆 종 버튼을 누르면 오픈 10·5·3·1분 전과 정각에 알려드립니다.</p><button class="button" data-view="home">일정 찾아보기</button></div>`;
+  const filter = options();
+  const next = Model.filter(sourceItems(), { ...filter, range: 'all' }).find(item => (filter.basis === 'game' ? item.gameDate : item.openDate) > filter.date);
+  const nextDate = next && (filter.basis === 'game' ? next.gameDate : next.openDate);
+  const teamFailed = state.view === 'sports' && Model.TEAMS.some(team => (!filter.team || filter.team === team.id) && state.sports.teamStatus?.[team.id]?.ok === false);
+  return `<div class="empty-state"><span class="empty-icon">${CALENDAR_ICON}</span><h3>${teamFailed ? '경기 일정을 확인하지 못했습니다' : '선택한 조건의 일정이 없습니다'}</h3><p>${teamFailed ? '조회 실패한 구단이 있습니다. 새로고침하거나 구단 페이지를 확인하세요.' : `${filter.range === 'day' ? fullDate(filter.date) + ' · ' : ''}${state.view === 'sports' ? '구단·날짜 기준·예매 상태' : '예매처·오픈일'}를 바꿔 확인해 보세요.`}</p>${nextDate ? `<button class="button" data-date="${nextDate}">다음 일정 · ${shortDate(nextDate)} 보기 →</button>` : '<button class="button" data-reset>필터 초기화</button>'}</div>`;
 }
-function alarmedItems() {
-  const by = new Map(state.items.map((i) => [itemKey(i), i]));
-  // 지난 지 1시간 넘은 알람은 자동 정리
-  let dirty = false;
-  Object.keys(state.alarms).forEach((k) => {
-    const it = by.get(k);
-    if (!it) return; // 데이터 갱신 대기 중일 수 있어 유지
-    const dk = dkeyOf(it), t = it.openTime;
-    if (t && openMs(dk, t) < Date.now() - 3600 * 1000) { delete state.alarms[k]; dirty = true; }
+
+function groupedRows(items, basis) {
+  const groups = new Map();
+  items.forEach(item => {
+    const key = (basis === 'game' ? item.gameDate : item.openDate) || '';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
   });
-  if (dirty) saveAlarms();
-  return Object.keys(state.alarms).map((k) => by.get(k)).filter(Boolean)
-    .sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''));
+  return [...groups].map(([key, rows]) => `<section><div class="group-heading"><strong>${fullDate(key)}</strong><span>${basis === 'game' ? '경기' : '오픈'} ${rows.length}건</span></div>${rows.map(item => item.category === 'sports' ? sportsRow(item) : concertRow(item)).join('')}</section>`).join('');
 }
-function updateAlarmBadge() {
-  const n = Object.keys(state.alarms).length;
-  let b = $('#tab-alarm .badge');
-  if (!n) { if (b) b.remove(); return; }
-  if (!b) { b = document.createElement('span'); b.className = 'badge'; $('#tab-alarm').appendChild(b); }
-  b.textContent = n;
+
+function renderResults() {
+  if (state.view === 'alarm') return renderAlarms();
+  const filter = options(), sports = state.view === 'sports';
+  const base = Model.filter(sourceItems(), { ...filter, status: 'all' });
+  const list = Model.filter(sourceItems(), filter);
+  const labels = sports ? [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '예매 중'], ['presale', '선예매'], ['closed', '종료·매진'], ['unknown', '확인 필요']]
+    : [['all', '전체'], ['scheduled', '오픈 예정'], ['open', '오픈 시각 지남'], ['unknown', '시간 미정']];
+  $('#statusFilters').innerHTML = labels.filter(([id]) => !['presale', 'closed', 'unknown'].includes(id) || base.some(item => Model.status(item).id === id) || filter.status === id).map(([id, label]) => `<button data-status="${id}" aria-pressed="${filter.status === id}">${label}<b>${id === 'all' ? base.length : base.filter(item => Model.status(item).id === id).length}</b></button>`).join('');
+  $('#resultTitle').textContent = filter.range === 'upcoming' ? (sports ? '앞으로의 경기' : '오늘부터의 오픈') : filter.range === 'week' ? `${shortDate(filter.date)} – ${shortDate(Model.addDays(filter.date, 6))}` : fullDate(filter.date);
+  $('#resultCount').textContent = `${list.length}건`;
+  $('#results').innerHTML = list.length ? groupedRows(list, filter.basis) : emptyMarkup();
+  $('#listTotal').textContent = `${sports ? '경기' : '오픈'} ${list.length}건`;
+  $('#listHint').textContent = sports ? `예매 상태: ${stamp(state.sports.generatedAt)} 조회 기준 · KST` : '공연일이 아닌 티켓 오픈일 기준 · KST';
+  renderNotices();
 }
-function notifyFx(title, body, tag) {
-  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch { /* 무시 */ }
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  // 안드로이드 크롬은 페이지의 new Notification()을 막는다 — 서비스워커 showNotification이 정식 경로(단말 알림창에 뜸).
-  // 같은 tag + renotify라 한 공연의 알림은 쌓이지 않고 교체되며 매번 다시 진동한다.
-  (async () => {
-    try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg && reg.showNotification) {
-        return reg.showNotification(title, {
-          body, icon: 'icon-192.png', tag: `toc:${tag || 'alarm'}`, renotify: true, vibrate: [200, 100, 200],
-        });
-      }
-    } catch { /* 폴백으로 */ }
-    try { new Notification(title, { body, icon: 'icon-192.png' }); } catch { /* 무시 */ }
-  })();
+
+function render() {
+  document.body.dataset.view = state.view;
+  const sports = state.view === 'sports', alarm = state.view === 'alarm';
+  document.querySelectorAll('.main-nav [data-view]').forEach(button => {
+    if (button.dataset.view === state.view) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
+  $('#pageTitle').textContent = alarm ? '내 오픈 알림' : sports ? '야구 티켓 일정' : '티켓 오픈 일정';
+  $('#eyebrow').textContent = alarm ? 'MY REMINDERS' : sports ? 'KBO · TICKET OPENING' : 'TICKET OPENING';
+  $('#pageDescription').textContent = alarm ? '기다리는 티켓의 오픈을 놓치지 않도록.' : sports ? '응원하는 팀의 경기와 티켓 오픈을 한눈에.' : '원하는 날짜, 원하는 예매처의 오픈을 한눈에.';
+  document.title = `티켓 오픈 · ${alarm ? '내 알림' : sports ? '스포츠' : '일정'}`;
+  $('#scheduleWorkspace').hidden = alarm;
+  $('#alarmWorkspace').hidden = !alarm;
+  updateAlarmBadge();
+  if (alarm) { renderAlarms(); return; }
+  const filter = options();
+  $('#selectedDate').value = filter.date;
+  $('#dateLabel').textContent = filter.basis === 'game' ? '경기일' : '오픈일';
+  $('#selectedDate').setAttribute('aria-label', filter.basis === 'game' ? '경기일 선택' : '오픈일 선택');
+  $('#searchInput').value = filter.query;
+  $('#searchInput').placeholder = sports ? '팀·구장 검색' : '공연명 검색';
+  $('#sportsControls').hidden = !sports;
+  document.querySelectorAll('[data-range]').forEach(button => button.setAttribute('aria-pressed', button.dataset.range === filter.range));
+  document.querySelectorAll('[data-basis]').forEach(button => button.setAttribute('aria-pressed', button.dataset.basis === filter.basis));
+  renderCalendar(); renderSources(); renderResults();
 }
-/* ── 자체 푸시 채널 동기화 ──
- * 서버(server.js)가 VAPID 키를 소유하고 직접 발송한다. 여기선 구독을 만들어 알람 목록과 함께
- * 서버로 보내기만 하면, 오픈 10·5·3·1분 전·정각 푸시는 앱이 꺼져 있어도 서버가 쏴 준다.
- * 서버 주소: 기본은 같은 오리진(서버가 public/을 직접 서빙할 때). Pages에서 쓸 땐
- * localStorage 'toc:pushApi'에 서버 URL을 넣으면 그쪽으로 붙는다. */
+
+function selectDate(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+  options().date = date; options().range = 'day'; state.month = date.slice(0, 7); render();
+}
+function resetFilters() { state.filters[state.view] = defaults(state.view); state.month = Model.dateKey().slice(0, 7); render(); }
+function setView(view) {
+  if (!['home', 'sports', 'alarm'].includes(view)) return;
+  state.view = view;
+  if (view !== 'alarm') state.month = options().date.slice(0, 7);
+  render();
+}
+document.addEventListener('click', event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+  if ('view' in button.dataset) setView(button.dataset.view);
+  else if ('source' in button.dataset) { options()[state.view === 'sports' ? 'team' : 'vendor'] = button.dataset.source; render(); }
+  else if ('date' in button.dataset) selectDate(button.dataset.date);
+  else if ('range' in button.dataset) { options().range = button.dataset.range; render(); }
+  else if ('basis' in button.dataset) { options().basis = button.dataset.basis; render(); }
+  else if ('status' in button.dataset) { options().status = button.dataset.status; render(); }
+  else if ('alarm' in button.dataset) toggleAlarm(button.dataset.alarm);
+  else if ('reset' in button.dataset || button.id === 'resetFilters') resetFilters();
+  else if ('close' in button.dataset) document.getElementById(button.dataset.close).close();
+  else if (button.id === 'clearBtn') { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(STORAGE_KEY); } catch {} state.items = []; state.sports = { items: [], teamStatus: {} }; state.generatedAt = null; loadStatic().then(() => { render(); renderSettings(); }); }
+});
+$('#selectedDate').addEventListener('change', event => selectDate(event.target.value));
+$('#searchInput').addEventListener('input', event => { options().query = event.target.value; renderCalendar(); renderSources(); renderResults(); });
+$('#todayBtn').addEventListener('click', () => selectDate(Model.dateKey()));
+for (const [id, amount] of [['monthPrev', -1], ['monthNext', 1]]) $( `#${id}`).addEventListener('click', () => {
+  const [year, month] = state.month.split('-').map(Number);
+  state.month = new Date(Date.UTC(year, month - 1 + amount, 1)).toISOString().slice(0, 7); renderCalendar();
+});
+$('#results').addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.style.visibility = 'hidden'; }, true);
+
+let toastTimer;
+function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
+function updateAlarmBadge() { const count = Object.keys(state.alarms).length; $('#alarmCount').textContent = count; $('#alarmCount').hidden = !count; }
+function saveAlarms() {
+  state.alarmItems = allItems().filter(item => hasAlarm(itemKey(item)));
+  write(ALARM_KEY, state.alarms); write(ALARM_ITEMS_KEY, state.alarmItems);
+}
+function toggleAlarm(key) {
+  if (hasAlarm(key)) { delete state.alarms[key]; toast('오픈 알림을 해제했습니다.'); }
+  else {
+    state.alarms[key] = {};
+    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().then(() => syncPush());
+    toast('오픈 알림 등록 · 10·5·3·1분 전과 정각');
+  }
+  saveAlarms(); syncPush(); updateAlarmBadge(); renderResults();
+}
+function renderAlarms() {
+  const items = allItems().filter(item => hasAlarm(itemKey(item))).sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''));
+  $('#alarmHint').textContent = pushOk ? '오픈 10·5·3·1분 전과 정각에 알림 · 앱을 닫아도 서버에서 전달합니다.' : '오픈 10·5·3·1분 전과 정각에 알림 · 푸시 서버 연결 전에는 이 화면을 열어 두세요.';
+  $('#alarmBody').innerHTML = items.length ? groupedRows(items, 'open') : emptyMarkup(true);
+}
+
+// Existing VAPID channel and local service-worker notifications remain compatible.
 const PUSH_API = (() => { try { return localStorage.getItem('toc:pushApi') || ''; } catch { return ''; } })();
 let pushOk = false;
-function b64ToU8(s) {
-  const pad = '='.repeat((4 - (s.length % 4)) % 4);
-  const b = atob((s + pad).replace(/-/g, '+').replace(/_/g, '/'));
-  return Uint8Array.from(b, (c) => c.charCodeAt(0));
-}
 async function syncPush() {
   try {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const keyRes = await fetch(`${PUSH_API}/api/push/key`);
-    if (!keyRes.ok) return;
-    const { key } = await keyRes.json();
-    if (!key) return;
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
-    const by = new Map(state.items.map((i) => [itemKey(i), i]));
-    const alarms = Object.keys(state.alarms).map((k) => {
-      const it = by.get(k);
-      return it && it.openDateTime ? { key: k, title: it.title, open: it.openDateTime, url: it.url || '' } : null;
-    }).filter(Boolean);
-    const r = await fetch(`${PUSH_API}/api/push/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sub: sub.toJSON(), alarms }),
-    });
-    pushOk = r.ok;
+    if (IS_STATIC && !PUSH_API) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || Notification.permission !== 'granted') return;
+    const keyResponse = await fetch(`${PUSH_API}/api/push/key`);
+    if (!keyResponse.ok) return;
+    const { key } = await keyResponse.json(); if (!key) return;
+    const bytes = atob((key + '='.repeat((4 - key.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: Uint8Array.from(bytes, value => value.charCodeAt(0)) });
+    const alarms = allItems().filter(item => hasAlarm(itemKey(item)) && item.openDateTime).map(item => ({ key: itemKey(item), title: item.title, open: item.openDateTime, url: item.url }));
+    const response = await fetch(`${PUSH_API}/api/push/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sub: subscription.toJSON(), alarms }) });
+    pushOk = response.ok;
   } catch { pushOk = false; }
+  if (state.view === 'alarm') renderAlarms();
 }
-
-const ALARM_OFFSETS = [10, 5, 3, 1]; // 분 전
+async function notify(title, body, key) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (registration) { await registration.showNotification(title, { body, icon: 'icon-192.png', tag: `toc:${key}`, renotify: true, vibrate: [200, 100, 200] }); return; }
+    new Notification(title, { body, tag: `toc:${key}` });
+  } catch { /* Notification support depends on browser and permissions. */ }
+}
 function checkAlarms() {
-  if (pushOk) return; // 서버 푸시가 살아 있으면 열려 있어도 서버가 단말 알림창에 쏜다 — 이중 진동 방지
-  const by = new Map(state.items.map((i) => [itemKey(i), i]));
-  Object.entries(state.alarms).forEach(([k, st]) => {
-    const it = by.get(k);
-    if (!it || !it.openTime) return;
-    const s = secTo(dkeyOf(it), it.openTime);
-    ALARM_OFFSETS.forEach((m) => {
-      if (s <= m * 60 && !st[`f${m}`]) {
-        st[`f${m}`] = 1; saveAlarms();
-        // 늦게 켠 알람은 이미 지난 시점을 조용히 지나가고, 경계 통과 직후 60초 안에서만 실제 알림
-        if (s > m * 60 - 60) notifyFx('곧 티켓 오픈!', `${it.title} — ${it.openTime} 오픈 (${m}분 전)`, k);
-      }
-    });
-    if (s <= 0 && s > -120 && !st.f0) {
-      st.f0 = 1; saveAlarms();
-      notifyFx('티켓 오픈!', `${it.title} — 지금 오픈했어요`, k);
-    }
-  });
-}
-function buildAlarm() {
-  const body = $('#alarmBody');
-  const list = alarmedItems();
-  if (!list.length) {
-    body.innerHTML = `<div class="empty">
-      ${BELL_SVG.replace('width="13" height="13"', 'width="34" height="34"').replace('stroke-width="2.2"', 'stroke-width="1.7"')}
-      <b>오픈 알림</b>
-      <p>공연 포스터의 종 아이콘을 누르면<br>오픈 10·5·3·1분 전과 정각에 알려드려요.</p></div>`;
-    return;
-  }
-  let html = '', prevDk = null;
-  list.forEach((it) => {
-    const dk = dkeyOf(it), t = it.openTime || UNSET;
-    if (dk !== prevDk) {
-      html += `<div class="cgh"><b>${fmtDate(dk)}</b></div>`;
-      prevDk = dk;
-    }
-    const past = t !== UNSET && isPastG(dk, t);
-    const cd = t === UNSET ? `<span class="acd faroff">${UNSET}</span>`
-      : past ? '<span class="acd faroff">오픈됨</span>'
-        : `<span class="acd cd" data-dk="${dk}" data-t="${t}">${cdText(dk, t)}</span>`;
-    html += `<a class="crow v-${it.siteId}${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
-      <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
-      <div class="cmid"><div class="ct1">${esc(it.title)}</div>
-      <div class="ct2"><span>${t}</span><span class="vn"><i></i>${VN[it.siteId] || it.site}</span></div></div>
-      ${cd}
-      <button class="bellr on" data-ak="${esc(itemKey(it))}" aria-label="알림 해제">${BELL_SVG_LG}</button></a>`;
-  });
-  html += `<div class="ahint">${pushOk ? '알림은 앱이 꺼져 있어도 도착해요.' : '알림은 앱이 열려 있는 동안 동작해요.'} 오픈 10·5·3·1분 전과 정각에 단말 알림·진동으로 알려드립니다.</div>`;
-  body.innerHTML = html;
-  bindBells(body);
-}
-
-/* ── 날짜 스트립 ── */
-function buildDays() {
-  const vMap = dayMap();        // 현재 예매처 건수(0이면 흐리게 표시)
-  const map = dayMap(true);     // 날짜 컬럼은 예매처와 무관하게 전체 고정 — 탭 전환에도 안 흔들림
-  const keys = [...new Set([...map.keys(), todayKey()])].sort();
-  let html = '', prevMonth = null;
-  keys.forEach((k) => {
-    const [y, m, d] = k.split('-').map(Number);
-    if (prevMonth !== null && m !== prevMonth) html += `<span class="mchip">${m}월</span>`;
-    prevMonth = m;
-    const w = new Date(y, m - 1, d).getDay();
-    const n = (vMap.get(k) || []).length;
-    const tdy = k === todayKey();
-    html += `<div class="day${k === state.dateKey ? ' on' : ''}${n ? '' : ' zero'}" data-k="${k}">
-      <span class="w${w === 0 ? ' sun' : tdy ? ' tdy' : ''}">${tdy ? '오늘' : WD[w]}</span><b>${d}</b><span class="c">${n}</span></div>`;
-  });
-  daysEl.innerHTML = html;
-  daysEl.querySelectorAll('.day').forEach((el) => el.addEventListener('click', () => {
-    if (el.dataset.k === state.dateKey) return;
-    tickFx();
-    state.dateKey = el.dataset.k;
-    state.popDate = el.dataset.k; // 직접 탭했을 때만 bpop 애니메이션
-    buildFeed();
-  }));
-  if (state.popDate === state.dateKey) {
-    const on = daysEl.querySelector('.day.on');
-    if (on) on.classList.add('pop');
-    state.popDate = null;
-  }
-  const on = daysEl.querySelector('.day.on');
-  if (on) daysEl.scrollTo({ left: on.offsetLeft - (daysEl.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' });
-  const mon = $('#monLabel');
-  if (mon && state.dateKey) mon.textContent = `${state.dateKey.slice(0, 4)}년 ${Number(state.dateKey.slice(5, 7))}월`;
-}
-
-/* ── 예매처 탭 ── */
-function buildTabs() {
-  vtabsEl.innerHTML = `<span class="vt${state.vendor ? '' : ' on'}" data-v="">전체</span>` +
-    VORDER.map((v) => `<span class="vt${state.vendor === v ? ' on' : ''}" data-v="${v}">${VTAB[v]}</span>`).join('');
-  vtabsEl.querySelectorAll('.vt').forEach((el) => el.addEventListener('click', () => {
-    const v = el.dataset.v || null;
-    if (v === state.vendor) return;
-    state.vendor = v;
-    try { v ? localStorage.setItem(VENDOR_KEY, v) : localStorage.removeItem(VENDOR_KEY); } catch { /* 무시 */ }
-    tickFx();
-    ensureDate();
-    buildFeed();
-  }));
-}
-
-/* ── 홈 피드 ── */
-let secEls = [], focusIdx = -1, curGroups = [];
-
-function card(it) {
-  const href = it.url ? ` href="${esc(it.url)}" target="_blank" rel="noopener"` : '';
-  return `<a class="rc"${href}><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()">${bellBtn(it)}</span>
-    <div class="t">${esc(it.title)}</div><div class="v">${VN[it.siteId] || it.site} · ${(it.viewCount || 0).toLocaleString()}</div></a>`;
-}
-function statTxt(dk, t) {
-  if (t === UNSET) return '';
-  const s = secTo(dk, t);
-  if (s > 0 && s <= 180 * 60) return `<span class="soon"><i></i><span class="cd" data-dk="${dk}" data-t="${t}">${cdText(dk, t)}</span>&nbsp;후 오픈</span>`;
-  if (s <= 0) return '<span class="ended">종료</span>';
-  return '';
-}
-function dayInfoHTML() {
-  const items = dayMap().get(state.dateKey) || [];
-  const dl = state.dateKey === todayKey() ? '오늘' : fmtDate(state.dateKey);
-  const next = curGroups.find((g) => g.t !== UNSET && secTo(state.dateKey, g.t) > 0);
-  const tms = curGroups.map((g, i) => {
-    const cls = isPastG(state.dateKey, g.t) ? ' done' : next && g.t === next.t ? ' soon' : '';
-    const label = g.t === UNSET ? UNSET : `${parseInt(g.t, 10)}시`;
-    return `<span class="ti${cls}" data-i="${i}">${label}<em>${g.items.length}</em></span>`;
-  }).join('');
-  return `<div class="dinfo">
-    <div class="sl">${dl} 오픈 ${items.length}건</div>
-    ${next ? `<div class="nx"><i></i>다음 오픈 ${next.t} · <span class="cd" data-dk="${state.dateKey}" data-t="${next.t}">${cdText(state.dateKey, next.t)}</span>&nbsp;남음</div>` : ''}
-    <div class="tms">${tms}</div></div>`;
-}
-function buildFeed() {
-  buildDays();
-  buildTabs();
-  curGroups = groupsOf(state.dateKey);
-  secEls = []; focusIdx = -1;
-  cancelSnap();
-  if (!curGroups.length) {
-    feed.innerHTML = `<div class="fempty">${state.dateKey === todayKey() ? '오늘은' : '이 날은'} ${state.vendor ? VN[state.vendor] + ' ' : ''}오픈 일정이 없어요</div>`;
-    return;
-  }
-  const dk = state.dateKey;
-  feed.innerHTML = dayInfoHTML() + curGroups.map((g, i) => `<div class="sec${isPastG(dk, g.t) ? ' past' : ''}" data-i="${i}" style="animation-delay:${Math.min(i * 50, 300)}ms"><div class="sin">
-    <div class="amb"><img src="${esc(g.items[0].image || '')}" loading="lazy" onerror="this.remove()"></div>
-    <div class="shd"><span class="tm">${g.t}</span><span class="cnt">${g.items.length}건</span>${statTxt(dk, g.t)}
-      <span class="more" data-i="${i}">전체보기 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
-    <div class="rail">${g.items.map(card).join('')}${g.items.length > 3 ? `<div class="rc morec" data-i="${i}"><span class="mbox"><span><b>+${g.items.length - 3}</b><em>더보기</em></span></span></div>` : ''}</div>
-  </div></div>`).join('');
-  secEls = [...feed.querySelectorAll('.sec')];
-  feed.querySelectorAll('.more,.rc.morec').forEach((e) => e.addEventListener('click', (ev) => { ev.stopPropagation(); openOv(+e.dataset.i); }));
-  secEls.forEach((s) => s.querySelector('.shd').addEventListener('click', (ev) => {
-    if (ev.target.closest('.more')) return;
-    centerOn(+s.dataset.i);
-  }));
-  bindBells(feed);
-  feed.querySelectorAll('.ti').forEach((t) => t.addEventListener('click', () => centerOn(+t.dataset.i)));
-  requestAnimationFrame(() => {
-    measureSecs();
-    // 마지막 섹션도 기준선까지 올라올 만큼의 여백(끝에서 20px는 일부러 덜 — 기존 감각 유지)
-    const last = secEls[secEls.length - 1], lm = secMeta[secMeta.length - 1];
-    const hB = lm ? Math.max(0, feedH - anchorY - (last.offsetTop + last.offsetHeight - lm.a) - 20) : 0;
-    feed.insertAdjacentHTML('beforeend', `<div class="spc" style="height:${hB}px"></div>`);
-    measureSecs(); // 스페이서 반영해 maxS 갱신
-    focusIdx = -1;
-    let def = curGroups.findIndex((g) => !isPastG(dk, g.t));
-    if (def < 0) def = curGroups.length - 1;
-    centerOn(def, false);
-    fx();
-  });
-}
-
-/* ── 쫀득한 스프링 스냅 ── */
-let snapRaf = 0, idleTimer = 0, touching = false, animatingScroll = false;
-/* 스크롤 중 레이아웃 재측정(스래싱) 방지: 섹션 위치는 빌드 때 한 번만 측정해 캐시 */
-let secMeta = [], feedH = 0, maxS = 0, anchorY = 0;
-/* 포커스 기준선(피드 좌표계) = 포커스 섹션 포스터 중앙이 놓이는 y.
-   화면 정중앙이 아니라 '오늘 오픈' 바로 아래로 끌어올린다(사용자: 포커스 시간이 더 위로).
-   단, 시간 헤더가 dinfo ::after 페이드(46px)를 지난 GAP 지점에 오도록 잡아 흐려지진 않게 한다. */
-function measureSecs() {
-  feedH = feed.clientHeight;
-  if (!feedH) return; // 홈이 숨겨진(display:none) 동안엔 피드가 전부 0으로 측정된다 — 캐시 오염 방지
-  secMeta = secEls.map((el) => ({ top: el.offsetTop, h: el.offsetHeight, a: posterY(el) }));
-  const dinfoH = feed.querySelector('.dinfo')?.offsetHeight || 0;
-  const d0 = secMeta[0] ? (secMeta[0].a - secMeta[0].top) : 114; // 섹션 top→포스터 중앙 거리(거의 일정)
-  const GAP = 58;              // dinfo 아래~시간 헤더 top 여백: 페이드 46px + 여유 12px
-  anchorY = dinfoH + GAP + d0 - 14; // -14: 섹션 top→.shd(시간 헤더) top 거리
-  maxS = feed.scrollHeight - feedH;
-}
-/* 포스터 중앙의 피드 콘텐츠 좌표. fx()가 걸어둔 scale에 오염되지 않게 rect 대신 offsetTop 누적 */
-function posterY(el) {
-  const pw = el.querySelector('.pw');
-  if (!pw) return el.offsetTop + el.offsetHeight / 2;
-  let y = pw.offsetHeight / 2;
-  for (let n = pw; n && n !== feed; n = n.offsetParent) y += n.offsetTop;
-  return y;
-}
-const maxScroll = () => maxS;
-function targetTopOf(i) {
-  const m = secMeta[i];
-  if (!m) return 0;
-  return Math.max(0, Math.min(maxS, m.a - anchorY));
-}
-function cancelSnap() {
-  cancelAnimationFrame(snapRaf);
-  clearTimeout(idleTimer);
-  animatingScroll = false;
-}
-function animateScroll(to, dur = 460) {
-  cancelSnap();
-  const from = feed.scrollTop;
-  // 미세 오차는 그대로 둔다 — 여기서 쓰기를 하면 scrollend가 재발화하며 루프를 만든다
-  if (Math.abs(to - from) < 2) return;
-  animatingScroll = true;
-  const t0 = performance.now();
-  // 경계(맨 위/맨 아래)에서는 오버슈트하면 클램프에 걸려 덜컹거린다 → 순수 감속만
-  const atEdge = to <= 1 || to >= maxScroll() - 1;
-  const s = 1.25;
-  const easeBack = (x) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
-  const easeCubic = (x) => 1 - Math.pow(1 - x, 3);
-  const ease = atEdge ? easeCubic : easeBack;
-  (function step(now) {
-    const k = Math.min(1, (now - t0) / dur);
-    feed.scrollTop = from + (to - from) * ease(k);
-    fx();
-    if (k < 1) snapRaf = requestAnimationFrame(step);
-    else animatingScroll = false;
-  })(t0);
-}
-function snapToNearest() {
-  if (!secMeta.length || animatingScroll || touching) return;
-  const st = feed.scrollTop;
-  // 맨 위/맨 아래 근처에서는 그대로 둔다 (요약을 읽거나 끝을 보는 중)
-  if (st <= 2 || st >= maxS - 2) return;
-  const c = st + anchorY;
-  let best = 0, bd = Infinity;
-  secMeta.forEach((m, i) => {
-    const d = Math.abs(m.a - c);
-    if (d < bd) { bd = d; best = i; }
-  });
-  const target = targetTopOf(best);
-  if (Math.abs(target - st) < 6) return; // 거의 맞아있으면 건드리지 않는다
-  animateScroll(target);
-}
-/* 스냅 시점: 관성 스크롤까지 완전히 끝난 시점(scrollend)에만 — 도중에 끼어들면 튄다 */
-const HAS_SCROLLEND = 'onscrollend' in window;
-feed.addEventListener('touchstart', () => { touching = true; cancelSnap(); }, { passive: true });
-feed.addEventListener('touchend', () => {
-  touching = false;
-  if (!HAS_SCROLLEND) { clearTimeout(idleTimer); idleTimer = setTimeout(snapToNearest, 160); }
-}, { passive: true });
-feed.addEventListener('wheel', () => cancelSnap(), { passive: true });
-feed.addEventListener('scroll', () => {
-  requestAnimationFrame(fx);
-  if (HAS_SCROLLEND || animatingScroll) return;
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!touching) snapToNearest(); }, 160);
-}, { passive: true });
-if (HAS_SCROLLEND) feed.addEventListener('scrollend', () => {
-  if (!touching && !animatingScroll) snapToNearest();
-});
-
-function centerOn(i, smooth = true) {
-  const s = secEls[i];
-  if (!s) return;
-  if (smooth) animateScroll(targetTopOf(i));
-  else { cancelSnap(); feed.scrollTop = targetTopOf(i); }
-}
-function fx() {
-  if (!secMeta.length) return;
-  feed.classList.toggle('attop', feed.scrollTop <= 1); // 맨 위에선 dinfo 페이드 끔(첫 시간 헤더 가림 방지)
-  const c = feed.scrollTop + anchorY;
-  let best = 0, bd = Infinity;
-  secMeta.forEach((m, i) => {
-    const ad = Math.abs((m.a - c) / Math.max(1, m.h));
-    if (ad < bd) { bd = ad; best = i; }
-  });
-  secMeta.forEach((m, i) => {
-    // 포커스 섹션은 절대 흐려지지 않는다: 첫/단일 항목은 스크롤이 앵커까지 못 올라와 ad>0이 되므로 강제 0
-    const ad = i === best ? 0 : Math.abs((m.a - c) / Math.max(1, m.h));
-    const sin = secEls[i].firstElementChild;
-    sin.style.transform = `scale(${(1 - Math.min(0.04, ad * 0.03)).toFixed(3)})`;
-    sin.style.opacity = Math.max(0.4, 1 - ad * 0.4).toFixed(3);
-    secEls[i].classList.toggle('on', i === best);
-  });
-  if (best !== focusIdx) {
-    const first = focusIdx < 0;
-    focusIdx = best;
-    if (!first) tickFx();
-  }
-}
-
-/* ── 펼쳐보기 (해당 시간대만) ── */
-function openOv(i) {
-  const g = curGroups[i];
-  if (!g) return;
-  const dk = state.dateKey;
-  const past = isPastG(dk, g.t);
-  const dl = dk === todayKey() ? '오늘' : fmtDate(dk);
-  $('#ovHd').innerHTML = `<span class="ot${past ? ' done' : ''}">${g.t}</span><span class="od">${dl} · ${g.items.length}건${state.vendor ? ` · ${VN[state.vendor]}` : ''}</span>${statTxt(dk, g.t)}`;
-  $('#ovGrid').innerHTML = g.items.map((it, j) => {
-    const href = it.url ? ` href="${esc(it.url)}" target="_blank" rel="noopener"` : '';
-    return `<a class="gc${past ? ' dim' : ''}"${href} style="animation-delay:${Math.min(j * 35, 280)}ms"><span class="pw"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()">${bellBtn(it)}</span>
-      <div class="t">${esc(it.title)}</div><div class="v">${VN[it.siteId] || it.site} · ${(it.viewCount || 0).toLocaleString()}</div></a>`;
-  }).join('');
-  bindBells($('#ovGrid'));
-  ov.querySelector('.obody').scrollTop = 0;
-  ov.classList.add('open');
-}
-$('#ovX').addEventListener('click', () => ov.classList.remove('open'));
-
-/* ── 1초 틱: 카운트다운/오픈 전환/알람 ── */
-setInterval(() => {
-  let crossed = false;
-  document.querySelectorAll('.cd').forEach((e) => {
-    const txt = cdText(e.dataset.dk, e.dataset.t);
-    if (txt === '오픈' && e.textContent !== '오픈') crossed = true;
-    e.textContent = txt;
-  });
-  checkAlarms();
-  if (crossed) {
-    // 전체 리빌드는 스크롤 위치를 튀게 하므로 지난 상태만 제자리 갱신
-    if (state.view === 'home' && secEls.length) {
-      const dk = state.dateKey;
-      secEls.forEach((s, i) => {
-        const g = curGroups[i];
-        if (g && isPastG(dk, g.t) && !s.classList.contains('past')) {
-          s.classList.add('past');
-          const soon = s.querySelector('.soon');
-          if (soon) soon.outerHTML = '<span class="ended">종료</span>';
-        }
-      });
-    }
-    if (state.view === 'alarm') buildAlarm();
-  }
-}, 1000);
-
-/* ── 캘린더 뷰 ── */
-function buildCal() {
-  const base = state.calMonth;
-  const y = base.getFullYear(), m = base.getMonth();
-  $('#calLabel').textContent = `${y}년 ${m + 1}월`;
-  const map = dayMap(true);
-  const first = new Date(y, m, 1).getDay();
-  const days = new Date(y, m + 1, 0).getDate();
-  // 선택 기본값: 오늘(이 달이면) → 이 달의 첫 일정 날짜
-  if (!state.calSel || !state.calSel.startsWith(`${y}-${pad(m + 1)}`)) {
-    const tk = todayKey();
-    if (tk.startsWith(`${y}-${pad(m + 1)}`) && map.has(tk)) state.calSel = tk;
-    else {
-      state.calSel = null;
-      for (let d = 1; d <= days; d++) {
-        const k = `${y}-${pad(m + 1)}-${pad(d)}`;
-        if (map.has(k)) { state.calSel = k; break; }
-      }
+  let expired = false;
+  for (const item of allItems()) {
+    const key = itemKey(item), alarm = state.alarms[key];
+    if (!alarm || !item.openDateTime) continue;
+    const seconds = (Date.parse(item.openDateTime) - Date.now()) / 1000;
+    if (seconds < -3600) { delete state.alarms[key]; expired = true; continue; }
+    if (pushOk) continue;
+    for (const minutes of [10, 5, 3, 1, 0]) {
+      if (seconds > minutes * 60 || alarm[`f${minutes}`]) continue;
+      alarm[`f${minutes}`] = 1; saveAlarms();
+      if (seconds > minutes * 60 - 60) notify(minutes ? '곧 티켓 오픈!' : '티켓 오픈!', `${item.title} — ${item.openTime} ${minutes ? `(${minutes}분 전)` : '지금 오픈'}`, key);
     }
   }
-  const cells = [];
-  for (let i = 0; i < first; i++) cells.push('<div class="ccell out"></div>');
-  for (let d = 1; d <= days; d++) {
-    const k = `${y}-${pad(m + 1)}-${pad(d)}`;
-    const its = map.get(k) || [];
-    const top = [...its].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))[0];
-    const cls = ['ccell', its.length ? 'has' : '', k === todayKey() ? 'today' : '',
-      k === state.calSel ? 'sel' : '', its.length && k < todayKey() ? 'pastd' : ''].filter(Boolean).join(' ');
-    cells.push(`<div class="${cls}" data-k="${k}">${top ? `<img src="${esc(top.image || '')}" loading="lazy" onerror="this.remove()">` : ''}<span class="dn">${d}</span>${its.length ? `<span class="ct">${its.length}</span>` : ''}</div>`);
-  }
-  $('#calGrid').innerHTML = cells.join('');
-  $('#calGrid').querySelectorAll('.ccell.has').forEach((el) => el.addEventListener('click', () => {
-    if (el.dataset.k === state.calSel) return;
-    tickFx();
-    state.calSel = el.dataset.k;
-    $('#calGrid').querySelectorAll('.ccell.sel').forEach((c) => c.classList.remove('sel'));
-    el.classList.add('sel');
-    buildCalDetail();
-  }));
-  buildCalDetail();
+  if (expired) { saveAlarms(); updateAlarmBadge(); if (state.view === 'alarm') renderAlarms(); }
 }
-function buildCalDetail() {
-  const box = $('#calDetail');
-  const dk = state.calSel;
-  if (!dk) { box.innerHTML = '<div class="cempty">이 달에는 오픈 일정이 없어요</div>'; return; }
-  const gs = groupsOf(dk, true);
-  const total = gs.reduce((s, g) => s + g.items.length, 0);
-  let html = `<div class="cdh"><b>${fmtDate(dk)}</b><span>${total}건</span><span class="gohome" id="calGoHome">홈에서 보기 ›</span></div>`;
-  gs.forEach((g) => {
-    const past = isPastG(dk, g.t);
-    html += `<div class="cgh${past ? ' done' : ''}"><b>${g.t}</b><span>${g.items.length}건${past ? ' · 종료' : ''}</span></div>`;
-    g.items.forEach((it) => {
-      html += `<a class="crow v-${it.siteId}${past ? ' dim' : ''}" ${it.url ? `href="${esc(it.url)}" target="_blank" rel="noopener"` : ''}>
-        <span class="cp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
-        <div class="cmid"><div class="ct1">${esc(it.title)}</div>
-        <div class="ct2"><span class="vn"><i></i>${VN[it.siteId] || it.site}</span><span>조회 ${(it.viewCount || 0).toLocaleString()}</span></div></div>
-        <button class="bellr${hasAlarm(itemKey(it)) ? ' on' : ''}" data-ak="${esc(itemKey(it))}" aria-label="오픈 알림">${BELL_SVG_LG}</button></a>`;
-    });
-  });
-  box.innerHTML = html;
-  bindBells(box);
-  const go = $('#calGoHome');
-  if (go) go.addEventListener('click', () => {
-    state.dateKey = dk;
-    setView('home');
-    buildFeed();
-  });
-}
-$('#calPrev').addEventListener('click', () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() - 1, 1); buildCal(); });
-$('#calNext').addEventListener('click', () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + 1, 1); buildCal(); });
-$('#calToday').addEventListener('click', () => {
-  state.calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  state.calSel = null;
-  buildCal();
-});
 
-/* ── 마이: 새로고침(SSE) / 상태 ── */
-let loading = false;
-function setSt(site, msg, busy) {
-  const el = $(`#st-${site}`);
-  if (el) { el.textContent = msg; el.classList.toggle('busy', !!busy); }
-}
-function refreshMy() {
-  $('#genAt').textContent = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ko-KR') : '-';
-  $('#totCnt').textContent = `${state.items.length}건`;
-}
-function mergeItems(items) {
-  const by = new Map(state.items.map((i) => [itemKey(i), i]));
-  items.forEach((i) => {
-    const prev = by.get(itemKey(i));
-    if (prev && prev.detail && !i.detail) i.detail = prev.detail;
-    by.set(itemKey(i), i);
-  });
-  state.items = [...by.values()];
-}
-function saveItems() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items)); } catch { /* 무시 */ }
-}
-function rerenderAll() {
-  ensureDate();
-  if (state.view === 'home') buildFeed();
-  if (state.view === 'cal') buildCal();
-  if (state.view === 'alarm') buildAlarm();
-  refreshMy();
-  updateAlarmBadge();
-}
-/* 정적 배포(GitHub Pages)에는 수집 서버가 없다 — 버튼 대신 자동 갱신 안내 */
-const IS_STATIC = location.hostname.endsWith('github.io');
-if (IS_STATIC) {
-  $('#rowReload').innerHTML = '<span class="rlab">자동 수집</span><span class="rval">3시간마다 자동 갱신</span>';
-  $('#secStatus').hidden = true;
-}
-if (!IS_STATIC) $('#reloadBtn').addEventListener('click', () => {
-  if (loading) return;
-  loading = true;
-  const btn = $('#reloadBtn');
-  btn.disabled = true; btn.textContent = '수집 중…';
-  VORDER.forEach((v) => setSt(v, '대기 중', true));
-  const done = () => { loading = false; btn.disabled = false; btn.textContent = '새로고침'; };
-  const source = new EventSource('/api/load');
-  source.addEventListener('status', (e) => { const p = JSON.parse(e.data); setSt(p.site, p.message, true); });
-  source.addEventListener('siteDone', (e) => { const p = JSON.parse(e.data); setSt(p.site, `${p.count}건`, false); });
-  source.addEventListener('siteError', (e) => { const p = JSON.parse(e.data); setSt(p.site, `오류: ${p.message}`, false); });
-  source.addEventListener('items', (e) => { const p = JSON.parse(e.data); mergeItems(p.items); saveItems(); rerenderAll(); });
-  source.addEventListener('done', (e) => {
-    const p = JSON.parse(e.data);
-    mergeItems(p.items); saveItems();
-    state.generatedAt = new Date().toISOString();
-    source.close(); done(); rerenderAll();
-  });
-  source.addEventListener('fatal', () => { source.close(); done(); });
-  source.onerror = () => { source.close(); done(); };
-});
-$('#clearBtn').addEventListener('click', async () => {
-  try { localStorage.removeItem(STORAGE_KEY); } catch { /* 무시 */ }
-  state.items = [];
-  await loadStatic();
-  rerenderAll();
-});
-
-/* ── 검색 ── */
-const sov = $('#sov'), sInput = $('#sInput'), sRes = $('#sRes');
-$('#searchBtn').addEventListener('click', () => {
-  sov.classList.add('open');
-  sInput.value = '';
-  sRes.innerHTML = '';
-  // 팝업이 아직 화면 밖일 때 focus()가 .wrap을 강제 스크롤시키는 것 방지
-  sInput.focus({ preventScroll: true });
-  requestAnimationFrame(() => { document.querySelector('.wrap').scrollTop = 0; });
-});
-$('#sovX').addEventListener('click', () => sov.classList.remove('open'));
-sov.addEventListener('click', (e) => { if (e.target === sov) sov.classList.remove('open'); });
-sInput.addEventListener('input', () => {
-  const q = sInput.value.trim().toLowerCase();
-  if (!q) { sRes.innerHTML = ''; return; }
-  const hits = state.items
-    .filter((i) => i.title.toLowerCase().includes(q))
-    .sort((a, b) => (a.openDateTime || '').localeCompare(b.openDateTime || ''))
-    .slice(0, 40);
-  sRes.innerHTML = hits.length ? hits.map((it, idx) => {
-    const dk = dkeyOf(it);
-    const [, m, d] = dk.split('-').map(Number);
-    return `<div class="srow" data-i="${idx}"><span class="sp"><img src="${esc(it.image || '')}" loading="lazy" onerror="this.remove()"></span>
-      <div class="smid"><div class="st1">${esc(it.title)}</div>
-      <div class="st2">${m}.${d} · ${it.openTime || UNSET} · ${VN[it.siteId] || it.site}</div></div></div>`;
-  }).join('') : '<div class="snone">검색 결과가 없어요</div>';
-  sRes.querySelectorAll('.srow').forEach((row) => row.addEventListener('click', () => {
-    const it = hits[+row.dataset.i];
-    sov.classList.remove('open');
-    state.dateKey = dkeyOf(it);
-    state.vendor = null;
-    setView('home');
-    buildFeed();
-    requestAnimationFrame(() => {
-      const gi = curGroups.findIndex((g) => g.t === (it.openTime || UNSET));
-      if (gi >= 0) setTimeout(() => centerOn(gi), 60);
-    });
-  }));
-});
-
-/* ── 뷰 전환 (플로팅 독) ── */
-function setView(v) {
-  state.view = v;
-  ['home', 'cal', 'alarm', 'my'].forEach((k) => {
-    $(`#view-${k}`).hidden = k !== v;
-    $(`#tab-${k}`).classList.toggle('on', k === v);
-  });
-  const homeCtl = v === 'home';
-  daysEl.hidden = !homeCtl;
-  vtabsEl.hidden = !homeCtl;
-  if (v === 'cal') buildCal();
-  if (v === 'alarm') buildAlarm();
-  if (v === 'my') refreshMy();
-  if (v === 'home' && secEls.length) measureSecs(); // 숨어있는 동안 화면 크기가 바뀌었을 수 있다
-}
-/* 독 탭: 관성 스크롤을 멈추는 탭은 click이 삼켜진다 → pointerup으로 직접 처리 */
-function bindTap(el, fn) {
-  let sx = 0, sy = 0, armed = false;
-  el.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; armed = true; });
-  el.addEventListener('pointerup', (e) => {
-    if (armed && Math.hypot(e.clientX - sx, e.clientY - sy) < 12) fn();
-    armed = false;
-  });
-  el.addEventListener('click', (e) => e.preventDefault()); // 중복 발화 방지
-}
-['home', 'cal', 'alarm', 'my'].forEach((k) => bindTap($(`#tab-${k}`), () => {
-  if (state.view !== k) tickFx();
-  else if (k === 'home') centerOn(focusIdx >= 0 ? focusIdx : 0); // 홈 재탭 = 현재 위치 재정렬
-  setView(k);
-}));
-
-/* ── 초기화 ── */
-function ensureDate() {
-  const map = dayMap(true); // 예매처와 무관하게 날짜 유효성 판단 — 탭 전환 시 선택 날짜 유지(없으면 빈 상태로)
-  const keys = [...new Set([...map.keys(), todayKey()])].sort();
-  if (!state.dateKey || !keys.includes(state.dateKey)) state.dateKey = null;
-  if (!state.dateKey) {
-    const tk = todayKey();
-    state.dateKey = keys.includes(tk) ? tk : (keys.find((k) => k >= tk) || keys[keys.length - 1]);
+function applySports(next) {
+  if (!next) return;
+  const previous = state.sports;
+  state.sports = { ...next, items: [...(next.items || [])], teamStatus: { ...next.teamStatus } };
+  for (const team of Model.TEAMS) {
+    if (next.teamStatus?.[team.id]?.ok !== false) continue;
+    const keys = new Set(state.sports.items.map(item => item.id));
+    state.sports.items.push(...(previous.items || []).filter(item => item.teamId === team.id && !keys.has(item.id)));
   }
 }
+function saveData() { write(STORAGE_KEY, state.items); write(DATA_KEY, { items: state.items, sports: state.sports, siteStatus: state.siteStatus, generatedAt: state.generatedAt }); saveAlarms(); }
 async function loadStatic() {
   try {
-    const res = await fetch('data.json', { cache: 'no-store' });
-    if (!res.ok) return;
-    const payload = await res.json();
-    const items = Array.isArray(payload) ? payload : payload.items;
-    if (Array.isArray(items) && items.length) {
-      mergeItems(items);
-      if (payload.generatedAt) state.generatedAt = payload.generatedAt;
+    const response = await fetch(`data.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const items = Array.isArray(data) ? data : data.items;
+    if (Array.isArray(items) && (!state.generatedAt || !data.generatedAt || Date.parse(data.generatedAt) >= Date.parse(state.generatedAt))) {
+      state.items = items; state.generatedAt = data.generatedAt || null;
+      state.siteStatus = data.siteStatus || {};
     }
-  } catch { /* 정적 데이터 없어도 동작 */ }
+    if (data.sports && (!state.sports.generatedAt || Date.parse(data.sports.generatedAt) >= Date.parse(state.sports.generatedAt))) applySports(data.sports);
+    saveData(); return true;
+  } catch { return false; }
 }
-// 단말 알림창(showNotification)에 쓸 서비스워커 — 캐싱 없음, 알림 클릭 처리만
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* 무시 */ });
+function showLoad(message, error = false) { $('#loadStatus').hidden = false; $('#loadStatus').textContent = message; $('#loadStatus').classList.toggle('error', error); }
+$('#reloadBtn').addEventListener('click', async () => {
+  if (state.loading) return;
+  state.loading = true; $('#reloadBtn').disabled = true; $('#reloadBtn span').textContent = '불러오는 중';
+  const finish = () => { state.loading = false; $('#reloadBtn').disabled = false; $('#reloadBtn span').textContent = '새로고침'; render(); syncPush(); };
+  if (IS_STATIC) {
+    const ok = await loadStatic();
+    showLoad(ok ? '배포된 최신 자료를 확인했습니다. 자동 수집: 매일 09·12·15·18·21시 17분.' : '자료를 불러오지 못했습니다. 저장된 자료를 표시합니다.', !ok);
+    finish(); return;
+  }
+  if (state.view === 'sports') {
+    showLoad('5개 구단의 경기와 티켓 오픈을 확인하는 중입니다.');
+    try {
+      const response = await fetch('/api/sports', { signal: AbortSignal.timeout(210000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      applySports(await response.json()); saveData();
+      const failures = Object.values(state.sports.teamStatus).filter(status => !status.ok).length;
+      showLoad(failures ? `${failures}개 구단 조회 실패. 이전 자료를 유지합니다.` : `5개 구단 · ${state.sports.items.length}경기 확인했습니다.`, !!failures);
+    } catch { showLoad('스포츠 조회에 실패했습니다. 저장된 자료를 유지합니다.', true); }
+    finish(); return;
+  }
+  showLoad('예매처의 최신 오픈 일정을 수집하는 중입니다.');
+  const source = new EventSource('/api/load');
+  const collected = new Map(), successful = new Set(), errors = [];
+  const finishStream = () => { source.close(); clearTimeout(timer); finish(); };
+  const timer = setTimeout(() => { showLoad('수집 시간이 초과되었습니다. 기존 자료를 유지합니다.', true); finishStream(); }, 240000);
+  source.addEventListener('status', event => { const payload = JSON.parse(event.data); state.statuses[payload.site] = payload.message; showLoad(Object.entries(state.statuses).filter(([key]) => key !== 'system').map(([key, value]) => `${VN[key] || '스포츠'}: ${value}`).join(' · ') || payload.message); });
+  source.addEventListener('items', event => { for (const item of JSON.parse(event.data).items) collected.set(itemKey(item), item); });
+  source.addEventListener('siteDone', event => successful.add(JSON.parse(event.data).site));
+  source.addEventListener('siteError', event => { const payload = JSON.parse(event.data); errors.push(VN[payload.site] || payload.site); });
+  source.addEventListener('sports', event => { applySports(JSON.parse(event.data)); saveData(); });
+  source.addEventListener('done', event => {
+    const payload = JSON.parse(event.data);
+    for (const item of payload.items || []) collected.set(itemKey(item), item);
+    state.items = [...state.items.filter(item => !successful.has(item.siteId)), ...collected.values()];
+    state.generatedAt = payload.loadedAt; state.siteStatus = payload.siteStatus || {};
+    applySports(payload.sports); saveData();
+    showLoad(errors.length ? `${errors.join(', ')} 조회 실패. 해당 예매처의 이전 자료를 유지합니다.` : `${state.items.length}개 오픈 일정을 확인했습니다.`, !!errors.length);
+    finishStream();
+  });
+  source.addEventListener('fatal', () => { showLoad('수집을 완료하지 못했습니다. 기존 자료를 유지합니다.', true); finishStream(); });
+  source.onerror = () => { showLoad('수집 연결이 끊겼거나 다른 수집이 진행 중입니다. 기존 자료를 유지합니다.', true); finishStream(); };
+});
+
+function renderSettings() {
+  const permissions = !('Notification' in window) ? '브라우저 미지원' : ({ granted: '허용됨', denied: '차단됨', default: '아직 허용하지 않음' })[Notification.permission];
+  const rows = [['공연 일정 수집', stamp(state.generatedAt)], ['공연 일정', `${state.items.length}건`], ['스포츠 수집', stamp(state.sports.generatedAt)], ['알림 권한', permissions], ['백그라운드 푸시', pushOk ? '연결됨' : '연결 안 됨']];
+  $('#settingsBody').innerHTML = rows.map(([label, value]) => `<div class="settings-row"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('') + Model.TEAMS.map(team => {
+    const status = state.sports.teamStatus?.[team.id];
+    return `<div class="settings-row"><span>${team.name}</span><strong>${status ? status.ok ? `${status.count}경기 · ${stamp(status.checkedAt)}` : '조회 실패 · 이전 자료 유지' : '수집 전'}</strong></div>`;
+  }).join('') + `<p class="settings-note">${IS_STATIC ? '자동 수집: 매일 09:17·12:17·15:17·18:17·21:17 (한국 시각). 새로고침은 배포된 자료를 다시 불러옵니다.' : '새로고침으로 예매처에서 일정을 직접 수집합니다.'}<br>푸시 서버 연결 전에는 화면을 열어 두어야 알림이 동작합니다.</p><div class="settings-row"><span>저장된 일정 다시 받기</span><button id="clearBtn" class="button">캐시 초기화</button></div>`;
+}
+$('#settingsBtn').addEventListener('click', () => { renderSettings(); $('#settingsDialog').showModal(); });
+$('#settingsDialog').addEventListener('click', event => { if (event.target === $('#settingsDialog')) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
 (async function init() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    if (Array.isArray(saved)) mergeItems(saved);
-  } catch { /* 무시 */ }
-  await loadStatic();
-  state.calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  ensureDate();
-  setView('home');
-  buildFeed();
-  refreshMy();
-  updateAlarmBadge();
-  // 데이터 갱신으로 오픈 일시가 바뀌었을 수 있으니 접속 때마다 서버 알람 목록을 최신으로
+  const saved = read(DATA_KEY, null), legacy = read(STORAGE_KEY, []);
+  if (saved && Array.isArray(saved.items)) { state.items = saved.items; state.generatedAt = saved.generatedAt; state.siteStatus = saved.siteStatus || {}; if (saved.sports) state.sports = saved.sports; }
+  else if (Array.isArray(legacy)) state.items = legacy;
+  saveAlarms();
+  await loadStatic(); render();
   if (Object.keys(state.alarms).length) syncPush();
 })();
+let lastStatusSignature = '';
+setInterval(() => {
+  document.querySelectorAll('[data-countdown]').forEach(element => { element.textContent = countdown(element.dataset.countdown); });
+  checkAlarms();
+  const signature = allItems().map(item => Model.status(item).id).join('|');
+  if (lastStatusSignature && signature !== lastStatusSignature) {
+    if (state.view !== 'alarm') { renderCalendar(); renderSources(); }
+    renderResults();
+  }
+  lastStatusSignature = signature;
+}, 1000);

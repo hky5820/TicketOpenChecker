@@ -114,3 +114,9 @@ Mobile Chrome emulation uses touch, DPR 2.625 and 344/360/384 CSS pixel widths w
 - Replaced the detached ticket stub and information bars with a large white notification bell inside a compact cobalt ticket. Side notches identify the ticket; the bell communicates the app's opening-alert purpose. White background and a subtle periwinkle folded corner retain the established palette. All references use `20260929-alert-icon`.
 - All six PNGs pass dimensions, alpha/opacity, manifest and HTTP checks. The Android icon's colored artwork fits within 37.47% of image width from the center, inside the 40% circular safe zone.
 - Inspected light/dark previews at 16/28/32/48/64px and concert/sports pages at 344px. The bell remains visible at small sizes; no layout change or overflow. Existing evidence paths now contain this revision. Physical launcher behavior remains untested; public assets and mobile rendering are verified after deployment.
+
+## Explicit OPEN ticket wordmark — 2026-09-29
+
+- Simplified the mark to a cobalt ticket silhouette containing the large white word OPEN. This states the ticket-opening meaning directly, without an additional bell/clock metaphor. The six platform assets, header and notification references use `20260929-open-wordmark`.
+- Verified spelling and lettering visually at launcher sizes and in the 28px mobile header; inspected 16–64px previews on light and dark backgrounds. Six PNG dimensions, opacity/corner transparency, manifest parsing and local HTTP responses pass. Android colored artwork reaches 38.00% of image width from the center, inside the 40% circular safe zone.
+- Concert/sports pages at 344px preserve layout and have no horizontal overflow. Existing evidence paths now show the wordmark. Physical launcher behavior remains untested; public assets and mobile rendering are checked after deployment.

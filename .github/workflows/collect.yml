@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   collect-and-deploy:
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04 is unsupported by the locked Playwright 1.60.0 version.
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
